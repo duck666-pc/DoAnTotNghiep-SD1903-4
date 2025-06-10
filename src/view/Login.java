@@ -21,6 +21,7 @@ public class Login extends javax.swing.JFrame {
     public Login() {
         initComponents();
         defaultEchoChar = txtMatKhau.getEchoChar(); 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     /**
@@ -140,7 +141,7 @@ public class Login extends javax.swing.JFrame {
                 if (n.getId().equals(id) && n.getMatKhau().equals(matKhau)) {
                     TrangChu tc = new TrangChu(n);
                     tc.setVisible(true);
-                    this.dispose(); // đóng cửa sổ đăng nhập
+                    this.dispose(); 
                     dangNhapThanhCong = true;
                     break;
                 }
