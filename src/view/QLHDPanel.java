@@ -28,7 +28,6 @@ public class QLHDPanel extends javax.swing.JPanel {
             initComponents();
             loadSanPham();
             loadHoaDon();
-            initCustomComponents();
         } catch (SQLException ex) {
             Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(this, "Lỗi khởi tạo: " + ex.getMessage());
@@ -36,77 +35,62 @@ public class QLHDPanel extends javax.swing.JPanel {
     }
 
     private void initCustomComponents() {
-        txtKhachHang.setText("KH00001"); 
-        txtNhanVien.setText("NV00001");   
+        // Đảm bảo các biến này đã được tạo trên form
+        txtKhachHang.setText("KH00001");
+        txtNhanVien.setText("NV00001");
         txtGiamGia.setText("0");
     }
 
     private void loadSanPham() throws SQLException, ClassNotFoundException {
-        DefaultTableModel model = (DefaultTableModel) tblSanPham.getModel();
-        model.setRowCount(0);
-        
-        List<SanPham> dsSanPham = qlhdDAO.getAllSanPham();
-        for (SanPham sp : dsSanPham) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(new String[]{"Mã", "Tên", "Giá"});
+        for (SanPham sp : qlhdDAO.getAllSanPham()) {
             model.addRow(new Object[]{
-                sp.getId(),
-                sp.getTen(),
-                sp.getGia()
+                sp.getId(), sp.getTen(), sp.getGia()
             });
         }
+        tblSanPham.setModel(model);
     }
 
     private void loadHoaDon() throws SQLException, ClassNotFoundException {
-        DefaultTableModel model = (DefaultTableModel) tblHoaDon.getModel();
-        model.setRowCount(0);
-        
-        List<HoaDon> dsHoaDon = qlhdDAO.getAllHoaDon();
-        for (HoaDon hd : dsHoaDon) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(new String[]{"Mã", "Thời gian", "Khách hàng", "Tổng tiền"});
+        for (HoaDon hd : qlhdDAO.getAllHoaDon()) {
             model.addRow(new Object[]{
-                hd.getId(),
-                hd.getThoiGian(),
-                hd.getIdKhachHang(),
-                hd.getTongTienGoc(),
-                hd.getMucGiamGia(),
-                hd.getTongTienSauGiamGia()
+                hd.getId(), hd.getThoiGian(), hd.getIdKhachHang(), hd.getTongTienGoc()
             });
         }
+        tblHoaDon.setModel(model);
     }
 
     private void loadChiTietHoaDon(String idHoaDon) throws SQLException, ClassNotFoundException {
-        DefaultTableModel model = (DefaultTableModel) tblCTHD.getModel();
-        model.setRowCount(0);
-        
-        List<String[]> dsCTHD = qlhdDAO.getChiTietHoaDon(idHoaDon);
-        for (String[] ct : dsCTHD) {
-            double thanhTien = Integer.parseInt(ct[1]) * Double.parseDouble(ct[3]);
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(new String[]{"Mã CTHD", "Mã HD", "Mã SP", "Tên SP", "Số lượng", "Đơn giá"});
+        for (String[] obj : qlhdDAO.getChiTietHoaDon(idHoaDon)) {
             model.addRow(new Object[]{
-                ct[0], 
-                ct[2], 
-                ct[3], 
-                ct[1], 
-                thanhTien
+                obj[0], obj[1], obj[2], obj[3], obj[6], obj[7]
             });
         }
-        calculateTongTien();
+        tblHoaDonChiTiet.setModel(model);
     }
 
     private void calculateTongTien() {
-        DefaultTableModel model = (DefaultTableModel) tblCTHD.getModel();
+        DefaultTableModel model = (DefaultTableModel) tblHoaDonChiTiet.getModel();
         double tongTien = 0;
-        
+
         for (int i = 0; i < model.getRowCount(); i++) {
             tongTien += (double) model.getValueAt(i, 4);
         }
-        
+
         double giamGia = 0;
         try {
             giamGia = Double.parseDouble(txtGiamGia.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Giá trị giảm giá không hợp lệ");
         }
-        
+
         double tongSauGiam = tongTien * (1 - giamGia / 100);
-        
+
         lblTongTien.setText(String.format("%,.0f VND", tongTien));
         lblTongSauGiam.setText(String.format("%,.0f VND", tongSauGiam));
     }
@@ -222,141 +206,103 @@ public class QLHDPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jScrollPane3)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(btnXoaSPKhoiHD, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(btnThemSPVaoHD, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnTaoHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnXoaHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(389, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnTaoHoaDon, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+                            .addComponent(btnXoaHoaDon, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+                            .addComponent(btnThemSPVaoHD, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnXoaSPKhoiHD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(80, 80, 80)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnTaoHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
-                        .addComponent(btnXoaHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
+                        .addComponent(btnTaoHoaDon)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnXoaHoaDon)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnXoaSPKhoiHD)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnThemSPVaoHD)))
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnXoaSPKhoiHD, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 216, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                    .addComponent(btnThemSPVaoHD, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tblHoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHoaDonMouseClicked
-        int row = tblHoaDon.getSelectedRow();
-        if (row >= 0) {
-            selectedHDId = (String) tblHoaDon.getValueAt(row, 0);
-            try {
-                loadChiTietHoaDon(selectedHDId);
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi tải chi tiết: " + ex.getMessage());
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }//GEN-LAST:event_tblHoaDonMouseClicked
 
     private void btnTaoHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTaoHDActionPerformed
         try {
             HoaDon hd = new HoaDon();
-            hd.setThoiGian(new Timestamp(System.currentTimeMillis()));
-            hd.setIdKhachHang(txtKhachHang.getText());
-            hd.setIdNguoiDung(txtNhanVien.getText());
+            hd.setThoiGian(new java.sql.Timestamp(System.currentTimeMillis()));
+            hd.setIdKhachHang("Khach Vang Lai");
+            hd.setIdNguoiDung(""); // Nếu không có trường nhân viên
             hd.setTongTienGoc(0);
             hd.setMucGiamGia(0);
             hd.setTongTienSauGiamGia(0);
-            
             if (qlhdDAO.ThemHoaDon(hd)) {
                 JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công");
                 loadHoaDon();
             } else {
                 JOptionPane.showMessageDialog(this, "Tạo hóa đơn thất bại");
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        } catch (ClassNotFoundException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Lỗi tạo hóa đơn: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnTaoHDActionPerformed
-
-    private void tblSanPhamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSanPhamMouseClicked
-        int row = tblSanPham.getSelectedRow();
-        if (row >= 0) {
-            selectedSPId = (String) tblSanPham.getValueAt(row, 0);
-        }
-    }//GEN-LAST:event_tblSanPhamMouseClicked
 
     private void btnThemSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemSPActionPerformed
         if (selectedHDId == null || selectedHDId.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn");
             return;
         }
-        
         if (selectedSPId == null || selectedSPId.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm");
             return;
         }
-        
         try {
             List<ChiTietHoaDon> dsCTHD = qlhdDAO.getAllChiTietHoaDon(selectedHDId);
             boolean exists = false;
             String existingCTHDId = null;
-            
+            int soLuongMoi = 1;
             for (ChiTietHoaDon ct : dsCTHD) {
                 if (ct.getIdSanPham().equals(selectedSPId)) {
                     exists = true;
                     existingCTHDId = ct.getId();
+                    soLuongMoi = ct.getSoLuong() + 1;
                     break;
                 }
             }
-            
             if (exists) {
-                int newQuantity = 0;
-                for (ChiTietHoaDon ct : dsCTHD) {
-                    if (ct.getIdSanPham().equals(selectedSPId)) {
-                        newQuantity = ct.getSoLuong() + 1;
-                        break;
-                    }
-                }
-                
-                if (qlhdDAO.UpdateChiTietHD(newQuantity, existingCTHDId)) {
+                if (qlhdDAO.UpdateChiTietHD(soLuongMoi, existingCTHDId)) {
                     JOptionPane.showMessageDialog(this, "Đã cập nhật số lượng sản phẩm");
-                    loadChiTietHoaDon(selectedHDId);
-                    updateHoaDonTotal();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại");
                 }
             } else {
                 ChiTietHoaDon cthd = new ChiTietHoaDon();
                 cthd.setIdHoaDon(selectedHDId);
                 cthd.setIdSanPham(selectedSPId);
                 cthd.setSoLuong(1);
-                
                 double price = 0;
                 for (SanPham sp : qlhdDAO.getAllSanPham()) {
                     if (sp.getId().equals(selectedSPId)) {
@@ -365,17 +311,17 @@ public class QLHDPanel extends javax.swing.JPanel {
                     }
                 }
                 cthd.setDonGia(price);
-                
                 if (qlhdDAO.ThemChiTietHD(cthd)) {
                     JOptionPane.showMessageDialog(this, "Đã thêm sản phẩm vào hóa đơn");
-                    loadChiTietHoaDon(selectedHDId);
-                    updateHoaDonTotal();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Thêm thất bại");
                 }
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        } catch (ClassNotFoundException ex) {
+            loadChiTietHoaDon(selectedHDId);
+            updateHoaDonTotal();
+        } catch (Exception ex) {
             Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Lỗi thêm sản phẩm: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnThemSPActionPerformed
 
@@ -401,7 +347,7 @@ public class QLHDPanel extends javax.swing.JPanel {
                     JOptionPane.showMessageDialog(this, "Đã xóa hóa đơn");
                     selectedHDId = null;
                     loadHoaDon();
-                    tblCTHD.setModel(new DefaultTableModel());
+                    tblHoaDonChiTiet.setModel(new DefaultTableModel());
                     calculateTongTien();
                 } else {
                     JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại");
@@ -429,13 +375,13 @@ public class QLHDPanel extends javax.swing.JPanel {
             return;
         }
         
-        int row = tblCTHD.getSelectedRow();
+        int row = tblHoaDonChiTiet.getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn chi tiết hóa đơn");
             return;
         }
         
-        String cthdId = (String) tblCTHD.getValueAt(row, 0);
+        String cthdId = (String) tblHoaDonChiTiet.getValueAt(row, 0);
         int confirm = JOptionPane.showConfirmDialog(
             this, 
             "Bạn có chắc chắn muốn xóa sản phẩm này?", 
@@ -459,6 +405,30 @@ public class QLHDPanel extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_btnXoaCTHDActionPerformed
+
+    private void tblHoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHoaDonMouseClicked
+        int row = tblHoaDon.getSelectedRow();
+        if (row >= 0) {
+            selectedHDId = tblHoaDon.getValueAt(row, 0).toString();
+            try {
+                loadChiTietHoaDon(selectedHDId);
+            } catch (Exception ex) {
+                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(this, "Không thể load chi tiết hóa đơn");
+            }
+        }
+    }//GEN-LAST:event_tblHoaDonMouseClicked
+
+    private void tblChiTietSanPhamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblChiTietSanPhamMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblChiTietSanPhamMouseClicked
+
+    private void tblSanPhamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSanPhamMouseClicked
+        int row = tblSanPham.getSelectedRow();
+        if (row >= 0) {
+            selectedSPId = tblSanPham.getValueAt(row, 0).toString();
+        }
+    }//GEN-LAST:event_tblSanPhamMouseClicked
 
     private void updateHoaDonTotal() throws ClassNotFoundException {
         if (selectedHDId == null) return;
