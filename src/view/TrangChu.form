@@ -30,7 +30,7 @@
                       <Component id="jbtQLNV" max="32767" attributes="0"/>
                       <Component id="jbtQLSP" alignment="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jbtThoat" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jbQLHD" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel" max="32767" attributes="0"/>
@@ -49,7 +49,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jbtQLSP" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jbtThoat" min="-2" max="-2" attributes="0"/>
+                      <Component id="jbQLHD" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -96,12 +96,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtQLSPActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="jbtThoat">
+    <Component class="javax.swing.JButton" name="jbQLHD">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Tho&#xe1;t"/>
+        <Property name="text" type="java.lang.String" value="Qu&#x1ea3;n l&#xfd; h&#xf3;a &#x111;&#x1a1;n"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtThoatActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbQLHDActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

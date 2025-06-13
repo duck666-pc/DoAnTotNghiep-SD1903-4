@@ -11,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
 import model.SanPham;
 
 public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
+
     DefaultTableModel tableModel;
     QLSPDAO qlsp = new QLSPDAO();
     int currentRow = -1;
@@ -40,7 +41,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
         }
     }
-    
+
     private void setupTableSelection() {
         jTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -55,7 +56,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             }
         });
     }
-    
+
     private SanPham getSelectedSanPham() {
         if (currentRow >= 0) {
             String id = tableModel.getValueAt(currentRow, 0).toString();
@@ -72,7 +73,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         return null;
     }
-    
+
     private void fillForm(SanPham sp) {
         txtID.setText(sp.getId());
         txtTen.setText(sp.getTen());
@@ -101,7 +102,16 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         return true;
     }
 
-    @SuppressWarnings("unchecked")
+    private void clearForm() {
+        txtID.setText("");
+        txtTen.setText("");
+        txtMoTa.setText("");
+        txtGia.setText("");
+        txtLoaiSanPham.setText("");
+        currentRow = -1;
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
@@ -122,9 +132,6 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtTimKiem = new javax.swing.JTextField();
         jbtTimKiem = new javax.swing.JButton();
 
-        // Xóa dòng setDefaultCloseOperation (chỉ dành cho JFrame)
-        // Xóa các lệnh quản lý cửa sổ
-
         jLabel1.setText("ID:");
 
         jLabel2.setText("Tên:");
@@ -135,15 +142,35 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
 
         jLabel6.setText("Mô tả:");
 
-        txtTen.addActionListener(this::txtTenActionPerformed);
+        txtTen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTenActionPerformed(evt);
+            }
+        });
 
-        txtID.addActionListener(this::txtIDActionPerformed);
+        txtID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtIDActionPerformed(evt);
+            }
+        });
 
-        txtMoTa.addActionListener(this::txtMoTaActionPerformed);
+        txtMoTa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtMoTaActionPerformed(evt);
+            }
+        });
 
-        txtGia.addActionListener(this::txtGiaActionPerformed);
+        txtGia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGiaActionPerformed(evt);
+            }
+        });
 
-        txtLoaiSanPham.addActionListener(this::txtLoaiSanPhamActionPerformed);
+        txtLoaiSanPham.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLoaiSanPhamActionPerformed(evt);
+            }
+        });
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -159,21 +186,41 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jScrollPane1.setViewportView(jTable);
 
         jbtThem.setText("Thêm");
-        jbtThem.addActionListener(this::jbtThemActionPerformed);
+        jbtThem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtThemActionPerformed(evt);
+            }
+        });
 
         jbtSua.setText("Sửa");
-        jbtSua.addActionListener(this::jbtSuaActionPerformed);
+        jbtSua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtSuaActionPerformed(evt);
+            }
+        });
 
         jbtXoa.setText("Xóa");
-        jbtXoa.addActionListener(this::jbtXoaActionPerformed);
+        jbtXoa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtXoaActionPerformed(evt);
+            }
+        });
 
-        txtTimKiem.addActionListener(this::txtTimKiemActionPerformed);
+        txtTimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTimKiemActionPerformed(evt);
+            }
+        });
 
         jbtTimKiem.setText("Tìm kiếm bằng ID");
-        jbtTimKiem.addActionListener(this::jbtTimKiemActionPerformed);
+        jbtTimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtTimKiemActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this); // Sửa thành this (JPanel)
-        this.setLayout(layout); // Thiết lập layout cho chính panel
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
@@ -242,7 +289,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-    }
+    }// </editor-fold>//GEN-END:initComponents
 
     private void txtIDActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
@@ -265,11 +312,33 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
-        // Logic thêm sản phẩm (giữ nguyên)
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            SanPham sp = new SanPham(
+                    txtID.getText(),
+                    txtTen.getText(),
+                    txtMoTa.getText(),
+                    Float.parseFloat(txtGia.getText()),
+                    txtLoaiSanPham.getText()
+            );
+
+            int result = qlsp.addSP(sp);
+            if (result == 1) {
+                fillTable();
+                JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm nhân viên thất bại!");
+            }
+        } catch (SQLException | ClassNotFoundException | NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        // Logic xóa sản phẩm (giữ nguyên)
+
     }
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -277,16 +346,65 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
-        // Logic tìm kiếm (giữ nguyên)
+        String id = txtTimKiem.getText().trim();
+        if (!id.isEmpty()) {
+            tableModel.setRowCount(0);
+            try {
+                List<SanPham> listSP = qlsp.getAll();
+                for (SanPham sp : listSP) {
+                    if (sp.getId().equalsIgnoreCase(id)) {
+                        tableModel.addRow(qlsp.getRow(sp));
+                        for (int i = 0; i < tableModel.getRowCount(); i++) {
+                            if (tableModel.getValueAt(i, 0).toString().equalsIgnoreCase(id)) {
+                                jTable.setRowSelectionInterval(i, i);
+                                jTable.scrollRectToVisible(jTable.getCellRect(i, 0, true));
+                                break;
+                            }
+                        }
+                        break; 
+                    }
+                }
+            } catch (SQLException | ClassNotFoundException ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+            }
+        } else {
+            fillTable();
+        }
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        // Logic sửa sản phẩm (giữ nguyên)
+        if (currentRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần sửa!");
+            return;
+        }
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            SanPham sp = new SanPham(
+                    txtID.getText(),
+                    txtTen.getText(),
+                    txtMoTa.getText(),
+                    Float.parseFloat(txtGia.getText()),
+                    txtLoaiSanPham.getText()
+            );
+
+            String oldId = tableModel.getValueAt(currentRow, 0).toString();
+
+            int result = qlsp.editSP(sp, oldId);
+            if (result == 1) {
+                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                fillTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+            }
+        } catch (SQLException | ClassNotFoundException | NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
     }
 
-    // Xóa toàn bộ phần main() vì không cần thiết cho JPanel
-
-    // Giữ nguyên khai báo biến thành phần
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -304,4 +422,5 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private javax.swing.JTextField txtMoTa;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;
+    // End of variables declaration//GEN-END:variables
 }
