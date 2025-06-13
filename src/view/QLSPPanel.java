@@ -30,12 +30,30 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jTable.setModel(tableModel);
     }
 
-    public void fillTable() {
+    private void fillTable() {
         tableModel.setRowCount(0);
         try {
             List<SanPham> listSP = qlsp.getAll();
             for (SanPham sp : listSP) {
-                tableModel.addRow(qlsp.getRow(sp));
+                Object gia = sp.getGia();
+                if (gia == null) {
+                    gia = 0.0f;
+                }
+                if (!(gia instanceof Number)) {
+                    try {
+                        gia = Float.valueOf(gia.toString());
+                    } catch (Exception e) {
+                        gia = 0.0f;
+                    }
+                }
+                Object[] row = new Object[]{
+                    sp.getId(),
+                    sp.getTen(),
+                    sp.getMoTa(),
+                    gia,
+                    sp.getLoaiSanPham()
+                };
+                tableModel.addRow(row);
             }
         } catch (SQLException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
@@ -110,7 +128,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtLoaiSanPham.setText("");
         currentRow = -1;
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -361,7 +379,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                                 break;
                             }
                         }
-                        break; 
+                        break;
                     }
                 }
             } catch (SQLException | ClassNotFoundException ex) {
