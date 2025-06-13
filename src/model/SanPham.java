@@ -1,11 +1,12 @@
 package model;
 
 public class SanPham {
-    private String id;           
+
+    private String id;
     private String ten;
     private String moTa;
     private float gia;
-    private String loaiSanPham;    
+    private String loaiSanPham;
 
     public SanPham() {
     }
@@ -14,7 +15,7 @@ public class SanPham {
         this.id = id;
         this.ten = ten;
         this.moTa = moTa;
-        this.gia= gia;
+        this.gia = gia;
         this.loaiSanPham = loaiSanPham;
     }
 
@@ -48,30 +49,27 @@ public class SanPham {
 
     public void setGia(float gia) {
         this.gia = gia;
-    }    
-    
+    }
+
     public String getLoaiSanPham() {
         return loaiSanPham;
     }
-    
-    public void setLoaiSanPham(String loaiSanPham) {
-        this.loaiSanPham = loaiSanPham;
+
+    public void setIdLoaiSanPham(String idLoaiSanPham) {
+        this.loaiSanPham = idLoaiSanPham;
     }
 
     @Override
     public String toString() {
-        return "NhanVien{" +
-                "id=" + id +
-                ", ten='" + ten + '\'' +
-                ", moTa=" + moTa +
-                ", gia=" + gia +
-                ", loaiSanPham='" + loaiSanPham + '\'' +
-                '}';
+        return "NhanVien{"
+                + "id=" + id
+                + ", ten='" + ten + '\''
+                + ", moTa=" + moTa
+                + ", gia=" + gia
+                + ", loaiSanPham='" + loaiSanPham + '\''
+                + '}';
     }
 
-    public void setIdLoaiSanPham(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     public Object getIdLoaiSanPham() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody

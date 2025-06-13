@@ -37,7 +37,7 @@ public class QLSPDAO {
             sp.setTen(rs.getString("TEN"));
             sp.setMoTa(rs.getString("MOTA"));
             sp.setGia(rs.getFloat("GIA"));
-            sp.setLoaiSanPham(rs.getString("IDLOAISANPHAM"));
+            sp.setIdLoaiSanPham(rs.getString("IDLOAISANPHAM"));
             lstSP.add(sp);
         }
         return lstSP;
