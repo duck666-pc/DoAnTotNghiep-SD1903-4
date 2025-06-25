@@ -37,14 +37,14 @@ public class QLSPDAO {
             sp.setTen(rs.getString("TEN"));
             sp.setMoTa(rs.getString("MOTA"));
             sp.setGia(rs.getFloat("GIA"));
-            sp.setIdLoaiSanPham(rs.getString("IDLOAISANPHAM"));
+            sp.setIdLoaiSanPham(rs.getString("LOAISANPHAMID"));
             lstSP.add(sp);
         }
         return lstSP;
     }
 
     public int addSP(SanPham sp) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO SANPHAM (ID, TEN, MOTA, GIA, IDLOAISANPHAM) VALUES (?, ?, ?, ?, ?)"; 
+        String sql = "INSERT INTO SANPHAM (ID, TEN, MOTA, GIA, LOAISANPHAMID) VALUES (?, ?, ?, ?, ?)"; 
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, sp.getId());
             pstm.setString(2, sp.getTen());
@@ -65,7 +65,7 @@ public class QLSPDAO {
                 + "TEN = ?, "
                 + "MOTA = ?, "
                 + "GIA = ?, "
-                + "IDLOAISANPHAM = ? "
+                + "LOAISANPHAMID = ? "
                 + "WHERE ID = ?"; 
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, sp.getId());
