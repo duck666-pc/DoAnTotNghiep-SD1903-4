@@ -125,18 +125,7 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtQLNVActionPerformed
 
     private void jbQLHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbQLHDActionPerformed
-        try {
-            QLHDPanel p3 = new QLHDPanel();
-            p3.setSize(820, 474);
-            p3.setLocation(0, 0);
-            
-            jPanel.removeAll();
-            jPanel.add(p3, BorderLayout.CENTER);
-            jPanel.repaint();
-            jPanel.revalidate();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(TrangChu.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }//GEN-LAST:event_jbQLHDActionPerformed
 
     public static void main(String args[]) {

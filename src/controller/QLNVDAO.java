@@ -40,6 +40,7 @@ public class QLNVDAO {
             nv.setNgaySinh(Date.valueOf(rs.getString(4)));
             nv.setGioiTinh(rs.getString(5));
             nv.setEmail(rs.getString(6));
+            nv.setChucVu(rs.getString(7));
             lstNV.add(nv);
         }
         return lstNV;
@@ -54,6 +55,7 @@ public class QLNVDAO {
             pstm.setDate(4, new java.sql.Date(nv.getNgaySinh().getTime()));
             pstm.setString(5, nv.getGioiTinh());
             pstm.setString(6, nv.getEmail());
+            pstm.setString(7, nv.getChucVu());
 
             if (pstm.executeUpdate() > 0) {
                 return 1;
@@ -70,6 +72,7 @@ public class QLNVDAO {
                 + "NGAYSINH = ?, "
                 + "GIOITINH = ?, "
                 + "EMAIL = ? "
+                + "CHUCVU = ? "                
                 + "WHERE ID = ?";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, nv.getId());
@@ -78,7 +81,8 @@ public class QLNVDAO {
             pstm.setDate(4, new java.sql.Date(nv.getNgaySinh().getTime()));
             pstm.setString(5, nv.getGioiTinh());
             pstm.setString(6, nv.getEmail());
-            pstm.setString(7, oldId);
+            pstm.setString(7, nv.getChucVu());
+            pstm.setString(8, oldId);
 
             if (pstm.executeUpdate() > 0) {
                 return 1;
@@ -102,7 +106,8 @@ public class QLNVDAO {
             nv.getTenDayDu(),
             nv.getNgaySinh(),
             nv.getGioiTinh(),
-            nv.getEmail()
+            nv.getEmail(),
+            nv.getChucVu()
         };
     }
 }

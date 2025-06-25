@@ -9,17 +9,19 @@ public class NhanVien {
     private Date ngaySinh;
     private String gioiTinh;
     private String email;
+    private String chucVu;
 
     public NhanVien() {
     }
 
-    public NhanVien(String id, String matKhau, String tenDayDu, Date ngaySinh, String gioiTinh, String email) {
+    public NhanVien(String id, String matKhau, String tenDayDu, Date ngaySinh, String gioiTinh, String email, String chucVu) {
         this.id = id;
         this.matKhau = matKhau;
         this.tenDayDu = tenDayDu;
         this.ngaySinh = ngaySinh;
         this.gioiTinh = gioiTinh;
         this.email = email;
+        this.chucVu = chucVu;
     }
 
     public String getId() {
@@ -70,6 +72,14 @@ public class NhanVien {
         this.email = email;
     }
 
+    public String getChucVu() {
+        return chucVu;
+    }
+
+    public void setChucVu(String chucVu) {
+        this.chucVu = chucVu;
+    }
+
     @Override
     public String toString() {
         return "NhanVien{" +
@@ -77,6 +87,7 @@ public class NhanVien {
                 ", tenDayDu='" + tenDayDu + '\'' +
                 ", ngaySinh=" + ngaySinh +
                 ", gioiTinh=" + gioiTinh +
+                ", chucVu=" + chucVu +                
                 ", email='" + email + '\'' +
                 '}';
     }
