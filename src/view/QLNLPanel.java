@@ -95,23 +95,23 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private void fillForm(SanPham sp) {
         txtID.setText(sp.getId());
         txtTen.setText(sp.getTen());
-        txtMoTa.setText(sp.getMoTa());
-        txtGia.setText(String.valueOf(sp.getGia()));
-        txtLoaiSanPham.setText(sp.getLoaiSanPham());
+        txtDonVi.setText(sp.getMoTa());
+        txtSoLuongCoSan.setText(String.valueOf(sp.getGia()));
+        txtMucCanDatThem.setText(sp.getLoaiSanPham());
     }
 
     public boolean validateForm() {
         if (txtID.getText().isEmpty()
                 || txtTen.getText().isEmpty()
-                || txtGia.getText().isEmpty()
-                || txtLoaiSanPham.getText().isEmpty()) {
+                || txtSoLuongCoSan.getText().isEmpty()
+                || txtMucCanDatThem.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
 
         try {
-            Float.valueOf(txtGia.getText());
+            Float.valueOf(txtSoLuongCoSan.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Giá phải là số!");
             return false;
@@ -123,9 +123,9 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private void clearForm() {
         txtID.setText("");
         txtTen.setText("");
-        txtMoTa.setText("");
-        txtGia.setText("");
-        txtLoaiSanPham.setText("");
+        txtDonVi.setText("");
+        txtSoLuongCoSan.setText("");
+        txtMucCanDatThem.setText("");
         currentRow = -1;
     }
 
@@ -139,9 +139,9 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jLabel6 = new javax.swing.JLabel();
         txtTen = new javax.swing.JTextField();
         txtID = new javax.swing.JTextField();
-        txtMoTa = new javax.swing.JTextField();
-        txtGia = new javax.swing.JTextField();
-        txtLoaiSanPham = new javax.swing.JTextField();
+        txtDonVi = new javax.swing.JTextField();
+        txtSoLuongCoSan = new javax.swing.JTextField();
+        txtMucCanDatThem = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         jbtThem = new javax.swing.JButton();
@@ -172,21 +172,21 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             }
         });
 
-        txtMoTa.addActionListener(new java.awt.event.ActionListener() {
+        txtDonVi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtMoTaActionPerformed(evt);
+                txtDonViActionPerformed(evt);
             }
         });
 
-        txtGia.addActionListener(new java.awt.event.ActionListener() {
+        txtSoLuongCoSan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtGiaActionPerformed(evt);
+                txtSoLuongCoSanActionPerformed(evt);
             }
         });
 
-        txtLoaiSanPham.addActionListener(new java.awt.event.ActionListener() {
+        txtMucCanDatThem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtLoaiSanPhamActionPerformed(evt);
+                txtMucCanDatThemActionPerformed(evt);
             }
         });
 
@@ -255,12 +255,12 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtLoaiSanPham)
-                            .addComponent(txtGia)
+                            .addComponent(txtMucCanDatThem)
+                            .addComponent(txtSoLuongCoSan)
                             .addComponent(txtTen)
                             .addComponent(txtID)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(txtMoTa, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtDonVi, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jbtXoa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
@@ -293,15 +293,15 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(txtMoTa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtDonVi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(txtGia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtSoLuongCoSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(txtLoaiSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtMucCanDatThem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jbtThem)
                         .addGap(18, 18, 18)
@@ -342,9 +342,9 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             SanPham sp = new SanPham(
                     txtID.getText(),
                     txtTen.getText(),
-                    txtMoTa.getText(),
-                    Float.parseFloat(txtGia.getText()),
-                    txtLoaiSanPham.getText()
+                    txtDonVi.getText(),
+                    Float.parseFloat(txtSoLuongCoSan.getText()),
+                    txtMucCanDatThem.getText()
             );
 
             int result = qlsp.addSP(sp);
@@ -407,9 +407,9 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             SanPham sp = new SanPham(
                     txtID.getText(),
                     txtTen.getText(),
-                    txtMoTa.getText(),
-                    Float.parseFloat(txtGia.getText()),
-                    txtLoaiSanPham.getText()
+                    txtDonVi.getText(),
+                    Float.parseFloat(txtSoLuongCoSan.getText()),
+                    txtMucCanDatThem.getText()
             );
 
             String oldId = tableModel.getValueAt(currentRow, 0).toString();
@@ -438,10 +438,10 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private javax.swing.JButton jbtThem;
     private javax.swing.JButton jbtTimKiem;
     private javax.swing.JButton jbtXoa;
-    private javax.swing.JTextField txtGia;
+    private javax.swing.JTextField txtDonVi;
     private javax.swing.JTextField txtID;
-    private javax.swing.JTextField txtLoaiSanPham;
-    private javax.swing.JTextField txtMoTa;
+    private javax.swing.JTextField txtMucCanDatThem;
+    private javax.swing.JTextField txtSoLuongCoSan;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;
     // End of variables declaration//GEN-END:variables
