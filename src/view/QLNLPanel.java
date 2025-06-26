@@ -1,7 +1,7 @@
 package view;
 
 import controller.QLNLDAO;
-import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -87,6 +87,15 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtDonVi.setText(nl.getDonVi());
         txtSoLuongCoSan.setText(String.valueOf(nl.getSoLuong()));
         txtMucCanDatThem.setText(String.valueOf(nl.getMucCanDatThem()));
+    }
+
+    private NguyenVatLieu getFormData() {
+        String id = txtID.getText().trim();
+        String ten = txtTen.getText().trim();
+        String donVi = txtDonVi.getText().trim();
+        int soLuong = Integer.parseInt(txtSoLuongCoSan.getText().trim());
+        int mucCanDatThem = Integer.parseInt(txtMucCanDatThem.getText().trim());
+        return new NguyenVatLieu(id, ten, donVi, soLuong, mucCanDatThem);
     }
 
     public boolean validateForm() {
@@ -301,11 +310,11 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         // Xử lý sự kiện
     }
 
-    private void txtGiaActionPerformed(java.awt.event.ActionEvent evt) {
+    private void txtSoLuongCoSanActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 
-    private void txtLoaiSanPhamActionPerformed(java.awt.event.ActionEvent evt) {
+    private void txtMucCanDatThemActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 
