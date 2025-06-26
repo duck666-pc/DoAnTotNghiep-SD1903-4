@@ -36,7 +36,7 @@ public class QLNLDAO {
             nl.setId(rs.getString("ID"));
             nl.setTen(rs.getString("TEN"));
             nl.setDonVi(rs.getString("DONVI"));
-            nl.setSoLuong(rs.getInt("SOLUONG"));
+            nl.setSoLuong(rs.getInt("SOLUONGCOSAN"));
             nl.setMucCanDatThem(rs.getInt("MUCCANDATTHEM"));
             lstNL.add(nl);
         }
@@ -44,7 +44,7 @@ public class QLNLDAO {
     }
 
     public int addSP(NguyenVatLieu nl) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO SANPHAM (ID, TEN, MOTA, GIA, LOAISANPHAMID) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO SANPHAM (ID, TEN, DONVI, SOLUONGCOSAN, MUCCANDATTHEM) VALUES (?, ?, ?, ?, ?)";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, nl.getId());
             pstm.setString(2, nl.getTen());
@@ -64,7 +64,7 @@ public class QLNLDAO {
                 + "ID = ?, "
                 + "TEN = ?, "
                 + "DONVI = ?, "
-                + "SOLUONG = ?, "
+                + "SOLUONGCOSAN = ?, "
                 + "MUCCANDATTHEM = ? "
                 + "WHERE ID = ?";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {

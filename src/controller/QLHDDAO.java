@@ -29,9 +29,9 @@ public class QLHDDAO {
             hd.setThoiGian(rs.getTimestamp("ThoiGian"));
             hd.setIdKhachHang(rs.getString("IdKhachHang"));
             hd.setIdNguoiDung(rs.getString("IdNguoiDung"));
-            hd.setTongTienGoc(rs.getDouble("TongTienGoc"));
-            hd.setMucGiamGia(rs.getDouble("MucGiamGia"));
-            hd.setTongTienSauGiamGia(rs.getDouble("TongTienSauGiamGia"));
+            hd.setTongTienGoc(rs.getBigDecimal("TongTienGoc"));
+            hd.setMucGiamGia(rs.getBigDecimal("MucGiamGia"));
+            hd.setTongTienSauGiamGia(rs.getBigDecimal("TongTienSauGiamGia"));
             lst.add(hd);
         }
         return lst;
@@ -97,7 +97,7 @@ public class QLHDDAO {
     }
     
     public boolean ThemHoaDon(HoaDon hd) throws ClassNotFoundException, SQLException{
-        String query = "INSERT INTO HoaDon (Id, ThoiGian, IdKhachHang, IdNguoiDung, TongTienGoc, MucGiamGia, TongTienSauGiamGia) "
+        String query = "INSERT INTO HoaDon (Id, ThoiGian, KhachHangId, NguoiDungId, TongTienGoc, MucGiamGia, TongTienSauGiamGia) "
                      + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         Connection connect = conn.DBConnect(); 
         PreparedStatement stmt = connect.prepareStatement(query); 
@@ -108,16 +108,16 @@ public class QLHDDAO {
         stmt.setTimestamp(2, hd.getThoiGian());
         stmt.setString(3, hd.getIdKhachHang());
         stmt.setString(4, hd.getIdNguoiDung());
-        stmt.setDouble(5, hd.getTongTienGoc());
-        stmt.setDouble(6, hd.getMucGiamGia());
-        stmt.setDouble(7, hd.getTongTienSauGiamGia());
+        stmt.setBigDecimal(5, hd.getTongTienGoc());
+        stmt.setBigDecimal(6, hd.getMucGiamGia());
+        stmt.setBigDecimal(7, hd.getTongTienSauGiamGia());
         
         int rowAdded = stmt.executeUpdate();
         return rowAdded > 0;
     }
     
     public boolean ThemChiTietHD(ChiTietHoaDon cthd) throws ClassNotFoundException, SQLException{
-        String query = "INSERT INTO ChiTietHoaDon (Id, IdHoaDon, IdSanPham, SoLuong, DonGia) "
+        String query = "INSERT INTO ChiTietHoaDon (Id, HoaDonId, SanPhamId, SoLuong, DonGia) "
                      + "VALUES (?, ?, ?, ?, ?)";
         Connection connect = conn.DBConnect(); 
         PreparedStatement stmt = connect.prepareStatement(query); 
@@ -165,7 +165,7 @@ public class QLHDDAO {
     
     public boolean XoaHoaDon(HoaDon hd) throws ClassNotFoundException, SQLException{
         Connection connect = conn.DBConnect(); 
-        String query1 = "DELETE FROM ChiTietHoaDon WHERE IdHoaDon = ?";
+        String query1 = "DELETE FROM ChiTietHoaDon WHERE HOADONID = ?";
         PreparedStatement stmt1 = connect.prepareStatement(query1); 
         stmt1.setString(1, hd.getId());
         stmt1.executeUpdate();

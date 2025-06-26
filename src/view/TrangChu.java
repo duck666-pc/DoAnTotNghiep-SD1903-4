@@ -32,6 +32,7 @@ public class TrangChu extends javax.swing.JFrame {
         jbtQLNV = new javax.swing.JButton();
         jbtQLSP = new javax.swing.JButton();
         jbQLHD = new javax.swing.JButton();
+        jbQLNL = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -41,31 +42,42 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel.setLayout(jPanelLayout);
         jPanelLayout.setHorizontalGroup(
             jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 820, Short.MAX_VALUE)
+            .addGap(0, 783, Short.MAX_VALUE)
         );
         jPanelLayout.setVerticalGroup(
             jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 470, Short.MAX_VALUE)
         );
 
-        jbtQLNV.setText("Quản lý nhân viên");
+        jbtQLNV.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLNV.setText("Nhân viên");
         jbtQLNV.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtQLNVActionPerformed(evt);
             }
         });
 
-        jbtQLSP.setText("Quản lý sản phẩm");
+        jbtQLSP.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLSP.setText("Sản phẩm");
         jbtQLSP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtQLSPActionPerformed(evt);
             }
         });
 
-        jbQLHD.setText("Quản lý hóa đơn");
+        jbQLHD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbQLHD.setText("Hóa đơn");
         jbQLHD.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbQLHDActionPerformed(evt);
+            }
+        });
+
+        jbQLNL.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbQLNL.setText("Nguyên liệu");
+        jbQLNL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbQLNLActionPerformed(evt);
             }
         });
 
@@ -76,10 +88,10 @@ public class TrangChu extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jbtQLNV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jbtQLSP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jbQLHD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jbQLHD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbQLNL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbtQLSP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbtQLNV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -95,7 +107,9 @@ public class TrangChu extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLSP)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbQLHD)))
+                        .addComponent(jbQLHD)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbQLNL)))
                 .addContainerGap())
         );
 
@@ -127,6 +141,17 @@ public class TrangChu extends javax.swing.JFrame {
     private void jbQLHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbQLHDActionPerformed
 
     }//GEN-LAST:event_jbQLHDActionPerformed
+
+    private void jbQLNLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbQLNLActionPerformed
+        QLNLPanel p4 = new QLNLPanel();
+        p4.setSize(908, 328);
+        p4.setLocation(0, 0);
+        
+        jPanel.removeAll();
+        jPanel.add(p4, BorderLayout.CENTER);
+        jPanel.repaint();
+        jPanel.revalidate();
+    }//GEN-LAST:event_jbQLNLActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -161,6 +186,7 @@ public class TrangChu extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel;
     private javax.swing.JButton jbQLHD;
+    private javax.swing.JButton jbQLNL;
     private javax.swing.JButton jbtQLNV;
     private javax.swing.JButton jbtQLSP;
     // End of variables declaration//GEN-END:variables

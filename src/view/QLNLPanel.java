@@ -255,7 +255,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                         .addComponent(jbtXoa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
                         .addComponent(jbtSua, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jbtThem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(18, 24, Short.MAX_VALUE)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(txtTimKiem)
@@ -302,11 +302,11 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtIDActionPerformed() {
+    private void txtIDActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 
-    private void txtDonViActionPerformed() {
+    private void txtDonViActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 

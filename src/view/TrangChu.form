@@ -26,11 +26,10 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="jbtQLNV" max="32767" attributes="0"/>
-                      <Component id="jbtQLSP" alignment="0" max="32767" attributes="0"/>
-                  </Group>
                   <Component id="jbQLHD" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jbQLNL" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jbtQLSP" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jbtQLNV" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel" max="32767" attributes="0"/>
@@ -50,6 +49,8 @@
                       <Component id="jbtQLSP" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jbQLHD" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jbQLNL" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -70,7 +71,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="820" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="783" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -82,7 +83,10 @@
     </Container>
     <Component class="javax.swing.JButton" name="jbtQLNV">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Qu&#x1ea3;n l&#xfd; nh&#xe2;n vi&#xea;n"/>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="14" style="1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Nh&#xe2;n vi&#xea;n"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtQLNVActionPerformed"/>
@@ -90,7 +94,10 @@
     </Component>
     <Component class="javax.swing.JButton" name="jbtQLSP">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Qu&#x1ea3;n l&#xfd; s&#x1ea3;n ph&#x1ea9;m"/>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="14" style="1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="S&#x1ea3;n ph&#x1ea9;m"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtQLSPActionPerformed"/>
@@ -98,10 +105,24 @@
     </Component>
     <Component class="javax.swing.JButton" name="jbQLHD">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Qu&#x1ea3;n l&#xfd; h&#xf3;a &#x111;&#x1a1;n"/>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="14" style="1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="H&#xf3;a &#x111;&#x1a1;n"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbQLHDActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="jbQLNL">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="14" style="1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Nguy&#xea;n li&#x1ec7;u"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbQLNLActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

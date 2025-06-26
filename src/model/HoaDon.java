@@ -1,21 +1,22 @@
 package Model;
 
 import java.sql.Timestamp;
+import java.math.*;
 
 public class HoaDon {
     private String id;
     private Timestamp thoiGian;
     private String idKhachHang;
     private String idNguoiDung;
-    private double tongTienGoc;
-    private double mucGiamGia;
-    private double tongTienSauGiamGia;
+    private BigDecimal tongTienGoc;
+    private BigDecimal mucGiamGia;
+    private BigDecimal tongTienSauGiamGia;
 
     public HoaDon() {
     }
 
     public HoaDon(String id, Timestamp thoiGian, String idKhachHang, String idNguoiDung, 
-                  double tongTienGoc, double mucGiamGia, double tongTienSauGiamGia) {
+                  BigDecimal tongTienGoc, BigDecimal mucGiamGia, BigDecimal tongTienSauGiamGia) {
         this.id = id;
         this.thoiGian = thoiGian;
         this.idKhachHang = idKhachHang;
@@ -25,7 +26,6 @@ public class HoaDon {
         this.tongTienSauGiamGia = tongTienSauGiamGia;
     }
 
-    // Getter và Setter
     public String getId() {
         return id;
     }
@@ -58,27 +58,27 @@ public class HoaDon {
         this.idNguoiDung = idNguoiDung;
     }
 
-    public double getTongTienGoc() {
+    public BigDecimal getTongTienGoc() {
         return tongTienGoc;
     }
 
-    public void setTongTienGoc(double tongTienGoc) {
+    public void setTongTienGoc(BigDecimal tongTienGoc) {
         this.tongTienGoc = tongTienGoc;
     }
 
-    public double getMucGiamGia() {
+    public BigDecimal getMucGiamGia() {
         return mucGiamGia;
     }
 
-    public void setMucGiamGia(double mucGiamGia) {
+    public void setMucGiamGia(BigDecimal mucGiamGia) {
         this.mucGiamGia = mucGiamGia;
     }
 
-    public double getTongTienSauGiamGia() {
+    public BigDecimal getTongTienSauGiamGia() {
         return tongTienSauGiamGia;
     }
 
-    public void setTongTienSauGiamGia(double tongTienSauGiamGia) {
+    public void setTongTienSauGiamGia(BigDecimal tongTienSauGiamGia) {
         this.tongTienSauGiamGia = tongTienSauGiamGia;
     }
 }

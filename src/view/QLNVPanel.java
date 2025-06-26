@@ -40,7 +40,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
 
     private void displaySelectedRow(int row) {
         String id = getStringValue(row, 0);
-        String matKhau = getStringValue(row, 1);        
+        String matKhau = getStringValue(row, 1);
         String ten = getStringValue(row, 2);
         String ngaySinh = getStringValue(row, 3);
         String gioiTinh = getStringValue(row, 4);
@@ -48,7 +48,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
         String chucVu = getStringValue(row, 6);
 
         txtID.setText(id);
-        txtTen.setText(ten);        
+        txtTen.setText(ten);
         txtMatKhau.setText(matKhau);
         txtEmail.setText(email);
         jcbGioiTinh.setSelectedItem(gioiTinh);
@@ -57,9 +57,26 @@ public final class QLNVPanel extends javax.swing.JPanel {
         if (ngaySinh != null && !ngaySinh.isEmpty()) {
             String[] dateParts = ngaySinh.split("-");
             if (dateParts.length == 3) {
-                jcbNamSinh.setText(dateParts[0]);
-                jcbThangSinh.setSelectedItem(dateParts[1]);
-                jcbNgaySinh.setSelectedItem(dateParts[2]);
+                try {
+                    int nam = Integer.parseInt(dateParts[0]);
+                    int namHienTai = java.time.Year.now().getValue();
+                    int tuoi = namHienTai - nam;
+
+                    if (tuoi < 18 || tuoi > 60) {
+                        JOptionPane.showMessageDialog(this, "Tuổi phải trong khoảng từ 18 đến 60.");
+                        jcbNamSinh.setText("");
+                        jcbThangSinh.setSelectedIndex(0);
+                        jcbNgaySinh.setSelectedIndex(0);
+                    } else {
+                        jcbNamSinh.setText(dateParts[0]);
+                        jcbThangSinh.setSelectedItem(dateParts[1]);
+                        jcbNgaySinh.setSelectedItem(dateParts[2]);
+                    }
+                } catch (NumberFormatException e) {
+                    jcbNamSinh.setText("");
+                    jcbThangSinh.setSelectedIndex(0);
+                    jcbNgaySinh.setSelectedIndex(0);
+                }
             }
         } else {
             jcbNamSinh.setText("");
@@ -94,7 +111,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
 
     public boolean validateForm() {
         if (txtID.getText().isEmpty()
-                || txtTen.getText().isEmpty()                
+                || txtTen.getText().isEmpty()
                 || txtMatKhau.getText().isEmpty()
                 || txtEmail.getText().isEmpty()
                 || jcbNamSinh.getText().isEmpty()) {
@@ -365,10 +382,11 @@ public final class QLNVPanel extends javax.swing.JPanel {
             try {
                 NhanVien nv = new NhanVien();
                 nv.setId(txtID.getText());
-                nv.setMatKhau(txtMatKhau.getText()); // Đã sửa
-                nv.setTenDayDu(txtTen.getText());     // Đã sửa
+                nv.setMatKhau(txtMatKhau.getText());
+                nv.setTenDayDu(txtTen.getText());
                 nv.setEmail(txtEmail.getText());
                 nv.setGioiTinh(jcbGioiTinh.getSelectedItem().toString());
+                nv.setChucVu(jcbChucVu.getSelectedItem().toString());
 
                 String ngaySinhStr = jcbNamSinh.getText() + "-"
                         + jcbThangSinh.getSelectedItem() + "-"
@@ -457,14 +475,15 @@ public final class QLNVPanel extends javax.swing.JPanel {
                     try {
                         NhanVien nv = new NhanVien();
                         nv.setId(txtID.getText());
-                        nv.setMatKhau(txtMatKhau.getText()); // Đã sửa
-                        nv.setTenDayDu(txtTen.getText());     // Đã sửa
+                        nv.setMatKhau(txtMatKhau.getText());
+                        nv.setTenDayDu(txtTen.getText());
                         nv.setEmail(txtEmail.getText());
                         nv.setGioiTinh(jcbGioiTinh.getSelectedItem().toString());
+                        nv.setChucVu(jcbChucVu.getSelectedItem().toString());
 
                         String ngaySinhStr = jcbNamSinh.getText() + "-"
-                                + jcbThangSinh.getSelectedItem() + "-" // Đã sửa
-                                + jcbNgaySinh.getSelectedItem(); 
+                                + jcbThangSinh.getSelectedItem() + "-"
+                                + jcbNgaySinh.getSelectedItem();
                         nv.setNgaySinh(Date.valueOf(ngaySinhStr));
 
                         String oldId = tableModel.getValueAt(currentRow, 0).toString();
