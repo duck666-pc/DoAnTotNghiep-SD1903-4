@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class QLHDDAO {
+public class BANHANGDAO {
 
     private final MyConnection conn;
 
-    public QLHDDAO() {
+    public BANHANGDAO() {
         conn = new MyConnection();
     }
     

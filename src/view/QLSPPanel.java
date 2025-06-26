@@ -149,6 +149,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jbtXoa = new javax.swing.JButton();
         txtTimKiem = new javax.swing.JTextField();
         jbtTimKiem = new javax.swing.JButton();
+        jbtLamMoi = new javax.swing.JButton();
 
         jLabel1.setText("ID:");
 
@@ -237,13 +238,20 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             }
         });
 
+        jbtLamMoi.setText("Làm mới");
+        jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLamMoiActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel3)
@@ -253,22 +261,24 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                                 .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtLoaiSanPham)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtLoaiSanPham, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
                             .addComponent(txtGia)
                             .addComponent(txtMoTa)
                             .addComponent(txtTen)
                             .addComponent(txtID)))
-                    .addComponent(jbtThem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbtSua, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbtXoa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jbtXoa, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                        .addComponent(jbtLamMoi, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                        .addComponent(jbtSua, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jbtThem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txtTimKiem)
                         .addGap(18, 18, 18)
                         .addComponent(jbtTimKiem))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE))
                 .addGap(27, 27, 27))
         );
         layout.setVerticalGroup(
@@ -298,16 +308,22 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
                             .addComponent(txtLoaiSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jbtThem)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtSua)
-                        .addGap(18, 18, 18)
-                        .addComponent(jbtXoa))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtXoa)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtLamMoi))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
+        clearForm();
+    }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     private void txtIDActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
@@ -353,6 +369,8 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         } catch (SQLException | ClassNotFoundException | NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
         }
+
+        clearForm();
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
@@ -388,6 +406,8 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         } else {
             fillTable();
         }
+
+        clearForm();
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
@@ -420,6 +440,8 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         } catch (SQLException | ClassNotFoundException | NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
         }
+
+        clearForm();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -430,6 +452,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable;
+    private javax.swing.JButton jbtLamMoi;
     private javax.swing.JButton jbtSua;
     private javax.swing.JButton jbtThem;
     private javax.swing.JButton jbtTimKiem;
