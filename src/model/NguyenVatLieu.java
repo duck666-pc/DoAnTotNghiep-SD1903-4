@@ -1,21 +1,22 @@
-package Model;
+package model;
 
 public class NguyenVatLieu {
+
     private String id;
     private String ten;
-    private String idDonVi;
+    private String donVi;
     private int soLuong;
-    private int mucCanDatThemHang;
+    private int mucCanDatThem;
 
     public NguyenVatLieu() {
     }
 
-    public NguyenVatLieu(String id, String ten, String idDonVi, int soLuong, int mucCanDatThemHang) {
+    public NguyenVatLieu(String id, String ten, String donVi, int soLuong, int mucCanDatThem) {
         this.id = id;
         this.ten = ten;
-        this.idDonVi = idDonVi;
+        this.donVi = donVi;
         this.soLuong = soLuong;
-        this.mucCanDatThemHang = mucCanDatThemHang;
+        this.mucCanDatThem = mucCanDatThem;
     }
 
     // Getter và Setter
@@ -35,12 +36,12 @@ public class NguyenVatLieu {
         this.ten = ten;
     }
 
-    public String getIdDonVi() {
-        return idDonVi;
+    public String getDonVi() {
+        return donVi;
     }
 
-    public void setIdDonVi(String idDonVi) {
-        this.idDonVi = idDonVi;
+    public void setDonVi(String donVi) {
+        this.donVi = donVi;
     }
 
     public int getSoLuong() {
@@ -51,11 +52,23 @@ public class NguyenVatLieu {
         this.soLuong = soLuong;
     }
 
-    public int getMucCanDatThemHang() {
-        return mucCanDatThemHang;
+    public int getMucCanDatThem() {
+        return mucCanDatThem;
     }
 
-    public void setMucCanDatThemHang(int mucCanDatThemHang) {
-        this.mucCanDatThemHang = mucCanDatThemHang;
+    public void setMucCanDatThem(int mucCanDatThem) {
+        this.mucCanDatThem = mucCanDatThem;
     }
+
+    @Override
+    public String toString() {
+        return "NguyenVatLieu{"
+                + "id=" + id
+                + ", ten='" + ten + '\''
+                + ", donVi=" + donVi
+                + ", soLuong=" + soLuong
+                + ", mucCanDatThem='" + mucCanDatThem + '\''
+                + '}';
+    }
+
 }
