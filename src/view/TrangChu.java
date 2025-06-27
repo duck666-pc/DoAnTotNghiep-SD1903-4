@@ -5,8 +5,6 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import model.NhanVien;
 
 public class TrangChu extends javax.swing.JFrame {
@@ -33,6 +31,7 @@ public class TrangChu extends javax.swing.JFrame {
         jbtQLSP = new javax.swing.JButton();
         jbQLHD = new javax.swing.JButton();
         jbQLNL = new javax.swing.JButton();
+        jbQLKH = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -81,6 +80,14 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbQLKH.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbQLKH.setText("Khách Hàng");
+        jbQLKH.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbQLKHActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -91,7 +98,8 @@ public class TrangChu extends javax.swing.JFrame {
                     .addComponent(jbQLHD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbQLNL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbtQLSP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbtQLNV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jbtQLNV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbQLKH, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -109,7 +117,9 @@ public class TrangChu extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbQLHD)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbQLNL)))
+                        .addComponent(jbQLNL)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbQLKH)))
                 .addContainerGap())
         );
 
@@ -144,7 +154,7 @@ public class TrangChu extends javax.swing.JFrame {
 
     private void jbQLNLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbQLNLActionPerformed
         QLNLPanel p4 = new QLNLPanel();
-        p4.setSize(908, 328);
+        p4.setSize(908, 333);
         p4.setLocation(0, 0);
         
         jPanel.removeAll();
@@ -152,6 +162,17 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel.repaint();
         jPanel.revalidate();
     }//GEN-LAST:event_jbQLNLActionPerformed
+
+    private void jbQLKHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbQLKHActionPerformed
+        QLKHPanel p5 = new QLKHPanel();
+        p5.setSize(908, 333);
+        p5.setLocation(0, 0);
+        
+        jPanel.removeAll();
+        jPanel.add(p5, BorderLayout.CENTER);
+        jPanel.repaint();
+        jPanel.revalidate();
+    }//GEN-LAST:event_jbQLKHActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -186,6 +207,7 @@ public class TrangChu extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel;
     private javax.swing.JButton jbQLHD;
+    private javax.swing.JButton jbQLKH;
     private javax.swing.JButton jbQLNL;
     private javax.swing.JButton jbtQLNV;
     private javax.swing.JButton jbtQLSP;

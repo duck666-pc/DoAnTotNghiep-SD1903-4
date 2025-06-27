@@ -1,21 +1,21 @@
 package view;
 
-import controller.QLNLDAO;
+import controller.QLKHDAO;
 import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import model.NguyenVatLieu;
+import model.KhachHang;
 
-public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
+public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
 
     DefaultTableModel tableModel;
-    QLNLDAO qlnl = new QLNLDAO();
+    QLKHDAO qlkh = new QLKHDAO();
     int currentRow = -1;
 
-    public QLNLPanel() {
+    public QLKHPanel() {
         initComponents();
         initTable();
         fillTable();
@@ -23,7 +23,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     public void initTable() {
-        String[] cols = new String[]{"ID", "Tên", "Đơn vị", "Số lượng có sẵn", "Mức Cần Đặt Thêm"};
+        String[] cols = new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Id Hạng Khách Hàng"};
         tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(cols);
         jTable.setModel(tableModel);
@@ -32,14 +32,14 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private void fillTable() {
         tableModel.setRowCount(0);
         try {
-            List<NguyenVatLieu> listNL = qlnl.getAll();
-            for (NguyenVatLieu nl : listNL) {
+            List<KhachHang> listKH = qlkh.getAll();
+            for (KhachHang kh : listKH) {
                 Object[] row = new Object[]{
-                    nl.getId(),
-                    nl.getTen(),
-                    nl.getDonVi(),
-                    nl.getSoLuong(),
-                    nl.getMucCanDatThem()
+                    kh.getId(),
+                    kh.getTen(),
+                    kh.getDienThoai(),
+                    kh.getDiaChi(),
+                    kh.gethangKhachHangId()
                 };
                 tableModel.addRow(row);
             }
@@ -54,23 +54,23 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting() && jTable.getSelectedRow() != -1) {
                     currentRow = jTable.getSelectedRow();
-                    NguyenVatLieu nl = getSelectedNguyenVatLieu();
-                    if (nl != null) {
-                        fillForm(nl);
+                    KhachHang kh = getSelectedKhachHang();
+                    if (kh != null) {
+                        fillForm(kh);
                     }
                 }
             }
         });
     }
 
-    private NguyenVatLieu getSelectedNguyenVatLieu() {
+    private KhachHang getSelectedKhachHang() {
         if (currentRow >= 0) {
             String id = tableModel.getValueAt(currentRow, 0).toString();
             try {
-                List<NguyenVatLieu> listNL = qlnl.getAll();
-                for (NguyenVatLieu nl : listNL) {
-                    if (nl.getId().equals(id)) {
-                        return nl;
+                List<KhachHang> listKH = qlkh.getAll();
+                for (KhachHang kh : listKH) {
+                    if (kh.getId().equals(id)) {
+                        return kh;
                     }
                 }
             } catch (SQLException | ClassNotFoundException ex) {
@@ -80,29 +80,29 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         return null;
     }
 
-    private void fillForm(NguyenVatLieu nl) {
-        txtID.setText(nl.getId());
-        txtTen.setText(nl.getTen());
-        txtDonVi.setText(nl.getDonVi());
-        txtSoLuongCoSan.setText(String.valueOf(nl.getSoLuong()));
-        txtMucCanDatThem.setText(String.valueOf(nl.getMucCanDatThem()));
+    private void fillForm(KhachHang kh) {
+        txtID.setText(kh.getId());
+        txtTen.setText(kh.getTen());
+        txtDienThoai.setText(kh.getDienThoai());
+        txtDiaChi.setText(kh.getDiaChi());
+        txtHangKhachHang.setText(kh.gethangKhachHangId());
     }
 
-    private NguyenVatLieu getFormData() {
+    private KhachHang getFormData() {
         String id = txtID.getText().trim();
         String ten = txtTen.getText().trim();
-        String donVi = txtDonVi.getText().trim();
-        int soLuong = Integer.parseInt(txtSoLuongCoSan.getText().trim());
-        int mucCanDatThem = Integer.parseInt(txtMucCanDatThem.getText().trim());
-        return new NguyenVatLieu(id, ten, donVi, soLuong, mucCanDatThem);
+        String dienThoai = txtDienThoai.getText().trim();
+        String diaChi = txtDiaChi.getText().trim();
+        String hangKhachHangId = txtHangKhachHang.getText().trim();
+        return new KhachHang(id, ten, dienThoai, diaChi, hangKhachHangId);
     }
 
     public boolean validateForm() {
         if (txtID.getText().isEmpty()
                 || txtTen.getText().isEmpty()
-                || txtDonVi.getText().isEmpty()
-                || txtSoLuongCoSan.getText().isEmpty()
-                || txtMucCanDatThem.getText().isEmpty()) {
+                || txtDienThoai.getText().isEmpty()
+                || txtDiaChi.getText().isEmpty()
+                || txtHangKhachHang.getText().isEmpty()) {
             return false;
         }
         return true;
@@ -111,9 +111,9 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private void clearForm() {
         txtID.setText("");
         txtTen.setText("");
-        txtDonVi.setText("");
-        txtSoLuongCoSan.setText("");
-        txtMucCanDatThem.setText("");
+        txtDienThoai.setText("");
+        txtDiaChi.setText("");
+        txtHangKhachHang.setText("");
         currentRow = -1;
     }
 
@@ -127,9 +127,9 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jLabel6 = new javax.swing.JLabel();
         txtTen = new javax.swing.JTextField();
         txtID = new javax.swing.JTextField();
-        txtDonVi = new javax.swing.JTextField();
-        txtSoLuongCoSan = new javax.swing.JTextField();
-        txtMucCanDatThem = new javax.swing.JTextField();
+        txtDienThoai = new javax.swing.JTextField();
+        txtDiaChi = new javax.swing.JTextField();
+        txtHangKhachHang = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         jbtThem = new javax.swing.JButton();
@@ -143,11 +143,11 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
 
         jLabel2.setText("Tên:");
 
-        jLabel3.setText("Mức cần đặt thêm:");
+        jLabel3.setText("Hạng Khách Hàng:");
 
-        jLabel5.setText("Số lượng có sẵn:");
+        jLabel5.setText("Địa chỉ:");
 
-        jLabel6.setText("Đơn vị:");
+        jLabel6.setText("Điện thoại:");
 
         txtTen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -161,21 +161,21 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             }
         });
 
-        txtDonVi.addActionListener(new java.awt.event.ActionListener() {
+        txtDienThoai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDonViActionPerformed(evt);
+                txtDienThoaiActionPerformed(evt);
             }
         });
 
-        txtSoLuongCoSan.addActionListener(new java.awt.event.ActionListener() {
+        txtDiaChi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSoLuongCoSanActionPerformed(evt);
+                txtDiaChiActionPerformed(evt);
             }
         });
 
-        txtMucCanDatThem.addActionListener(new java.awt.event.ActionListener() {
+        txtHangKhachHang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtMucCanDatThemActionPerformed(evt);
+                txtHangKhachHangActionPerformed(evt);
             }
         });
 
@@ -187,7 +187,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                 {null, null, null, null, null}
             },
             new String [] {
-                "ID", "Tên", "Đơn vị", "Số lượng có sẵn", "Mức cần đặt thêm"
+                "ID", "Tên", "Điện Thoại", "Địa Chỉ", "ID Hạng Khách Hàng"
             }
         ));
         jScrollPane1.setViewportView(jTable);
@@ -250,12 +250,12 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtMucCanDatThem)
-                            .addComponent(txtSoLuongCoSan)
+                            .addComponent(txtHangKhachHang)
+                            .addComponent(txtDiaChi)
                             .addComponent(txtTen)
                             .addComponent(txtID)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(txtDonVi, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap()
@@ -264,7 +264,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                             .addComponent(jbtSua, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtThem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtLamMoi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(18, 24, Short.MAX_VALUE)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(txtTimKiem)
@@ -291,15 +291,15 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(txtDonVi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(txtSoLuongCoSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(txtMucCanDatThem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jbtThem)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -321,15 +321,15 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         // Xử lý sự kiện
     }
 
-    private void txtDonViActionPerformed(java.awt.event.ActionEvent evt) {
+    private void txtDienThoaiActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 
-    private void txtSoLuongCoSanActionPerformed(java.awt.event.ActionEvent evt) {
+    private void txtDiaChiActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 
-    private void txtMucCanDatThemActionPerformed(java.awt.event.ActionEvent evt) {
+    private void txtHangKhachHangActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
 
@@ -342,12 +342,12 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
-        NguyenVatLieu nl = getFormData();
-        if (nl == null) {
+        KhachHang kh = getFormData();
+        if (kh == null) {
             return;
         }
         try {
-            int result = qlnl.addNL(nl);
+            int result = qlkh.addKH(kh);
             if (result > 0) {
                 JOptionPane.showMessageDialog(this, "Thêm nguyên vật liệu thành công!");
                 fillTable();
@@ -369,7 +369,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                int result = qlnl.deleteNL(id);
+                int result = qlkh.deleteKH(id);
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Xóa thành công!");
                     fillTable();
@@ -392,10 +392,10 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         if (!id.isEmpty()) {
             tableModel.setRowCount(0);
             try {
-                List<NguyenVatLieu> listNL = qlnl.getAll();
-                for (NguyenVatLieu nl : listNL) {
-                    if (nl.getId().equalsIgnoreCase(id)) {
-                        tableModel.addRow(qlnl.getRow(nl));
+                List<KhachHang> listKH = qlkh.getAll();
+                for (KhachHang kh : listKH) {
+                    if (kh.getId().equalsIgnoreCase(id)) {
+                        tableModel.addRow(qlkh.getRow(kh));
                         for (int i = 0; i < tableModel.getRowCount(); i++) {
                             if (tableModel.getValueAt(i, 0).toString().equalsIgnoreCase(id)) {
                                 jTable.setRowSelectionInterval(i, i);
@@ -423,13 +423,13 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
-        NguyenVatLieu nl = getFormData();
-        if (nl == null) {
+        KhachHang kh = getFormData();
+        if (kh == null) {
             return;
         }
         String oldId = tableModel.getValueAt(currentRow, 0).toString();
         try {
-            int result = qlnl.editNL(nl, oldId);
+            int result = qlkh.editKH(kh, oldId);
             if (result > 0) {
                 JOptionPane.showMessageDialog(this, "Sửa nguyên vật liệu thành công!");
                 fillTable();
@@ -455,10 +455,10 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private javax.swing.JButton jbtThem;
     private javax.swing.JButton jbtTimKiem;
     private javax.swing.JButton jbtXoa;
-    private javax.swing.JTextField txtDonVi;
+    private javax.swing.JTextField txtDiaChi;
+    private javax.swing.JTextField txtDienThoai;
+    private javax.swing.JTextField txtHangKhachHang;
     private javax.swing.JTextField txtID;
-    private javax.swing.JTextField txtMucCanDatThem;
-    private javax.swing.JTextField txtSoLuongCoSan;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;
     // End of variables declaration//GEN-END:variables

@@ -43,7 +43,7 @@ public class QLNLDAO {
         return lstNL;
     }
 
-    public int addSP(NguyenVatLieu nl) throws SQLException, ClassNotFoundException {
+    public int addNL(NguyenVatLieu nl) throws SQLException, ClassNotFoundException {
         String sql = "INSERT INTO SANPHAM (ID, TEN, DONVI, SOLUONGCOSAN, MUCCANDATTHEM) VALUES (?, ?, ?, ?, ?)";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, nl.getId());
@@ -59,7 +59,7 @@ public class QLNLDAO {
         return 0;
     }
 
-    public int editSP(NguyenVatLieu nl, String oldId) throws SQLException, ClassNotFoundException {
+    public int editNL(NguyenVatLieu nl, String oldId) throws SQLException, ClassNotFoundException {
         String sql = "UPDATE SANPHAM SET "
                 + "ID = ?, "
                 + "TEN = ?, "
@@ -82,7 +82,7 @@ public class QLNLDAO {
         return 0;
     }
 
-    public int deleteSP(String id) throws SQLException, ClassNotFoundException {
+    public int deleteNL(String id) throws SQLException, ClassNotFoundException {
         String sql = "DELETE FROM SANPHAM WHERE ID = ?";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, id);

@@ -1,21 +1,21 @@
-package Model;
+package model;
 
 public class KhachHang {
     private String id;
     private String ten;
     private String dienThoai;
     private String diaChi;
-    private String idHangKhachHang;
+    private String hangKhachHangid;
 
     public KhachHang() {
     }
 
-    public KhachHang(String id, String ten, String dienThoai, String diaChi, String idHangKhachHang) {
+    public KhachHang(String id, String ten, String dienThoai, String diaChi, String hangKhachHangid) {
         this.id = id;
         this.ten = ten;
         this.dienThoai = dienThoai;
         this.diaChi = diaChi;
-        this.idHangKhachHang = idHangKhachHang;
+        this.hangKhachHangid = hangKhachHangid;
     }
 
     // Getter và Setter
@@ -51,11 +51,11 @@ public class KhachHang {
         this.diaChi = diaChi;
     }
 
-    public String getIdHangKhachHang() {
-        return idHangKhachHang;
+    public String gethangKhachHangId() {
+        return hangKhachHangid;
     }
 
-    public void setIdHangKhachHang(String idHangKhachHang) {
-        this.idHangKhachHang = idHangKhachHang;
+    public void sethangKhachHangId(String hangKhachHangid) {
+        this.hangKhachHangid = hangKhachHangid;
     }
 }
