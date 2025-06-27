@@ -41,7 +41,7 @@ public class Login extends javax.swing.JFrame {
         jbtDangNhap = new javax.swing.JButton();
         txtMatKhau = new javax.swing.JPasswordField();
         jCheckBox = new javax.swing.JCheckBox();
-        jbtDangNhap1 = new javax.swing.JButton();
+        jbtQuenMatKhau = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -74,11 +74,11 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
-        jbtDangNhap1.setText("--- Quên mật khẩu? ---");
-        jbtDangNhap1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jbtDangNhap1.addActionListener(new java.awt.event.ActionListener() {
+        jbtQuenMatKhau.setText("--- Quên mật khẩu? ---");
+        jbtQuenMatKhau.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jbtQuenMatKhau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtDangNhap1ActionPerformed(evt);
+                jbtQuenMatKhauActionPerformed(evt);
             }
         });
 
@@ -112,7 +112,7 @@ public class Login extends javax.swing.JFrame {
                         .addGap(110, 110, 110))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jbtDangNhap1)
+                .addComponent(jbtQuenMatKhau)
                 .addGap(92, 92, 92))
         );
         layout.setVerticalGroup(
@@ -138,7 +138,7 @@ public class Login extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jbtDangNhap)
                 .addGap(12, 12, 12)
-                .addComponent(jbtDangNhap1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jbtQuenMatKhau, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
@@ -190,9 +190,12 @@ public class Login extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jCheckBoxActionPerformed
 
-    private void jbtDangNhap1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangNhap1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jbtDangNhap1ActionPerformed
+    private void jbtQuenMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuenMatKhauActionPerformed
+        KiemTraThongTin kttt = new KiemTraThongTin();
+        kttt.setSize(385, 388);
+        kttt.setLocation(0, 0);
+        kttt.setVisible(true);
+    }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
     /**
      * @param args the command line arguments
@@ -234,7 +237,7 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JButton jbtDangNhap;
-    private javax.swing.JButton jbtDangNhap1;
+    private javax.swing.JButton jbtQuenMatKhau;
     private javax.swing.JTextField txtID;
     private javax.swing.JPasswordField txtMatKhau;
     // End of variables declaration//GEN-END:variables

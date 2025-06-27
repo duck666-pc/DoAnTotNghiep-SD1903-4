@@ -61,7 +61,7 @@
           </Group>
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="32767" attributes="0"/>
-              <Component id="jbtDangNhap1" min="-2" max="-2" attributes="0"/>
+              <Component id="jbtQuenMatKhau" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="92" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -94,7 +94,7 @@
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jbtDangNhap" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-              <Component id="jbtDangNhap1" min="-2" pref="18" max="-2" attributes="0"/>
+              <Component id="jbtQuenMatKhau" min="-2" pref="18" max="-2" attributes="0"/>
               <EmptySpace pref="16" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -147,7 +147,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="jbtDangNhap1">
+    <Component class="javax.swing.JButton" name="jbtQuenMatKhau">
       <Properties>
         <Property name="text" type="java.lang.String" value="--- Qu&#xea;n m&#x1ead;t kh&#x1ea9;u? ---"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -157,7 +157,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtDangNhap1ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtQuenMatKhauActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
