@@ -30,12 +30,12 @@
                           </Group>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="txtLoaiSanPham" alignment="0" pref="150" max="32767" attributes="0"/>
-                          <Component id="txtGia" alignment="0" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="txtGia" alignment="0" pref="150" max="32767" attributes="0"/>
                           <Component id="txtMoTa" alignment="0" max="32767" attributes="0"/>
                           <Component id="txtTen" alignment="0" max="32767" attributes="0"/>
                           <Component id="txtID" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jcbLoaiSanPham" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
@@ -88,7 +88,7 @@
                       <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="txtLoaiSanPham" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jcbLoaiSanPham" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jbtThem" min="-2" max="-2" attributes="0"/>
@@ -150,11 +150,6 @@
     <Component class="javax.swing.JTextField" name="txtGia">
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtGiaActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtLoaiSanPham">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtLoaiSanPhamActionPerformed"/>
       </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
@@ -258,6 +253,28 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtLamMoiActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="jcbLoaiSanPham">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="11">
+            <StringItem index="0" value="001-&#x110;&#x1ed3; u&#x1ed1;ng"/>
+            <StringItem index="1" value="002-&#x110;&#x1ed3; &#x103;n"/>
+            <StringItem index="2" value="003-Tr&#xe1;ng mi&#x1ec7;ng"/>
+            <StringItem index="3" value="004-Kem"/>
+            <StringItem index="4" value="005-&#x110;&#x1ed3; &#x103;n nhanh"/>
+            <StringItem index="5" value="006-Salad"/>
+            <StringItem index="6" value="007-N&#x1b0;&#x1edb;c &#xe9;p"/>
+            <StringItem index="7" value="008-B&#xe1;nh m&#xec;"/>
+            <StringItem index="8" value="009-M&#xec; x&#xe0;o"/>
+            <StringItem index="9" value="010-M&#xf3;n ch&#xed;nh"/>
+            <StringItem index="10" value="Kh&#xe1;c"/>
+          </StringArray>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

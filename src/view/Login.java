@@ -16,13 +16,15 @@ public class Login extends javax.swing.JFrame {
      * Creates new form Login
      */
     QLNVDAO qlnv = new QLNVDAO();
-    private final char defaultEchoChar; 
+    private final char defaultEchoChar;
 
     public Login() {
         initComponents();
-        defaultEchoChar = txtMatKhau.getEchoChar(); 
+        defaultEchoChar = txtMatKhau.getEchoChar();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
+
+    private KiemTraThongTin ktttInstance = null;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -160,7 +162,7 @@ public class Login extends javax.swing.JFrame {
                 if (n.getId().equals(id) && n.getMatKhau().equals(matKhau)) {
                     TrangChu tc = new TrangChu(n);
                     tc.setVisible(true);
-                    this.dispose(); 
+                    this.dispose();
                     dangNhapThanhCong = true;
                     break;
                 }
@@ -187,14 +189,24 @@ public class Login extends javax.swing.JFrame {
             txtMatKhau.setEchoChar((char) 0);
         } else {
             txtMatKhau.setEchoChar(defaultEchoChar);
+
         }
     }//GEN-LAST:event_jCheckBoxActionPerformed
 
     private void jbtQuenMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuenMatKhauActionPerformed
-        KiemTraThongTin kttt = new KiemTraThongTin();
-        kttt.setSize(385, 388);
-        kttt.setLocation(0, 0);
-        kttt.setVisible(true);
+        if (ktttInstance == null || !ktttInstance.isDisplayable()) {
+            ktttInstance = new KiemTraThongTin();
+            ktttInstance.setSize(385, 388);
+            ktttInstance.setLocation(0, 0);
+            ktttInstance.setVisible(true);
+        } else {
+            ktttInstance.toFront();
+            ktttInstance.requestFocus();
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Chỉ bấm nút này 1 lần!",
+                    "Lỗi",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);            
+        }
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
     /**

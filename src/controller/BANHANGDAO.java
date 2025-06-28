@@ -90,7 +90,7 @@ public class BANHANGDAO {
             sp.setTen(rs.getString("Ten"));
             sp.setMoTa(rs.getString("MoTa"));
             sp.setGia((float) rs.getDouble("Gia")); 
-            sp.setIdLoaiSanPham(rs.getString("IdLoaiSanPham"));
+            sp.setLoaiSanPham(rs.getString("IdLoaiSanPham"));
             lst.add(sp);
         }
         return lst;

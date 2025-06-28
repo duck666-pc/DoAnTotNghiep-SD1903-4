@@ -110,11 +110,11 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }
 
     public boolean validateForm() {
-        if (txtID.getText().isEmpty()
+        if (jcbNamSinh.getText().isEmpty()
+                || txtID.getText().isEmpty()
                 || txtTen.getText().isEmpty()
                 || txtMatKhau.getText().isEmpty()
-                || txtEmail.getText().isEmpty()
-                || jcbNamSinh.getText().isEmpty()) {
+                || txtEmail.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return false;
