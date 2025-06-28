@@ -55,8 +55,8 @@ public class SanPham {
         return loaiSanPham;
     }
 
-    public void setIdLoaiSanPham(String idLoaiSanPham) {
-        this.loaiSanPham = idLoaiSanPham;
+    public void setLoaiSanPham(String LoaiSanPham) {
+        this.loaiSanPham = LoaiSanPham;
     }
 
     @Override
