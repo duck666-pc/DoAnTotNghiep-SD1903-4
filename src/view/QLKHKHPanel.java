@@ -4,6 +4,7 @@
  */
 package view;
 
+import controller.QLKHDAO;
 import controller.QLNVDAO;
 import java.awt.HeadlessException;
 import java.sql.SQLException;
@@ -14,13 +15,12 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
-import model.NhanVien;
+import model.KhachHang;
+import java.util.ArrayList;
 
 public final class QLKHKHPanel extends javax.swing.JFrame {
-
     DefaultTableModel tableModel;
-    QLNVDAO qlnv = new QLNVDAO();
-    int currentRow = -1;
+    QLKHDAO qlkh = new QLKHDAO();
 
     public QLKHKHPanel() {
         initComponents();
@@ -29,23 +29,63 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
     }
 
     public void initTable() {
-        String[] cols = new String[]{"ID", "Mật Khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ"};
-        tableModel = new DefaultTableModel();
+        // Thêm cột "Chọn" đầu tiên cho checkbox
+        String[] cols = new String[]{"Chọn", "ID", "Tên", "Điện thoại", "Địa chỉ", "Id Hạng Khách Hàng"};
+        tableModel = new DefaultTableModel() {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 0) {
+                    return Boolean.class; // Cột đầu tiên là checkbox
+                }
+                return String.class;
+            }
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 0; // Chỉ cho phép chỉnh sửa cột checkbox
+            }
+        };
         tableModel.setColumnIdentifiers(cols);
         jTable.setModel(tableModel);
     }
 
-    public void fillTable() {
+    private void fillTable() {
         tableModel.setRowCount(0);
         try {
-            List<NhanVien> listNV = qlnv.getAll();
-            for (NhanVien nv : listNV) {
-                tableModel.addRow(qlnv.getRow(nv));
+            List<KhachHang> listKH = qlkh.getAll();
+            for (KhachHang kh : listKH) {
+                // Thêm giá trị false cho cột checkbox
+                Object[] row = new Object[]{
+                    false, // Cột checkbox mặc định không chọn
+                    kh.getId(),
+                    kh.getTen(),
+                    kh.getDienThoai(),
+                    kh.getDiaChi(),
+                    kh.gethangKhachHangId()
+                };
+                tableModel.addRow(row);
             }
         } catch (SQLException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
         }
-    }    
+    }
+
+    // Lấy danh sách khách hàng đã chọn
+    private List<KhachHang> getSelectedKhachHang() {
+        List<KhachHang> selected = new ArrayList<>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            if (isSelected) {
+                String id = tableModel.getValueAt(i, 1).toString();
+                String ten = tableModel.getValueAt(i, 2).toString();
+                String dienThoai = tableModel.getValueAt(i, 3).toString();
+                String diaChi = tableModel.getValueAt(i, 4).toString();
+                String hangKH = tableModel.getValueAt(i, 5).toString();
+                selected.add(new KhachHang(id, ten, dienThoai, diaChi, hangKH));
+            }
+        }
+        return selected;
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -58,8 +98,8 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
 
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jbtLuu = new javax.swing.JButton();
+        jbtLamMoi = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -84,9 +124,19 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(jTable);
 
-        jButton1.setText("Lưu lựa chọn");
+        jbtLuu.setText("Lưu lựa chọn");
+        jbtLuu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLuuActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Làm mới");
+        jbtLamMoi.setText("Làm mới");
+        jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLamMoiActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -98,9 +148,9 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(jbtLamMoi)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(jbtLuu)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -110,13 +160,34 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jbtLuu)
+                    .addComponent(jbtLamMoi))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jbtLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLuuActionPerformed
+        List<KhachHang> selected = getSelectedKhachHang();
+        if (selected.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một khách hàng!");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Đã chọn ").append(selected.size()).append(" khách hàng:\n");
+        for (KhachHang kh : selected) {
+            sb.append("- ").append(kh.getTen()).append(" (").append(kh.getId()).append(")\n");
+        }
+        JOptionPane.showMessageDialog(this, sb.toString());
+    }//GEN-LAST:event_jbtLuuActionPerformed
+
+    private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            tableModel.setValueAt(false, i, 0); // Đặt tất cả checkbox về false
+        }
+    }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     /**
      * @param args the command line arguments
@@ -154,9 +225,9 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable;
+    private javax.swing.JButton jbtLamMoi;
+    private javax.swing.JButton jbtLuu;
     // End of variables declaration//GEN-END:variables
 }

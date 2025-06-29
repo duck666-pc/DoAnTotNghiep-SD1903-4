@@ -547,7 +547,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbThangSinhActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-        // TODO add your handling code here:
+        clearForm();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

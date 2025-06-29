@@ -202,11 +202,11 @@ public class QLKMPanel extends javax.swing.JPanel {
 
         jLabel10.setText("Quà tặng:");
 
-        jcbNgaySinh2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+        jcbNgaySinh2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Không", "Phiếu mua hàng" }));
 
         jLabel11.setText("Hình thức giảm:");
 
-        jcbNgaySinh3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+        jcbNgaySinh3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Phần trăm", "Theo tiền" }));
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
