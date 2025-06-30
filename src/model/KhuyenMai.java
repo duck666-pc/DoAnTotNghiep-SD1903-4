@@ -20,6 +20,9 @@ public class KhuyenMai {
     private Date thoiGianApDung;
     private Date thoiGianKetThuc;
 
+    public KhuyenMai() {
+    }
+    
     public KhuyenMai(String id, String chiTietid, String khachHangid, String ten, String moTa, int soLuong, Date thoiGianApDung, Date thoiGianKetThuc) {
         this.id = id;
         this.chiTietid = chiTietid;

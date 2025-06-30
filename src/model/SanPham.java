@@ -69,9 +69,4 @@ public class SanPham {
                 + ", loaiSanPham='" + loaiSanPham + '\''
                 + '}';
     }
-
-
-    public Object getIdLoaiSanPham() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }
