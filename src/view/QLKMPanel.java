@@ -4,6 +4,8 @@
  */
 package view;
         
+import javax.swing.SwingUtilities;
+
 public class QLKMPanel extends javax.swing.JPanel {
 
     /**
@@ -438,7 +440,9 @@ public class QLKMPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbNamSinh1ActionPerformed
 
     private void jbtKhachHangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtKhachHangActionPerformed
-
+        SwingUtilities.invokeLater(() -> {
+            new QLKHKHPanel().setVisible(true);
+        });
     }//GEN-LAST:event_jbtKhachHangActionPerformed
 
 

@@ -8,6 +8,7 @@ import controller.QLNVDAO;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import model.NhanVien;
 
 public class Login extends javax.swing.JFrame {
@@ -195,23 +196,25 @@ public class Login extends javax.swing.JFrame {
 
     private void jbtQuenMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuenMatKhauActionPerformed
         if (ktttInstance == null || !ktttInstance.isDisplayable()) {
-            ktttInstance = new KiemTraThongTin();
-            ktttInstance.setSize(385, 388);
-            ktttInstance.setLocation(0, 0);
-            ktttInstance.setVisible(true);
+            SwingUtilities.invokeLater(() -> {
+                ktttInstance = new KiemTraThongTin();
+                ktttInstance.setVisible(true);
+            });
         } else {
             ktttInstance.toFront();
             ktttInstance.requestFocus();
-            javax.swing.JOptionPane.showMessageDialog(this,
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
                     "Chỉ bấm nút này 1 lần!",
                     "Lỗi",
-                    javax.swing.JOptionPane.ERROR_MESSAGE);            
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
         }
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
     /**
-     * @param args the command line arguments
-     */
+         * @param args the command line arguments
+         */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
