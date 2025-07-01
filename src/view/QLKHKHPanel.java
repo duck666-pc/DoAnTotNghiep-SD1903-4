@@ -5,15 +5,9 @@
 package view;
 
 import controller.QLKHDAO;
-import controller.QLNVDAO;
-import java.awt.HeadlessException;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import model.KhachHang;
 import java.util.ArrayList;
