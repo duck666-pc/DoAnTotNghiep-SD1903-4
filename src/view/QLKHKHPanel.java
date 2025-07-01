@@ -211,10 +211,8 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new QLKHKHPanel().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new QLKHKHPanel().setVisible(true);
         });
     }
 
