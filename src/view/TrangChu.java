@@ -7,6 +7,7 @@ package view;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import model.NhanVien;
 
 public class TrangChu extends javax.swing.JFrame {
@@ -34,7 +35,6 @@ public class TrangChu extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel = new javax.swing.JPanel();
         jbtQLNV = new javax.swing.JButton();
         jbtQLSP = new javax.swing.JButton();
         jbtQLHD = new javax.swing.JButton();
@@ -42,21 +42,9 @@ public class TrangChu extends javax.swing.JFrame {
         jbtQLKH = new javax.swing.JButton();
         jbtQLKM = new javax.swing.JButton();
         jbtDangXuat = new javax.swing.JButton();
+        jPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-
-        javax.swing.GroupLayout jPanelLayout = new javax.swing.GroupLayout(jPanel);
-        jPanel.setLayout(jPanelLayout);
-        jPanelLayout.setHorizontalGroup(
-            jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 780, Short.MAX_VALUE)
-        );
-        jPanelLayout.setVerticalGroup(
-            jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 470, Short.MAX_VALUE)
-        );
 
         jbtQLNV.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jbtQLNV.setText("Nhân Viên");
@@ -113,6 +101,19 @@ public class TrangChu extends javax.swing.JFrame {
                 jbtDangXuatActionPerformed(evt);
             }
         });
+
+        jPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+
+        javax.swing.GroupLayout jPanelLayout = new javax.swing.GroupLayout(jPanel);
+        jPanel.setLayout(jPanelLayout);
+        jPanelLayout.setHorizontalGroup(
+            jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 780, Short.MAX_VALUE)
+        );
+        jPanelLayout.setVerticalGroup(
+            jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 470, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -224,7 +225,11 @@ public class TrangChu extends javax.swing.JFrame {
                 JOptionPane.YES_NO_OPTION);
 
         if (option == JOptionPane.YES_OPTION) {
+            this.dispose();
 
+            SwingUtilities.invokeLater(() -> {
+                new Login().setVisible(true);
+            });
         }
     }//GEN-LAST:event_jbtDangXuatActionPerformed
 

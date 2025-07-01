@@ -16,6 +16,10 @@ public class ChiTietKhuyenMai {
     private float mucGiamGia;
     private String quaTang;
 
+    public ChiTietKhuyenMai() {
+    }
+
+    
     public ChiTietKhuyenMai(String id, String hinhThucGiam, float soTienGiamGia, String sanPhamid, float mucGiamGia, String quaTang) {
         this.id = id;
         this.hinhThucGiam = hinhThucGiam;

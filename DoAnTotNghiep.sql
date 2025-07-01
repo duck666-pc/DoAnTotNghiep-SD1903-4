@@ -68,7 +68,7 @@ CREATE TABLE KhuyenMai (
     Ten NVARCHAR(100),
     MoTa NVARCHAR(255),
     SoLuong INT,
-    ThoiGianApDung DATETIME,
+    ThoiGianApDung DATE,
     CONSTRAINT FKKhuyenMaiChiTietKhuyenMai FOREIGN KEY (ChiTietKhuyenMaiID)
         REFERENCES ChiTietKhuyenMai(ID),
     CONSTRAINT FKKhuyenMaiKhachHang FOREIGN KEY (KhachHangID)
@@ -205,16 +205,16 @@ INSERT INTO ChiTietKhuyenMai (ID, HinhThucGiam, SoTienGiamGia, SanPhamID, MucGia
 (N'CTKM010', N'Theo tiền', 14000.00, N'SP010', 0.00, N'Phiếu mua hàng');
 
 INSERT INTO KhuyenMai (ID, ChiTietKhuyenMaiID, KhachHangID, Ten, MoTa, SoLuong, ThoiGianApDung) VALUES
-(N'KM001', N'CTKM001', N'KH001', N'Khuyến mãi 1', N'Mô tả khuyến mãi thứ 1', 100, '2025-01-01 00:00:00'),
-(N'KM002', N'CTKM002', N'KH002', N'Khuyến mãi 2', N'Mô tả khuyến mãi thứ 2', 110, '2025-02-01 00:00:00'),
-(N'KM003', N'CTKM003', N'KH003', N'Khuyến mãi 3', N'Mô tả khuyến mãi thứ 3', 120, '2025-03-01 00:00:00'),
-(N'KM004', N'CTKM004', N'KH004', N'Khuyến mãi 4', N'Mô tả khuyến mãi thứ 4', 130, '2025-04-01 00:00:00'),
-(N'KM005', N'CTKM005', N'KH005', N'Khuyến mãi 5', N'Mô tả khuyến mãi thứ 5', 140, '2025-05-01 00:00:00'),
-(N'KM006', N'CTKM006', N'KH006', N'Khuyến mãi 6', N'Mô tả khuyến mãi thứ 6', 150, '2025-06-01 00:00:00'),
-(N'KM007', N'CTKM007', N'KH007', N'Khuyến mãi 7', N'Mô tả khuyến mãi thứ 7', 160, '2025-07-01 00:00:00'),
-(N'KM008', N'CTKM008', N'KH008', N'Khuyến mãi 8', N'Mô tả khuyến mãi thứ 8', 170, '2025-08-01 00:00:00'),
-(N'KM009', N'CTKM009', N'KH009', N'Khuyến mãi 9', N'Mô tả khuyến mãi thứ 9', 180, '2025-09-01 00:00:00'),
-(N'KM010', N'CTKM010', N'KH010', N'Khuyến mãi 10', N'Mô tả khuyến mãi thứ 10', 190, '2025-10-01 00:00:00');
+(N'KM001', N'CTKM001', N'KH001', N'Khuyến mãi 1', N'Mô tả khuyến mãi thứ 1', 100, '2025-01-01'),
+(N'KM002', N'CTKM002', N'KH002', N'Khuyến mãi 2', N'Mô tả khuyến mãi thứ 2', 110, '2025-01-02'),
+(N'KM003', N'CTKM003', N'KH003', N'Khuyến mãi 3', N'Mô tả khuyến mãi thứ 3', 120, '2025-01-03'),
+(N'KM004', N'CTKM004', N'KH004', N'Khuyến mãi 4', N'Mô tả khuyến mãi thứ 4', 130, '2025-01-04'),
+(N'KM005', N'CTKM005', N'KH005', N'Khuyến mãi 5', N'Mô tả khuyến mãi thứ 5', 140, '2025-01-05'),
+(N'KM006', N'CTKM006', N'KH006', N'Khuyến mãi 6', N'Mô tả khuyến mãi thứ 6', 150, '2025-01-06'),
+(N'KM007', N'CTKM007', N'KH007', N'Khuyến mãi 7', N'Mô tả khuyến mãi thứ 7', 160, '2025-01-07'),
+(N'KM008', N'CTKM008', N'KH008', N'Khuyến mãi 8', N'Mô tả khuyến mãi thứ 8', 170, '2025-01-08'),
+(N'KM009', N'CTKM009', N'KH009', N'Khuyến mãi 9', N'Mô tả khuyến mãi thứ 9', 180, '2025-01-09'),
+(N'KM010', N'CTKM010', N'KH010', N'Khuyến mãi 10', N'Mô tả khuyến mãi thứ 10', 190, '2025-01-10');
 
 INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, MucGiamGia, TongTienSauGiamGia) VALUES
 (N'HD001', '2025-07-01 10:00:00', N'KH001', N'ND002', 300000.00, 20000.00, 280000.00),

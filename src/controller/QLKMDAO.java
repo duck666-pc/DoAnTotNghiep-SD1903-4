@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import model.KhuyenMai;
+import model.ChiTietKhuyenMai;
 
 /**
  *
@@ -26,7 +27,7 @@ public class QLKMDAO {
         conn = new MyConnection();
     }
 
-    public List<KhuyenMai> getAll() throws SQLException, ClassNotFoundException {
+    public List<KhuyenMai> getAllKM() throws SQLException, ClassNotFoundException {
         List<KhuyenMai> lstKM = new ArrayList<>();
         String query = "SELECT * FROM KHUYENMAI";
         Connection connect = conn.DBConnect();
@@ -46,8 +47,27 @@ public class QLKMDAO {
         }
         return lstKM;
     }
+    
+    public List<ChiTietKhuyenMai> getAllCTKM() throws SQLException, ClassNotFoundException {
+        List<ChiTietKhuyenMai> lstCTKM = new ArrayList<>();
+        String query = "SELECT * FROM CHITIETKHUYENMAI";
+        Connection connect = conn.DBConnect();
+        Statement stmt = connect.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            ChiTietKhuyenMai ctkm = new ChiTietKhuyenMai();
+            ctkm.setId(rs.getString("ID"));
+            ctkm.setHinhThucGiam(rs.getString("HINHTHUCGIAM"));
+            ctkm.setSoTienGiamGia(rs.getFloat("SOTIENGIAMGIA"));
+            ctkm.setSanPhamid(rs.getString("SANPHAMID"));
+            ctkm.setMucGiamGia(rs.getFloat("MUCGIAMGIA"));
+            ctkm.setQuaTang(rs.getString("QUATANG"));           
+            lstCTKM.add(ctkm);
+        }
+        return lstCTKM;
+    }    
 
-    public int addSP(KhuyenMai km) throws SQLException, ClassNotFoundException {
+    public int addKM(KhuyenMai km) throws SQLException, ClassNotFoundException {
         String sql = "INSERT INTO KHUYENMAI (ID, CHITIETID, KHACHHANGID, TEN, MOTA, SOLUONG, THOIGIANAPDUNG, THOIGIANKETTHUC) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, km.getId());
@@ -65,8 +85,25 @@ public class QLKMDAO {
         }
         return 0;
     }
+    
+    public int addCTKM(ChiTietKhuyenMai ctkm) throws SQLException, ClassNotFoundException {
+        String sql = "INSERT INTO CHITIETKHUYENMAI (ID, HINHTHUCGIAM, SOTIENGIAMGIA, SANPHAMID, MUCGIAMGIA, QUATANG) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
+            pstm.setString(1, ctkm.getId());
+            pstm.setString(2, ctkm.getHinhThucGiam());
+            pstm.setFloat(3, ctkm.getSoTienGiamGia());            
+            pstm.setString(4, ctkm.getSanPhamid());
+            pstm.setFloat(5, ctkm.getMucGiamGia());            
+            pstm.setString(6, ctkm.getQuaTang());         
 
-    public int editSP(KhuyenMai km, String oldId) throws SQLException, ClassNotFoundException {
+            if (pstm.executeUpdate() > 0) {
+                return 1;
+            }
+        }
+        return 0;
+    }    
+
+    public int editKM(KhuyenMai km, String oldId) throws SQLException, ClassNotFoundException {
         String sql = "UPDATE SANPHAM SET "
                 + "ID = ?, "
                 + "CHITIETID = ?, "                
@@ -95,13 +132,46 @@ public class QLKMDAO {
         return 0;
     }
 
-    public int deleteSP(String id) throws SQLException, ClassNotFoundException {
+    public int editCTKM(ChiTietKhuyenMai ctkm, String oldId) throws SQLException, ClassNotFoundException {
+        String sql = "UPDATE SANPHAM SET "
+                + "ID = ?, "
+                + "HINHTHUCGIAM = ?, "                
+                + "SOTIENGIAMGIA = ?, "                
+                + "SANPHAMID = ?, "
+                + "MUCGIAMGIA = ?, "
+                + "QUATANG = ?, "             
+                + "WHERE ID = ?";
+        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
+            pstm.setString(1, ctkm.getId());
+            pstm.setString(2, ctkm.getHinhThucGiam());
+            pstm.setFloat(3, ctkm.getSoTienGiamGia());            
+            pstm.setString(4, ctkm.getSanPhamid());
+            pstm.setFloat(5, ctkm.getMucGiamGia());            
+            pstm.setString(6, ctkm.getQuaTang());
+            pstm.setString(7, oldId);
+
+            if (pstm.executeUpdate() > 0) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    
+    public int deleteKM(String id) throws SQLException, ClassNotFoundException {
         String sql = "DELETE FROM KHUYENMAI WHERE ID = ?";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, id);
             return pstm.executeUpdate();
         }
     }
+    
+    public int deleteCTKM(String id) throws SQLException, ClassNotFoundException {
+        String sql = "DELETE FROM CHITIETKHUYENMAI WHERE ID = ?";
+        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
+            pstm.setString(1, id);
+            return pstm.executeUpdate();
+        }
+    }    
 
     public Object[] getRow(KhuyenMai km) {
         return new Object[]{
@@ -115,4 +185,15 @@ public class QLKMDAO {
             km.getThoiGianKetThuc()     
         };
     }
+    
+    public Object[] getRow(ChiTietKhuyenMai ctkm) {
+        return new Object[]{
+            ctkm.getId(),
+            ctkm.getHinhThucGiam(),
+            ctkm.getSoTienGiamGia(),
+            ctkm.getSanPhamid(),
+            ctkm.getMucGiamGia(),
+            ctkm.getQuaTang(),     
+        };
+    }    
 }
