@@ -37,6 +37,78 @@ public class BANHANGDAO {
         return lst;
     }
     
+        public int getcountHoaDon() throws ClassNotFoundException, SQLException{
+        int count = 0;
+        String query = "SELECT count(*) as count FROM HoaDon";
+        Connection connect = conn.DBConnect();
+        Statement stmt = connect.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while(rs.next()){
+            count = rs.getInt("count");
+        }
+        return count;
+    }
+    
+        public int gettotalHoaDon() throws ClassNotFoundException, SQLException{
+        int count = 0;
+        String query = "SELECT sum as count FROM HoaDon";
+        Connection connect = conn.DBConnect();
+        Statement stmt = connect.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while(rs.next()){
+            count = rs.getInt("count");
+        }
+        return count;
+    }
+        
+    public List<HoaDon> getAllHoaDondate(String bday, String bmonth, String byear, String eday, String emonth, String eyear) throws ClassNotFoundException, SQLException{
+        List<HoaDon> lst = new ArrayList<>();
+        String query = "SELECT * FROM HoaDon where ThoiGian between '%s-%s-%s 00:00:00' and '%s-%s-%s 00:00:00'";
+        query = String.format(query, byear, bmonth, bday, eyear, emonth, eday);
+        Connection connect = conn.DBConnect();
+        Statement stmt = connect.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while(rs.next()){
+            HoaDon hd = new HoaDon();
+            hd.setId(rs.getString("Id"));
+            hd.setThoiGian(rs.getTimestamp("ThoiGian"));
+            hd.setIdKhachHang(rs.getString("IdKhachHang"));
+            hd.setIdNguoiDung(rs.getString("IdNguoiDung"));
+            hd.setTongTienGoc(rs.getBigDecimal("TongTienGoc"));
+            hd.setMucGiamGia(rs.getBigDecimal("MucGiamGia"));
+            hd.setTongTienSauGiamGia(rs.getBigDecimal("TongTienSauGiamGia"));
+            lst.add(hd);
+        }
+        return lst;
+    }
+    
+        public int getcountHoaDondate(String bday, String bmonth, String byear, String eday, String emonth, String eyear) throws ClassNotFoundException, SQLException{
+        int count = 0;
+        String query = "SELECT count(*) as count FROM HoaDon where ThoiGian between '%s-%s-%s 00:00:00' and '%s-%s-%s 00:00:00'";
+        query = String.format(query, byear, bmonth, bday, eyear, emonth, eday);
+        Connection connect = conn.DBConnect();
+        Statement stmt = connect.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while(rs.next()){
+            count = rs.getInt("count");
+        }
+        return count;
+    }
+    
+        public int gettotalHoaDondate(String bday, String bmonth, String byear, String eday, String emonth, String eyear) throws ClassNotFoundException, SQLException{
+        int count = 0;
+        String query = "SELECT sum as count FROM HoaDon where ThoiGian between '%s-%s-%s 00:00:00' and '%s-%s-%s 00:00:00'";
+        query = String.format(query, byear, bmonth, bday, eyear, emonth, eday);
+        Connection connect = conn.DBConnect();
+        Statement stmt = connect.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while(rs.next()){
+            count = rs.getInt("count");
+        }
+        return count;
+    }
+    
+    
     public List<String[]> getChiTietHoaDon(String idHoaDon) throws ClassNotFoundException, SQLException{
         String query = "SELECT cthd.Id, cthd.SoLuong, sp.Ten AS TenSanPham, cthd.DonGia "
                      + "FROM ChiTietHoaDon cthd "
@@ -90,7 +162,7 @@ public class BANHANGDAO {
             sp.setTen(rs.getString("Ten"));
             sp.setMoTa(rs.getString("MoTa"));
             sp.setGia((float) rs.getDouble("Gia")); 
-            sp.setLoaiSanPham(rs.getString("IdLoaiSanPham"));
+            sp.setIdLoaiSanPham(rs.getString("IdLoaiSanPham"));
             lst.add(sp);
         }
         return lst;
