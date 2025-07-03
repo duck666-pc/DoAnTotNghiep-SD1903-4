@@ -4,6 +4,16 @@
  */
 package view;
 
+import controller.QLNVDAO;
+import java.awt.Component;
+import java.sql.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import model.NhanVien;
+
 /**
  *
  * @author minhd
@@ -13,8 +23,39 @@ public class KiemTraThongTin extends javax.swing.JFrame {
     /**
      * Creates new form KiemTraThongTin
      */
+    QLNVDAO qlnv = new QLNVDAO();
+
     public KiemTraThongTin() {
         initComponents();
+    }
+
+    private String toStringOrEmpty(Object obj) {
+        return obj != null ? obj.toString().trim() : "";
+    }
+
+    public class FormUtils {
+
+        public static String getText(Component c) {
+            if (c instanceof JTextField jTextField) {
+                return jTextField.getText().trim();
+            } else {
+                JTextField jTextField = (JTextField) c;
+            }
+            if (c instanceof JComboBox<?> cb) {
+                Object item = cb.getSelectedItem();
+                return item != null ? item.toString().trim() : "";
+            }
+            return "";
+        }
+
+        public static Date parseDate(String day, String month, String year) {
+            try {
+                String s = String.format("%s-%02d-%02d", year, Integer.parseInt(month), Integer.parseInt(day));
+                return Date.valueOf(s);
+            } catch (Exception e) {
+                return null;
+            }
+        }
     }
 
     /**
@@ -224,7 +265,42 @@ public class KiemTraThongTin extends javax.swing.JFrame {
     }//GEN-LAST:event_jcbChucVuActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        try {
+            String id = FormUtils.getText(txtID);
+            String ten = FormUtils.getText(txtTen);
+            String ngay = FormUtils.getText(jcbNgaySinh);
+            String thang = FormUtils.getText(jcbThangSinh);
+            String nam = FormUtils.getText(jcbNamSinh);
+            Date ngaySinh = FormUtils.parseDate(ngay, thang, nam);
+            String email = FormUtils.getText(txtEmail);
+            String gioiTinh = FormUtils.getText(jcbGioiTinh);
+            String chucVu = FormUtils.getText(jcbChucVu);
+
+            boolean hopLe = false;
+            for (NhanVien n : qlnv.getAll()) {
+                if (n.getId().equals(id)
+                        && n.getTenDayDu().equals(ten)
+                        && n.getNgaySinh().equals(ngaySinh)
+                        && n.getEmail().equals(email)
+                        && n.getGioiTinh().equals(gioiTinh)
+                        && n.getChucVu().equals(chucVu)) {
+
+                    new TrangChu(n).setVisible(true);
+                    this.dispose();
+                    hopLe = true;
+                    break;
+                }
+            }
+
+            if (!hopLe) {
+                JOptionPane.showMessageDialog(this, "Sai thông tin! Mời bạn nhập lại.",
+                        "Kiểm tra thất bại", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Lỗi hệ thống khi kiểm tra!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -256,6 +332,7 @@ public class KiemTraThongTin extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new KiemTraThongTin().setVisible(true);
             }

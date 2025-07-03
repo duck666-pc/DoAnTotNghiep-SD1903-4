@@ -13,8 +13,8 @@ import model.KhachHang;
 import java.util.ArrayList;
 
 public final class QLKHKHPanel extends javax.swing.JFrame {
-    DefaultTableModel tableModel;
-    QLKHDAO qlkh = new QLKHDAO();
+    private DefaultTableModel tableModel;
+    private final QLKHDAO qlkh = new QLKHDAO();
 
     public QLKHKHPanel() {
         initComponents();
@@ -22,24 +22,20 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
         fillTable();
     }
 
-    public void initTable() {
-        // Thêm cột "Chọn" đầu tiên cho checkbox
-        String[] cols = new String[]{"Chọn", "ID", "Tên", "Điện thoại", "Địa chỉ", "Id Hạng Khách Hàng"};
-        tableModel = new DefaultTableModel() {
+    private void initTable() {
+        // Cột đồng nhất tên
+        String[] cols = new String[]{"Chọn", "ID", "Tên", "Điện Thoại", "Địa Chỉ", "ID Hạng Khách Hàng"};
+        tableModel = new DefaultTableModel(null, cols) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) {
-                    return Boolean.class; // Cột đầu tiên là checkbox
-                }
+                if (columnIndex == 0) return Boolean.class;
                 return String.class;
             }
-
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 0; // Chỉ cho phép chỉnh sửa cột checkbox
+                return column == 0;
             }
         };
-        tableModel.setColumnIdentifiers(cols);
         jTable.setModel(tableModel);
     }
 
@@ -48,9 +44,8 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
         try {
             List<KhachHang> listKH = qlkh.getAll();
             for (KhachHang kh : listKH) {
-                // Thêm giá trị false cho cột checkbox
                 Object[] row = new Object[]{
-                    false, // Cột checkbox mặc định không chọn
+                    false,
                     kh.getId(),
                     kh.getTen(),
                     kh.getDienThoai(),
@@ -64,17 +59,18 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
         }
     }
 
-    // Lấy danh sách khách hàng đã chọn
+    // Lấy danh sách khách hàng đã chọn, kiểm tra null/type
     private List<KhachHang> getSelectedKhachHang() {
         List<KhachHang> selected = new ArrayList<>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            Object value = tableModel.getValueAt(i, 0);
+            boolean isSelected = value instanceof Boolean && (Boolean) value;
             if (isSelected) {
-                String id = tableModel.getValueAt(i, 1).toString();
-                String ten = tableModel.getValueAt(i, 2).toString();
-                String dienThoai = tableModel.getValueAt(i, 3).toString();
-                String diaChi = tableModel.getValueAt(i, 4).toString();
-                String hangKH = tableModel.getValueAt(i, 5).toString();
+                String id = String.valueOf(tableModel.getValueAt(i, 1));
+                String ten = String.valueOf(tableModel.getValueAt(i, 2));
+                String dienThoai = String.valueOf(tableModel.getValueAt(i, 3));
+                String diaChi = String.valueOf(tableModel.getValueAt(i, 4));
+                String hangKH = String.valueOf(tableModel.getValueAt(i, 5));
                 selected.add(new KhachHang(id, ten, dienThoai, diaChi, hangKH));
             }
         }
@@ -179,7 +175,7 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            tableModel.setValueAt(false, i, 0); // Đặt tất cả checkbox về false
+            tableModel.setValueAt(false, i, 0);
         }
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 

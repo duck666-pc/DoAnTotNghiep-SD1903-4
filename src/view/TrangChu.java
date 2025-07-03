@@ -5,7 +5,6 @@
 package view;
 
 import java.awt.BorderLayout;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import model.NhanVien;
@@ -14,17 +13,12 @@ public class TrangChu extends javax.swing.JFrame {
 
     public TrangChu(NhanVien nv) {
         initComponents();
-        setupFullscreen();
     }
 
     private TrangChu() {
         initComponents();
-        setupFullscreen();
     }
 
-    private void setupFullscreen() {
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -43,8 +37,12 @@ public class TrangChu extends javax.swing.JFrame {
         jbtQLKM = new javax.swing.JButton();
         jbtDangXuat = new javax.swing.JButton();
         jPanel = new javax.swing.JPanel();
+        jbtDOANHTHU = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocationByPlatform(true);
+        setMaximumSize(new java.awt.Dimension(0, 0));
+        setResizable(false);
 
         jbtQLNV.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jbtQLNV.setText("Nhân Viên");
@@ -115,6 +113,14 @@ public class TrangChu extends javax.swing.JFrame {
             .addGap(0, 470, Short.MAX_VALUE)
         );
 
+        jbtDOANHTHU.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtDOANHTHU.setText("Doanh Thu");
+        jbtDOANHTHU.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtDOANHTHUActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -128,7 +134,8 @@ public class TrangChu extends javax.swing.JFrame {
                     .addComponent(jbtQLNV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbtQLKH, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbtQLKM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbtDangXuat, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jbtDangXuat, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbtDOANHTHU, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -136,7 +143,7 @@ public class TrangChu extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(10, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -151,10 +158,14 @@ public class TrangChu extends javax.swing.JFrame {
                         .addComponent(jbtQLKH)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLKM)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtDOANHTHU)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jbtDangXuat)))
                 .addContainerGap())
         );
+
+        getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -215,7 +226,7 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel.removeAll();
         jPanel.add(p6, BorderLayout.CENTER);
         jPanel.repaint();
-        jPanel.revalidate();        // TODO add your handling code here:
+        jPanel.revalidate();
     }//GEN-LAST:event_jbtQLKMActionPerformed
 
     private void jbtDangXuatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangXuatActionPerformed
@@ -232,6 +243,17 @@ public class TrangChu extends javax.swing.JFrame {
             });
         }
     }//GEN-LAST:event_jbtDangXuatActionPerformed
+
+    private void jbtDOANHTHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDOANHTHUActionPerformed
+        DOANHTHUPanel p7 = new DOANHTHUPanel();
+        p7.setSize(642,452);
+        p7.setLocation(0, 0);
+
+        jPanel.removeAll();
+        jPanel.add(p7, BorderLayout.CENTER);
+        jPanel.repaint();
+        jPanel.revalidate();
+    }//GEN-LAST:event_jbtDOANHTHUActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -261,6 +283,7 @@ public class TrangChu extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel;
+    private javax.swing.JButton jbtDOANHTHU;
     private javax.swing.JButton jbtDangXuat;
     private javax.swing.JButton jbtQLHD;
     private javax.swing.JButton jbtQLKH;

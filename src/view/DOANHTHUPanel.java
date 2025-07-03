@@ -4,7 +4,6 @@
  */
 package view;
 
-
 import Controller.BANHANGDAO;
 import Model.HoaDon;
 import java.sql.SQLException;
@@ -19,13 +18,70 @@ import javax.swing.table.DefaultTableModel;
  * @author minhd
  */
 public class DOANHTHUPanel extends javax.swing.JPanel {
+
     DefaultTableModel tableModel;
     BANHANGDAO orderinfo;
+
     /**
      * Creates new form DOANHTHUPanel
      */
     public DOANHTHUPanel() {
         initComponents();
+        orderinfo = new BANHANGDAO();
+
+        FIlter.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                String[] cols = new String[]{"ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng", "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"};
+                tableModel = new DefaultTableModel();
+                tableModel.setColumnIdentifiers(cols);
+                jTable1.setModel(tableModel);
+                try {
+                    if (jcbNamBatDau.getText() == null || jcbNamKetThuc.getText() == null) {
+                        jLabel2.setText(String.valueOf(orderinfo.getcountHoaDon()));
+                        jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDon()));
+                        List<HoaDon> listHD = orderinfo.getAllHoaDon();
+                        for (HoaDon hd : listHD) {
+                            Object[] row = new Object[]{
+                                hd.getId(),
+                                hd.getThoiGian(),
+                                hd.getIdKhachHang(),
+                                hd.getIdNguoiDung(),
+                                hd.getTongTienGoc(),
+                                hd.getMucGiamGia(),
+                                hd.getTongTienSauGiamGia()
+                            };
+                            tableModel.addRow(row);
+                        }
+                    } else {
+                        String day1 = jcbNgayBatDau.getSelectedItem().toString();
+                        String day2 = jcbNgayKetThuc.getSelectedItem().toString();
+                        String month1 = jcbThangBatDau.getSelectedItem().toString();
+                        String month2 = jcbThangKetThuc.getSelectedItem().toString();
+                        String year1 = jcbNamBatDau.getText();
+                        String year2 = jcbNamKetThuc.getText();
+
+                        jLabel2.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
+                        jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
+                        List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
+                        for (HoaDon hd : listHD) {
+                            Object[] row = new Object[]{
+                                hd.getId(),
+                                hd.getThoiGian(),
+                                hd.getIdKhachHang(),
+                                hd.getIdNguoiDung(),
+                                hd.getTongTienGoc(),
+                                hd.getMucGiamGia(),
+                                hd.getTongTienSauGiamGia()
+                            };
+                            tableModel.addRow(row);
+                        }
+                    }
+                } catch (SQLException | ClassNotFoundException ex) {
+                    JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+                }
+            }
+        });
     }
 
     /**
@@ -40,18 +96,18 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
-        bday = new javax.swing.JComboBox<>();
-        bmonth = new javax.swing.JComboBox<>();
-        byear = new javax.swing.JTextField();
+        jcbNgayBatDau = new javax.swing.JComboBox<>();
+        jcbThangBatDau = new javax.swing.JComboBox<>();
+        jcbNamBatDau = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        Eday = new javax.swing.JComboBox<>();
-        Emonth = new javax.swing.JComboBox<>();
-        Eyear = new javax.swing.JTextField();
+        jcbNgayKetThuc = new javax.swing.JComboBox<>();
+        jcbThangKetThuc = new javax.swing.JComboBox<>();
+        jcbNamKetThuc = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        FIlter = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        FIlter = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -66,37 +122,37 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        jLabel6.setText("Từ:");
+        jLabel6.setText("Từ");
 
-        bday.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+        jcbNgayBatDau.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
 
-        bmonth.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" }));
-        bmonth.addActionListener(new java.awt.event.ActionListener() {
+        jcbThangBatDau.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" }));
+        jcbThangBatDau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bmonthActionPerformed(evt);
+                jcbThangBatDauActionPerformed(evt);
             }
         });
 
-        byear.addActionListener(new java.awt.event.ActionListener() {
+        jcbNamBatDau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                byearActionPerformed(evt);
+                jcbNamBatDauActionPerformed(evt);
             }
         });
 
         jLabel7.setText("Đến:");
 
-        Eday.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+        jcbNgayKetThuc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
 
-        Emonth.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" }));
-        Emonth.addActionListener(new java.awt.event.ActionListener() {
+        jcbThangKetThuc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" }));
+        jcbThangKetThuc.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                EmonthActionPerformed(evt);
+                jcbThangKetThucActionPerformed(evt);
             }
         });
 
-        Eyear.addActionListener(new java.awt.event.ActionListener() {
+        jcbNamKetThuc.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                EyearActionPerformed(evt);
+                jcbNamKetThucActionPerformed(evt);
             }
         });
 
@@ -105,80 +161,74 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
         jLabel9.setText("Tổng tiền:");
 
         FIlter.setText("Filter");
-        FIlter.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FIlterActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 609, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel2))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel1))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6))
+                        .addGap(26, 26, 26)
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(jcbNgayBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jcbThangBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbNamBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(39, 39, 39)
+                        .addComponent(jLabel7)
+                        .addGap(18, 18, 18)
+                        .addComponent(jcbNgayKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 609, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(bday, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(bmonth, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(byear, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(Eday, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Emonth, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Eyear, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(FIlter)))))
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel8)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel1))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel9)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(FIlter)))))))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(11, Short.MAX_VALUE)
+                .addContainerGap(36, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(bday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6)
-                    .addComponent(bmonth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(byear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Eday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(Emonth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(Eyear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jcbNgayBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jcbThangBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jcbNamBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
-                    .addComponent(FIlter))
+                    .addComponent(jcbNgayKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(11, 11, 11)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jLabel2))
-                .addGap(49, 49, 49))
+                    .addComponent(jLabel2)
+                    .addComponent(FIlter))
+                .addGap(45, 45, 45))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -198,66 +248,29 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_EyearActionPerformed
 
+    private void jcbThangBatDauActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:        
+    }
+
+    private void jcbNamBatDauActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:        
+    }
+
+    private void jcbThangKetThucActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:        
+    }
+
+    private void jcbNamKetThucActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:        
+    }
+
     private void FIlterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FIlterActionPerformed
-    String[] cols = new String[]{"ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng", "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"};
-    tableModel = new DefaultTableModel();
-    tableModel.setColumnIdentifiers(cols);
-    jTable1.setModel(tableModel);
-    try {
-    if (byear.getText() == null || Eyear.getText() == null) {
-        jLabel1.setText(String.valueOf(orderinfo.getcountHoaDon()));
-        jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDon()));
-        List<HoaDon> listHD = orderinfo.getAllHoaDon();
-            for (HoaDon hd : listHD) {
-                Object[] row = new Object[]{
-                    hd.getId(),
-                    hd.getThoiGian(),
-                    hd.getIdKhachHang(),
-                    hd.getIdNguoiDung(),
-                    hd.getTongTienGoc(),
-                    hd.getMucGiamGia(),
-                    hd.getTongTienSauGiamGia()
-                };
-                tableModel.addRow(row);
-            }
-    }
-    else {
-        String day1 = bday.getSelectedItem().toString();
-        String day2 = Eday.getSelectedItem().toString();
-        String month1 = bmonth.getSelectedItem().toString();
-        String month2 = Emonth.getSelectedItem().toString();
-        String year1 = byear.getText();
-        String year2 = Eyear.getText();
-        
-                jLabel1.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
-        jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
-        List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
-            for (HoaDon hd : listHD) {
-                Object[] row = new Object[]{
-                    hd.getId(),
-                    hd.getThoiGian(),
-                    hd.getIdKhachHang(),
-                    hd.getIdNguoiDung(),
-                    hd.getTongTienGoc(),
-                    hd.getMucGiamGia(),
-                    hd.getTongTienSauGiamGia()
-                };
-                tableModel.addRow(row);
-            }
-    }
-            } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+
     }//GEN-LAST:event_FIlterActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> Eday;
-    private javax.swing.JComboBox<String> Emonth;
-    private javax.swing.JTextField Eyear;
     private javax.swing.JButton FIlter;
-    private javax.swing.JComboBox<String> bday;
-    private javax.swing.JComboBox<String> bmonth;
-    private javax.swing.JTextField byear;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel6;
@@ -266,5 +279,11 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jcbNamBatDau;
+    private javax.swing.JTextField jcbNamKetThuc;
+    private javax.swing.JComboBox<String> jcbNgayBatDau;
+    private javax.swing.JComboBox<String> jcbNgayKetThuc;
+    private javax.swing.JComboBox<String> jcbThangBatDau;
+    private javax.swing.JComboBox<String> jcbThangKetThuc;
     // End of variables declaration//GEN-END:variables
 }
