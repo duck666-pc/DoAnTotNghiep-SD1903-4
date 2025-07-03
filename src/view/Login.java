@@ -154,27 +154,20 @@ public class Login extends javax.swing.JFrame {
 
     private void jbtDangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangNhapActionPerformed
         String id = txtID.getText().trim();
-        String matKhau = txtMatKhau.getText().trim();
-
-        boolean dangNhapThanhCong = false;
+        String matKhau = new String(txtMatKhau.getPassword()).trim();
 
         try {
             for (NhanVien n : qlnv.getAll()) {
                 if (n.getId().equals(id) && n.getMatKhau().equals(matKhau)) {
-                    TrangChu tc = new TrangChu(n);
-                    tc.setVisible(true);
+                    new TrangChu(n).setVisible(true);
                     this.dispose();
-                    dangNhapThanhCong = true;
-                    break;
+                    return;
                 }
             }
-
-            if (!dangNhapThanhCong) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                        "Sai ID hoặc mật khẩu!",
-                        "Đăng nhập thất bại",
-                        javax.swing.JOptionPane.ERROR_MESSAGE);
-            }
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Sai ID hoặc mật khẩu!",
+                    "Đăng nhập thất bại",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
         } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
             javax.swing.JOptionPane.showMessageDialog(this,
@@ -182,39 +175,20 @@ public class Login extends javax.swing.JFrame {
                     "Lỗi",
                     javax.swing.JOptionPane.ERROR_MESSAGE);
         }
-
     }//GEN-LAST:event_jbtDangNhapActionPerformed
 
     private void jCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActionPerformed
-        if (jCheckBox.isSelected()) {
-            txtMatKhau.setEchoChar((char) 0);
-        } else {
-            txtMatKhau.setEchoChar(defaultEchoChar);
-
-        }
+        txtMatKhau.setEchoChar(jCheckBox.isSelected() ? (char) 0 : '*');
     }//GEN-LAST:event_jCheckBoxActionPerformed
 
     private void jbtQuenMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuenMatKhauActionPerformed
-        if (ktttInstance == null || !ktttInstance.isDisplayable()) {
-            SwingUtilities.invokeLater(() -> {
-                ktttInstance = new KiemTraThongTin();
-                ktttInstance.setVisible(true);
-            });
-        } else {
-            ktttInstance.toFront();
-            ktttInstance.requestFocus();
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Chỉ bấm nút này 1 lần!",
-                    "Lỗi",
-                    javax.swing.JOptionPane.ERROR_MESSAGE
-            );
-        }
+        new KiemTraThongTin().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
     /**
-         * @param args the command line arguments
-         */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

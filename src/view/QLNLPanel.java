@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import model.NguyenVatLieu;
 
@@ -49,15 +48,12 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void setupTableSelection() {
-        jTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting() && jTable.getSelectedRow() != -1) {
-                    currentRow = jTable.getSelectedRow();
-                    NguyenVatLieu nl = getSelectedNguyenVatLieu();
-                    if (nl != null) {
-                        fillForm(nl);
-                    }
+        jTable.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() != -1) {
+                currentRow = jTable.getSelectedRow();
+                NguyenVatLieu nl = getSelectedNguyenVatLieu();
+                if (nl != null) {
+                    fillForm(nl);
                 }
             }
         });
@@ -98,14 +94,11 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     public boolean validateForm() {
-        if (txtID.getText().isEmpty()
+        return !(txtID.getText().isEmpty()
                 || txtTen.getText().isEmpty()
                 || txtDonVi.getText().isEmpty()
                 || txtSoLuongCoSan.getText().isEmpty()
-                || txtMucCanDatThem.getText().isEmpty()) {
-            return false;
-        }
-        return true;
+                || txtMucCanDatThem.getText().isEmpty());
     }
 
     private void clearForm() {

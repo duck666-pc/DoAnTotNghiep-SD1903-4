@@ -84,6 +84,8 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jbtQuayLai = new javax.swing.JButton();
+        jbtLamMoi = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -155,6 +157,20 @@ public class KiemTraThongTin extends javax.swing.JFrame {
             }
         });
 
+        jbtQuayLai.setText("Quay Lại");
+        jbtQuayLai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtQuayLaiActionPerformed(evt);
+            }
+        });
+
+        jbtLamMoi.setText("Làm Mới");
+        jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLamMoiActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -195,8 +211,12 @@ public class KiemTraThongTin extends javax.swing.JFrame {
                                     .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(130, 130, 130)
-                        .addComponent(jButton1)))
+                        .addGap(38, 38, 38)
+                        .addComponent(jbtQuayLai)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jbtLamMoi)))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -233,7 +253,10 @@ public class KiemTraThongTin extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(jcbChucVu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jbtQuayLai)
+                    .addComponent(jbtLamMoi))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
@@ -303,6 +326,15 @@ public class KiemTraThongTin extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jbtQuayLaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuayLaiActionPerformed
+        new Login().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jbtQuayLaiActionPerformed
+
+    private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbtLamMoiActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -349,6 +381,8 @@ public class KiemTraThongTin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JButton jbtLamMoi;
+    private javax.swing.JButton jbtQuayLai;
     private javax.swing.JComboBox<String> jcbChucVu;
     private javax.swing.JComboBox<String> jcbGioiTinh;
     private javax.swing.JTextField jcbNamSinh;
