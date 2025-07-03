@@ -4,7 +4,6 @@ import controller.QLSPDAO;
 import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import model.SanPham;
 
@@ -13,78 +12,63 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     DefaultTableModel tableModel;
     QLSPDAO qlsp = new QLSPDAO();
     int currentRow = -1;
-    
+
     public QLSPPanel() {
         initComponents();
         initTable();
         fillTable();
         addTableSelectionListener();
     }
-    
-    public void initTable() {
-        String[] cols = new String[]{"ID", "Tên", "Mô tả", "Giá", "Loại Sản Phẩm"};
-        tableModel = new DefaultTableModel();
-        tableModel.setColumnIdentifiers(cols);
-        jTable.setModel(tableModel);
-    }
-    
-    private void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            List<SanPham> listSP = qlsp.getAll();
-            for (SanPham sp : listSP) {
-                tableModel.addRow(qlsp.getRow(sp));
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-    
+
     private void addTableSelectionListener() {
-        jTable.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+        jTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
                 currentRow = jTable.getSelectedRow();
-                SanPham sp = getSelectedSanPham(currentRow);
-                if (sp != null) {
-                    fillForm(sp);
-                }
+                setFormFromRow(currentRow);
             }
         });
     }
-    
-    private SanPham getSelectedSanPham(int row) {
-        if (row >= 0) {
-            SanPham sp = new SanPham();
-            sp.setId(tableModel.getValueAt(row, 0).toString());
-            sp.setTen(tableModel.getValueAt(row, 1).toString());
-            sp.setMoTa(tableModel.getValueAt(row, 2).toString());
-            sp.setGia(Float.parseFloat(tableModel.getValueAt(row, 3).toString()));
-            sp.setLoaiSanPham(tableModel.getValueAt(row, 4).toString());
-            return sp;
+
+    private void setFormFromRow(int row) {
+        txtID.setText(getValue(row, 0));
+        txtTen.setText(getValue(row, 1));
+        txtMoTa.setText(getValue(row, 2));
+        txtGia.setText(getValue(row, 3));
+        jcbLoaiSanPham.setSelectedItem(getValue(row, 4));
+    }
+
+    private String getValue(int row, int col) {
+        Object val = jTable.getValueAt(row, col);
+        return val == null ? "" : val.toString();
+    }
+
+    public void initTable() {
+        String[] cols = {"ID", "Tên", "Mô tả", "Giá", "Loại Sản Phẩm"};
+        tableModel = new DefaultTableModel(cols, 0);
+        jTable.setModel(tableModel);
+    }
+
+    public void fillTable() {
+        tableModel.setRowCount(0);
+        try {
+            for (SanPham sp : qlsp.getAll()) {
+                tableModel.addRow(qlsp.getRow(sp));
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
         }
-        return null;
     }
-    
-    private void fillForm(SanPham sp) {
-        txtID.setText(sp.getId());
-        txtTen.setText(sp.getTen());
-        txtMoTa.setText(sp.getMoTa());
-        txtGia.setText(String.valueOf(sp.getGia()));
-        jcbLoaiSanPham.setSelectedItem(sp.getLoaiSanPham());
-    }
-    
+
     public boolean validateForm() {
-        if (txtID.getText().isEmpty()
-                || txtTen.getText().isEmpty()
-                || txtGia.getText().isEmpty()
+        if (txtID.getText().trim().isEmpty()
+                || txtTen.getText().trim().isEmpty()
+                || txtGia.getText().trim().isEmpty()
                 || jcbLoaiSanPham.getSelectedItem() == null) {
-            
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
-        
         try {
-            float gia = Float.parseFloat(txtGia.getText());
+            float gia = Float.parseFloat(txtGia.getText().trim());
             if (gia <= 0) {
                 JOptionPane.showMessageDialog(this, "Giá phải lớn hơn 0!");
                 return false;
@@ -93,10 +77,23 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             JOptionPane.showMessageDialog(this, "Giá phải là số!");
             return false;
         }
-        
         return true;
     }
-    
+
+    private SanPham getSanPhamFromForm() {
+        SanPham sp = new SanPham();
+        sp.setId(txtID.getText().trim());
+        sp.setTen(txtTen.getText().trim());
+        sp.setMoTa(txtMoTa.getText().trim());
+        sp.setGia(Float.parseFloat(txtGia.getText().trim()));
+        sp.setLoaiSanPham((String) jcbLoaiSanPham.getSelectedItem());
+        return sp;
+    }
+
+    private void showError(Exception ex, String prefix) {
+        JOptionPane.showMessageDialog(this, prefix + ex.getMessage());
+    }
+
     private void clearForm() {
         txtID.setText("");
         txtTen.setText("");
@@ -105,7 +102,6 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jcbLoaiSanPham.setSelectedIndex(-1);
         currentRow = -1;
     }
-
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -297,86 +293,67 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
         clearForm();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
-    
+
     private void txtIDActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
-    
+
     private void txtMoTaActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
-    
+
     private void txtGiaActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
-    
+
     private void txtLoaiSanPhamActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
-    
+
     private void txtTenActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
-    
+
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
         if (!validateForm()) {
             return;
         }
-        
         try {
-            SanPham sp = new SanPham();
-            sp.setId(txtID.getText());
-            sp.setTen(txtTen.getText());
-            sp.setMoTa(txtMoTa.getText());
-            sp.setGia(Float.parseFloat(txtGia.getText()));
-            sp.setLoaiSanPham(jcbLoaiSanPham.getSelectedItem().toString());
-            
+            SanPham sp = getSanPhamFromForm();
             int result = qlsp.addSP(sp);
-            if (result == 1) {
-                fillTable();
-                JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm sản phẩm thất bại!");
-            }
-        } catch (SQLException | ClassNotFoundException | NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm sản phẩm thành công!" : "Thêm sản phẩm thất bại!");
+            fillTable();
+            clearForm();
+        } catch (Exception ex) {
+            showError(ex, "Lỗi: ");
         }
-        
-        clearForm();
     }
-    
+
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow == -1) {
+        if (currentRow < 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần xóa!");
             return;
         }
-        
-        String id = tableModel.getValueAt(currentRow, 0).toString();
-        int option = JOptionPane.showConfirmDialog(this, 
-            "Bạn có chắc chắn muốn xóa sản phẩm này?", 
-            "Xác nhận xóa", 
-            JOptionPane.YES_NO_OPTION);
-        
-        if (option == JOptionPane.YES_OPTION) {
-            try {
-                int result = qlsp.deleteSP(id);
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công!");
-                    fillTable();
-                    clearForm();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Xóa sản phẩm thất bại!");
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-            }
-        }        
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa sản phẩm này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            String id = txtID.getText();
+            int result = qlsp.deleteSP(id);
+            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa sản phẩm thành công!" : "Xóa sản phẩm thất bại!");
+            fillTable();
+            clearForm();
+            currentRow = -1;
+        } catch (Exception ex) {
+            showError(ex, "Lỗi: ");
+        }
     }
-    
+
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
         // Xử lý sự kiện
     }
-    
+
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
         String id = txtTimKiem.getText().trim();
         if (!id.isEmpty()) {
@@ -406,37 +383,26 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         clearForm();
     }
-    
+
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow == -1) {
+        if (currentRow < 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần sửa!");
             return;
         }
         if (!validateForm()) {
             return;
         }
-        
+        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            return;
+        }
         try {
-            SanPham sp = new SanPham();
-            sp.setId(txtID.getText());
-            sp.setTen(txtTen.getText());
-            sp.setMoTa(txtMoTa.getText());
-            sp.setGia(Float.parseFloat(txtGia.getText()));
-            sp.setLoaiSanPham(jcbLoaiSanPham.getSelectedItem().toString());
-            
             String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            
-            int result = qlsp.editSP(sp, oldId);
-            if (result == 1) {
-                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-                fillTable();
-            } else {
-                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
-            }
-        } catch (SQLException | ClassNotFoundException | NumberFormatException ex) {
+            int result = qlsp.editSP(getSanPhamFromForm(), oldId);
+            fillTable();
+            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
         }
-        
         clearForm();
     }
 
