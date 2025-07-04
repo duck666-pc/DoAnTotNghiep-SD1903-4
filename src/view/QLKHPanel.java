@@ -93,7 +93,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         String ten = txtTen.getText().trim();
         String dienThoai = txtDienThoai.getText().trim();
         String diaChi = txtDiaChi.getText().trim();
-        String hangKhachHangId = jcbHangKhachHang.getSelectedItem().trim();
+        String hangKhachHangId = jcbHangKhachHang.getSelectedItem().toString().trim();
         return new KhachHang(id, ten, dienThoai, diaChi, hangKhachHangId);
     }
 
@@ -102,7 +102,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                 || txtTen.getText().isEmpty()
                 || txtDienThoai.getText().isEmpty()
                 || txtDiaChi.getText().isEmpty()
-                || jcbHangKhachHang.getSelectedItem().isEmpty()) {
+                || jcbHangKhachHang.getSelectedItem().toString().trim().isEmpty()) {
             return false;
         }
         return true;
