@@ -85,7 +85,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtTen.setText(kh.getTen());
         txtDienThoai.setText(kh.getDienThoai());
         txtDiaChi.setText(kh.getDiaChi());
-        txtHangKhachHang.setText(kh.gethangKhachHangId());
+        jcbHangKhachHang.setSelectedItem(kh.gethangKhachHangId());
     }
 
     private KhachHang getFormData() {
@@ -93,7 +93,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         String ten = txtTen.getText().trim();
         String dienThoai = txtDienThoai.getText().trim();
         String diaChi = txtDiaChi.getText().trim();
-        String hangKhachHangId = txtHangKhachHang.getText().trim();
+        String hangKhachHangId = jcbHangKhachHang.getSelectedItem().trim();
         return new KhachHang(id, ten, dienThoai, diaChi, hangKhachHangId);
     }
 
@@ -102,7 +102,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                 || txtTen.getText().isEmpty()
                 || txtDienThoai.getText().isEmpty()
                 || txtDiaChi.getText().isEmpty()
-                || txtHangKhachHang.getText().isEmpty()) {
+                || jcbHangKhachHang.getSelectedItem().isEmpty()) {
             return false;
         }
         return true;
@@ -113,7 +113,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtTen.setText("");
         txtDienThoai.setText("");
         txtDiaChi.setText("");
-        txtHangKhachHang.setText("");
+        jcbHangKhachHang.setSelectedIndex(-1);
         currentRow = -1;
     }
 
@@ -129,7 +129,6 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtID = new javax.swing.JTextField();
         txtDienThoai = new javax.swing.JTextField();
         txtDiaChi = new javax.swing.JTextField();
-        txtHangKhachHang = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         jbtThem = new javax.swing.JButton();
@@ -138,6 +137,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtTimKiem = new javax.swing.JTextField();
         jbtTimKiem = new javax.swing.JButton();
         jbtLamMoi = new javax.swing.JButton();
+        jcbHangKhachHang = new javax.swing.JComboBox<>();
 
         jLabel1.setText("ID:");
 
@@ -170,12 +170,6 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtDiaChi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDiaChiActionPerformed(evt);
-            }
-        });
-
-        txtHangKhachHang.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtHangKhachHangActionPerformed(evt);
             }
         });
 
@@ -233,6 +227,8 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
             }
         });
 
+        jcbHangKhachHang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "HC001 - Đồng", "HC002 - Bạc", "HC003 - Vàng", "HC004 - Bạch kim", "HC005 - Kim cương" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -249,14 +245,14 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtHangKhachHang)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtDiaChi)
                             .addComponent(txtTen)
                             .addComponent(txtID)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jcbHangKhachHang, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -264,7 +260,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                             .addComponent(jbtSua, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtThem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtLamMoi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(txtTimKiem)
@@ -299,7 +295,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(txtHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jcbHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jbtThem)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -455,9 +451,9 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private javax.swing.JButton jbtThem;
     private javax.swing.JButton jbtTimKiem;
     private javax.swing.JButton jbtXoa;
+    private javax.swing.JComboBox<String> jcbHangKhachHang;
     private javax.swing.JTextField txtDiaChi;
     private javax.swing.JTextField txtDienThoai;
-    private javax.swing.JTextField txtHangKhachHang;
     private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;
