@@ -47,7 +47,7 @@ public class QLNVDAO {
     }
 
     public int addNV(NhanVien nv) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO NGUOIDUNG (ID, MATKHAU, TENDAYDU, NGAYSINH, GIOITINH, EMAIL, CHUCVU) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NGUOIDUNG (ID, MATKHAU, TENDAYDU, NGAYSINH, GIOITINH, EMAIL, CHUCVU) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, nv.getId());
             pstm.setString(2, nv.getMatKhau());

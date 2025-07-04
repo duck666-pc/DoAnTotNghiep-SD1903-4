@@ -332,7 +332,12 @@ public class KiemTraThongTin extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtQuayLaiActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-        // TODO add your handling code here:
+        txtID.setText("");
+        txtTen.setText("");
+        txtEmail.setText("");
+        jcbNamSinh.setText("");
+        jcbThangSinh.setSelectedIndex(0);
+        jcbNgaySinh.setSelectedIndex(0);
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     /**
