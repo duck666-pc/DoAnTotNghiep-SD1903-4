@@ -1,11 +1,8 @@
 package view;
 
 import controller.QLKHDAO;
-import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import model.KhachHang;
 
@@ -19,93 +16,74 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         initComponents();
         initTable();
         fillTable();
-        setupTableSelection();
+        addTableSelectionListener();
     }
 
-    public void initTable() {
-        String[] cols = new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Id Hạng Khách Hàng"};
-        tableModel = new DefaultTableModel();
-        tableModel.setColumnIdentifiers(cols);
-        jTable.setModel(tableModel);
-    }
-
-    private void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            List<KhachHang> listKH = qlkh.getAll();
-            for (KhachHang kh : listKH) {
-                Object[] row = new Object[]{
-                    kh.getId(),
-                    kh.getTen(),
-                    kh.getDienThoai(),
-                    kh.getDiaChi(),
-                    kh.gethangKhachHangId()
-                };
-                tableModel.addRow(row);
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-
-    private void setupTableSelection() {
-        jTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting() && jTable.getSelectedRow() != -1) {
-                    currentRow = jTable.getSelectedRow();
-                    KhachHang kh = getSelectedKhachHang();
-                    if (kh != null) {
-                        fillForm(kh);
-                    }
-                }
+    private void addTableSelectionListener() {
+        jTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
+                currentRow = jTable.getSelectedRow();
+                setFormFromRow(currentRow);
             }
         });
     }
 
-    private KhachHang getSelectedKhachHang() {
-        if (currentRow >= 0) {
-            String id = tableModel.getValueAt(currentRow, 0).toString();
-            try {
-                List<KhachHang> listKH = qlkh.getAll();
-                for (KhachHang kh : listKH) {
-                    if (kh.getId().equals(id)) {
-                        return kh;
-                    }
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+    private void setFormFromRow(int row) {
+        txtID.setText(getValue(row, 0));
+        txtTen.setText(getValue(row, 1));
+        txtDienThoai.setText(getValue(row, 2));
+        txtDiaChi.setText(getValue(row, 3));
+        jcbHangKhachHang.setSelectedItem(getValue(row, 4));
+    }
+
+    private String getValue(int row, int col) {
+        Object val = jTable.getValueAt(row, col);
+        return val == null ? "" : val.toString();
+    }
+
+    public void initTable() {
+        String[] cols = {"ID", "Tên", "Điện thoại", "Địa chỉ", "Hạng KH"};
+        tableModel = new DefaultTableModel(cols, 0);
+        jTable.setModel(tableModel);
+    }
+
+    public void fillTable() {
+        tableModel.setRowCount(0);
+        try {
+            for (KhachHang kh : qlkh.getAll()) {
+                tableModel.addRow(new Object[]{
+                    kh.getId(), kh.getTen(), kh.getDienThoai(), kh.getDiaChi(), kh.gethangKhachHangId()
+                });
             }
+        } catch (Exception ex) {
+            showError(ex, "Lỗi khi tải dữ liệu: ");
         }
-        return null;
-    }
-
-    private void fillForm(KhachHang kh) {
-        txtID.setText(kh.getId());
-        txtTen.setText(kh.getTen());
-        txtDienThoai.setText(kh.getDienThoai());
-        txtDiaChi.setText(kh.getDiaChi());
-        jcbHangKhachHang.setSelectedItem(kh.gethangKhachHangId());
-    }
-
-    private KhachHang getFormData() {
-        String id = txtID.getText().trim();
-        String ten = txtTen.getText().trim();
-        String dienThoai = txtDienThoai.getText().trim();
-        String diaChi = txtDiaChi.getText().trim();
-        String hangKhachHangId = jcbHangKhachHang.getSelectedItem().toString().trim();
-        return new KhachHang(id, ten, dienThoai, diaChi, hangKhachHangId);
     }
 
     public boolean validateForm() {
-        if (txtID.getText().isEmpty()
-                || txtTen.getText().isEmpty()
-                || txtDienThoai.getText().isEmpty()
-                || txtDiaChi.getText().isEmpty()
-                || jcbHangKhachHang.getSelectedItem().toString().trim().isEmpty()) {
+        if (txtID.getText().trim().isEmpty()
+                || txtTen.getText().trim().isEmpty()
+                || txtDienThoai.getText().trim().isEmpty()
+                || txtDiaChi.getText().trim().isEmpty()
+                || jcbHangKhachHang.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
         return true;
+    }
+
+    private KhachHang getKhachHangFromForm() {
+        return new KhachHang(
+                txtID.getText().trim(),
+                txtTen.getText().trim(),
+                txtDienThoai.getText().trim(),
+                txtDiaChi.getText().trim(),
+                (String) jcbHangKhachHang.getSelectedItem()
+        );
+    }
+
+    private void showError(Exception ex, String prefix) {
+        JOptionPane.showMessageDialog(this, prefix + ex.getMessage());
     }
 
     private void clearForm() {
@@ -335,47 +313,37 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
         if (!validateForm()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
-            return;
-        }
-        KhachHang kh = getFormData();
-        if (kh == null) {
             return;
         }
         try {
+            KhachHang kh = getKhachHangFromForm();
             int result = qlkh.addKH(kh);
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm nguyên vật liệu thành công!");
-                fillTable();
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm thất bại!");
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thêm: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm khách hàng thành công!" : "Thêm khách hàng thất bại!");
+            fillTable();
+            clearForm();
+        } catch (Exception ex) {
+            showError(ex, "Lỗi: ");
         }
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một nguyên vật liệu để xóa!");
+        if (currentRow < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng cần xóa!");
             return;
         }
-        String id = tableModel.getValueAt(currentRow, 0).toString();
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                int result = qlkh.deleteKH(id);
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
-                    fillTable();
-                    clearForm();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại!");
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi xóa: " + ex.getMessage());
-            }
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa khách hàng này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            String id = txtID.getText();
+            int result = qlkh.deleteKH(id);
+            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa khách hàng thành công!" : "Xóa khách hàng thất bại!");
+            fillTable();
+            clearForm();
+            currentRow = -1;
+        } catch (Exception ex) {
+            showError(ex, "Lỗi: ");
         }
     }
 
@@ -387,23 +355,26 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         String id = txtTimKiem.getText().trim();
         if (!id.isEmpty()) {
             tableModel.setRowCount(0);
+            boolean found = false;
             try {
                 List<KhachHang> listKH = qlkh.getAll();
                 for (KhachHang kh : listKH) {
                     if (kh.getId().equalsIgnoreCase(id)) {
-                        tableModel.addRow(qlkh.getRow(kh));
-                        for (int i = 0; i < tableModel.getRowCount(); i++) {
-                            if (tableModel.getValueAt(i, 0).toString().equalsIgnoreCase(id)) {
-                                jTable.setRowSelectionInterval(i, i);
-                                jTable.scrollRectToVisible(jTable.getCellRect(i, 0, true));
-                                break;
-                            }
-                        }
+                        tableModel.addRow(new Object[]{
+                            kh.getId(), kh.getTen(), kh.getDienThoai(), kh.getDiaChi(), kh.gethangKhachHangId()
+                        });
+                        found = true;
+                        int row = tableModel.getRowCount() - 1;
+                        jTable.setRowSelectionInterval(row, row);
+                        jTable.scrollRectToVisible(jTable.getCellRect(row, 0, true));
                         break;
                     }
                 }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+                if (!found) {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng có ID: " + id);
+                }
+            } catch (Exception ex) {
+                showError(ex, "Lỗi khi tải dữ liệu: ");
             }
         } else {
             fillTable();
@@ -411,31 +382,25 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một nguyên vật liệu để sửa!");
+        if (currentRow < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng cần sửa!");
             return;
         }
         if (!validateForm()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
-        KhachHang kh = getFormData();
-        if (kh == null) {
+        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
             return;
         }
-        String oldId = tableModel.getValueAt(currentRow, 0).toString();
         try {
-            int result = qlkh.editKH(kh, oldId);
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Sửa nguyên vật liệu thành công!");
-                fillTable();
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Sửa thất bại!");
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi sửa: " + ex.getMessage());
+            String oldId = tableModel.getValueAt(currentRow, 0).toString();
+            int result = qlkh.editKH(getKhachHangFromForm(), oldId);
+            fillTable();
+            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
+        } catch (Exception ex) {
+            showError(ex, "Lỗi: ");
         }
+        clearForm();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
