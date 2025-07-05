@@ -400,7 +400,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
             return;
         }
         try {
-            int result = qlnv.addNV(getNhanVienFromForm());
+            int result = qlnv.add(getNhanVienFromForm());
             fillTable();
             JOptionPane.showMessageDialog(this, result == 1 ? "Thêm thành công!" : "Thêm thất bại!");
         } catch (Exception ex) {
@@ -421,7 +421,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
 
         try {
             String id = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnv.deleteNV(id);
+            int result = qlnv.delete(id);
             fillTable();
             JOptionPane.showMessageDialog(this, result == 1 ? "Xóa thành công!" : "Xóa thất bại!");
         } catch (Exception ex) {
@@ -483,7 +483,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
         }
         try {
             String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnv.editNV(getNhanVienFromForm(), oldId);
+            int result = qlnv.edit(getNhanVienFromForm(), oldId);
             fillTable();
             JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
         } catch (Exception ex) {

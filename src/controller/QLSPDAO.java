@@ -4,93 +4,78 @@
  */
 package controller;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import model.SanPham;
 
 /**
  *
  * @author minhd
  */
-public class QLSPDAO {
+public class QLSPDAO extends BaseDAO<SanPham> {
 
-    private final MyConnection conn;
-
-    public QLSPDAO() {
-        conn = new MyConnection();
+    @Override
+    protected String getTableName() {
+        return "SANPHAM";
     }
 
-    public List<SanPham> getAll() throws SQLException, ClassNotFoundException {
-        List<SanPham> lstSP = new ArrayList<>();
-        String query = "SELECT * FROM SANPHAM"; 
-        Connection connect = conn.DBConnect();
-        Statement stmt = connect.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        while (rs.next()) {
-            SanPham sp = new SanPham(); 
-            sp.setId(rs.getString("ID"));
-            sp.setTen(rs.getString("TEN"));
-            sp.setMoTa(rs.getString("MOTA"));
-            sp.setGia(rs.getFloat("GIA"));
-            sp.setLoaiSanPham(rs.getString("LOAISANPHAMID"));
-            lstSP.add(sp);
-        }
-        return lstSP;
+    @Override
+    protected String getPrimaryKeyColumn() {
+        return "ID";
     }
 
-    public int addSP(SanPham sp) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO SANPHAM (ID, TEN, MOTA, GIA, LOAISANPHAMID) VALUES (?, ?, ?, ?, ?)"; 
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, sp.getId());
-            pstm.setString(2, sp.getTen());
-            pstm.setString(3, sp.getMoTa());
-            pstm.setFloat(4, sp.getGia());
-            pstm.setString(5, sp.getLoaiSanPham());
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    @Override
+    protected SanPham mapResultSetToObject(ResultSet rs) throws SQLException {
+        SanPham sp = new SanPham();
+        sp.setId(rs.getString("ID"));
+        sp.setTen(rs.getString("TEN"));
+        sp.setMoTa(rs.getString("MOTA"));
+        sp.setGia(rs.getFloat("GIA"));
+        sp.setLoaiSanPham(rs.getString("LOAISANPHAMID"));
+        return sp;
     }
 
-    public int editSP(SanPham sp, String oldId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE SANPHAM SET "
-                + "ID = ?, "
-                + "TEN = ?, "
-                + "MOTA = ?, "
-                + "GIA = ?, "
-                + "LOAISANPHAMID = ? "
-                + "WHERE ID = ?"; 
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, sp.getId());
-            pstm.setString(2, sp.getTen());
-            pstm.setString(3, sp.getMoTa());
-            pstm.setFloat(4, sp.getGia());
-            pstm.setString(5, sp.getLoaiSanPham());
-            pstm.setString(6, oldId);
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    @Override
+    protected String getInsertQuery() {
+        return "INSERT INTO SANPHAM (ID, TEN, MOTA, GIA, LOAISANPHAMID) VALUES (?, ?, ?, ?, ?)";
     }
 
-    public int deleteSP(String id) throws SQLException, ClassNotFoundException {
-        String sql = "DELETE FROM SANPHAM WHERE ID = ?"; 
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, id);
-            return pstm.executeUpdate();
-        }
+    @Override
+    protected void setInsertParameters(PreparedStatement ps, SanPham sp) throws SQLException {
+        ps.setString(1, sp.getId());
+        ps.setString(2, sp.getTen());
+        ps.setString(3, sp.getMoTa());
+        ps.setFloat(4, sp.getGia());
+        ps.setString(5, sp.getLoaiSanPham());
     }
 
-    public Object[] getRow(SanPham sp) { 
+    @Override
+    protected String getUpdateQuery() {
+        return "UPDATE SANPHAM SET "
+             + "ID = ?, "
+             + "TEN = ?, "
+             + "MOTA = ?, "
+             + "GIA = ?, "
+             + "LOAISANPHAMID = ? "
+             + "WHERE ID = ?";
+    }
+
+    @Override
+    protected void setUpdateParameters(PreparedStatement ps, SanPham sp) throws SQLException {
+        ps.setString(1, sp.getId());
+        ps.setString(2, sp.getTen());
+        ps.setString(3, sp.getMoTa());
+        ps.setFloat(4, sp.getGia());
+        ps.setString(5, sp.getLoaiSanPham());
+    }
+
+    @Override
+    protected int getUpdateWhereIndex() {
+        return 6; 
+    }
+
+    public Object[] getRow(SanPham sp) {
         return new Object[]{
             sp.getId(),
             sp.getTen(),

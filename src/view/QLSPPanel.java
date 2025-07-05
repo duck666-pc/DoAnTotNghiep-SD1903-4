@@ -320,7 +320,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         try {
             SanPham sp = getSanPhamFromForm();
-            int result = qlsp.addSP(sp);
+            int result = qlsp.add(sp);
             JOptionPane.showMessageDialog(this, result == 1 ? "Thêm sản phẩm thành công!" : "Thêm sản phẩm thất bại!");
             fillTable();
             clearForm();
@@ -340,7 +340,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         try {
             String id = txtID.getText();
-            int result = qlsp.deleteSP(id);
+            int result = qlsp.delete(id);
             JOptionPane.showMessageDialog(this, result == 1 ? "Xóa sản phẩm thành công!" : "Xóa sản phẩm thất bại!");
             fillTable();
             clearForm();
@@ -397,7 +397,7 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         try {
             String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlsp.editSP(getSanPhamFromForm(), oldId);
+            int result = qlsp.edit(getSanPhamFromForm(), oldId);
             fillTable();
             JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
         } catch (Exception ex) {

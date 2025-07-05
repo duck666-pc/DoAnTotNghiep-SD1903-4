@@ -317,7 +317,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         try {
             KhachHang kh = getKhachHangFromForm();
-            int result = qlkh.addKH(kh);
+            int result = qlkh.add(kh);
             JOptionPane.showMessageDialog(this, result == 1 ? "Thêm khách hàng thành công!" : "Thêm khách hàng thất bại!");
             fillTable();
             clearForm();
@@ -337,7 +337,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         try {
             String id = txtID.getText();
-            int result = qlkh.deleteKH(id);
+            int result = qlkh.delete(id);
             JOptionPane.showMessageDialog(this, result == 1 ? "Xóa khách hàng thành công!" : "Xóa khách hàng thất bại!");
             fillTable();
             clearForm();
@@ -394,7 +394,7 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         try {
             String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlkh.editKH(getKhachHangFromForm(), oldId);
+            int result = qlkh.edit(getKhachHangFromForm(), oldId);
             fillTable();
             JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
         } catch (Exception ex) {

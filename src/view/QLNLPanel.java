@@ -329,7 +329,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         if (!validateForm()) return;
         try {
             NguyenVatLieu nl = getNguyenLieuFromForm();
-            int result = qlnl.addNL(nl);
+            int result = qlnl.add(nl);
             JOptionPane.showMessageDialog(this, result == 1 ? "Thêm nguyên liệu thành công!" : "Thêm thất bại!");
             fillTable();
             clearForm();
@@ -347,7 +347,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         if (confirm != JOptionPane.YES_OPTION) return;
         try {
             String id = txtID.getText();
-            int result = qlnl.deleteNL(id);
+            int result = qlnl.delete(id);
             JOptionPane.showMessageDialog(this, result == 1 ? "Xóa nguyên liệu thành công!" : "Xóa thất bại!");
             fillTable();
             clearForm();
@@ -403,7 +403,7 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         if (!validateForm()) return;
         try {
             String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnl.editNL(getNguyenLieuFromForm(), oldId);
+            int result = qlnl.edit(getNguyenLieuFromForm(), oldId);
             fillTable();
             JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
         } catch (Exception ex) {

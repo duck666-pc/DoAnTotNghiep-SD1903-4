@@ -4,90 +4,75 @@
  */
 package controller;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import model.KhachHang;
 
 /**
  *
  * @author minhd
  */
-public class QLKHDAO {
+public class QLKHDAO extends BaseDAO<KhachHang> {
 
-    private final MyConnection conn;
-
-    public QLKHDAO() {
-        conn = new MyConnection();
+    @Override
+    protected String getTableName() {
+        return "KHACHHANG";
     }
 
-    public List<KhachHang> getAll() throws SQLException, ClassNotFoundException {
-        List<KhachHang> lstKH = new ArrayList<>();
-        String query = "SELECT * FROM KHACHHANG";
-        Connection connect = conn.DBConnect();
-        Statement stmt = connect.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        while (rs.next()) {
-            KhachHang kh = new KhachHang();
-            kh.setId(rs.getString("ID"));
-            kh.setTen(rs.getString("TEN"));
-            kh.setDienThoai(rs.getString("DIENTHOAI"));
-            kh.setDiaChi(rs.getString("DIACHI"));
-            kh.sethangKhachHangId(rs.getString("HANGKHACHHANGID"));
-            lstKH.add(kh);
-        }
-        return lstKH;
+    @Override
+    protected String getPrimaryKeyColumn() {
+        return "ID";
     }
 
-    public int addKH(KhachHang kh) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO SANPHAM (ID, TEN, DIENTHOAI, DIACHI, HANGKHACHHANGID) VALUES (?, ?, ?, ?, ?)";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, kh.getId());
-            pstm.setString(2, kh.getTen());
-            pstm.setString(3, kh.getDienThoai());
-            pstm.setString(4, kh.getDiaChi());
-            pstm.setString(5, kh.gethangKhachHangId());
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    @Override
+    protected KhachHang mapResultSetToObject(ResultSet rs) throws SQLException {
+        KhachHang kh = new KhachHang();
+        kh.setId(rs.getString("ID"));
+        kh.setTen(rs.getString("TEN"));
+        kh.setDienThoai(rs.getString("DIENTHOAI"));
+        kh.setDiaChi(rs.getString("DIACHI"));
+        kh.sethangKhachHangId(rs.getString("HANGKHACHHANGID"));
+        return kh;
     }
 
-    public int editKH(KhachHang kh, String oldId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE KHACHHANG SET "
-                + "ID = ?, "
-                + "TEN = ?, "
-                + "DIENTHOAI = ?, "
-                + "DIACHI = ?, "
-                + "HANGKHACHHANGID = ? "
-                + "WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, kh.getId());
-            pstm.setString(2, kh.getTen());
-            pstm.setString(3, kh.getDienThoai());
-            pstm.setString(4, kh.getDiaChi());
-            pstm.setString(5, kh.gethangKhachHangId());
-            pstm.setString(6, oldId);
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    @Override
+    protected String getInsertQuery() {
+        return "INSERT INTO KHACHHANG (ID, TEN, DIENTHOAI, DIACHI, HANGKHACHHANGID) VALUES (?, ?, ?, ?, ?)";
     }
 
-    public int deleteKH(String id) throws SQLException, ClassNotFoundException {
-        String sql = "DELETE FROM KHACHHANG WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, id);
-            return pstm.executeUpdate();
-        }
+    @Override
+    protected void setInsertParameters(PreparedStatement ps, KhachHang kh) throws SQLException {
+        ps.setString(1, kh.getId());
+        ps.setString(2, kh.getTen());
+        ps.setString(3, kh.getDienThoai());
+        ps.setString(4, kh.getDiaChi());
+        ps.setString(5, kh.gethangKhachHangId());
+    }
+
+    @Override
+    protected String getUpdateQuery() {
+        return "UPDATE KHACHHANG SET "
+             + "ID = ?, "
+             + "TEN = ?, "
+             + "DIENTHOAI = ?, "
+             + "DIACHI = ?, "
+             + "HANGKHACHHANGID = ? "
+             + "WHERE ID = ?";
+    }
+
+    @Override
+    protected void setUpdateParameters(PreparedStatement ps, KhachHang kh) throws SQLException {
+        ps.setString(1, kh.getId());
+        ps.setString(2, kh.getTen());
+        ps.setString(3, kh.getDienThoai());
+        ps.setString(4, kh.getDiaChi());
+        ps.setString(5, kh.gethangKhachHangId());
+    }
+
+    @Override
+    protected int getUpdateWhereIndex() {
+        return 6; 
     }
 
     public Object[] getRow(KhachHang kh) {
