@@ -6,6 +6,7 @@ package view;
 
 import java.awt.BorderLayout;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import model.NhanVien;
 
@@ -19,6 +20,14 @@ public class TrangChu extends javax.swing.JFrame {
         initComponents();
     }
 
+    private void showPanel(JPanel panel, int width, int height) {
+        panel.setSize(width, height);
+        panel.setLocation(0, 0);
+        jPanel.removeAll();
+        jPanel.add(panel, BorderLayout.CENTER);
+        jPanel.repaint();
+        jPanel.revalidate();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -171,25 +180,11 @@ public class TrangChu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtQLSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLSPActionPerformed
-        QLSPPanel p2 = new QLSPPanel();
-        p2.setSize(820, 474);
-        p2.setLocation(0, 0);
-
-        jPanel.removeAll();
-        jPanel.add(p2, BorderLayout.CENTER);
-        jPanel.repaint();
-        jPanel.revalidate();
+        showPanel(new QLSPPanel(), 820, 474);
     }//GEN-LAST:event_jbtQLSPActionPerformed
 
     private void jbtQLNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLNVActionPerformed
-        QLNVPanel p1 = new QLNVPanel();
-        p1.setSize(820, 474);
-        p1.setLocation(0, 0);
-
-        jPanel.removeAll();
-        jPanel.add(p1, BorderLayout.CENTER);
-        jPanel.repaint();
-        jPanel.revalidate();
+        showPanel(new QLNVPanel(), 820, 474);
     }//GEN-LAST:event_jbtQLNVActionPerformed
 
     private void jbtQLHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLHDActionPerformed
@@ -197,36 +192,15 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtQLHDActionPerformed
 
     private void jbtQLNLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLNLActionPerformed
-        QLNLPanel p4 = new QLNLPanel();
-        p4.setSize(908, 333);
-        p4.setLocation(0, 0);
-
-        jPanel.removeAll();
-        jPanel.add(p4, BorderLayout.CENTER);
-        jPanel.repaint();
-        jPanel.revalidate();
+        showPanel(new QLNLPanel(), 908, 333);
     }//GEN-LAST:event_jbtQLNLActionPerformed
 
     private void jbtQLKHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLKHActionPerformed
-        QLKHPanel p5 = new QLKHPanel();
-        p5.setSize(908, 333);
-        p5.setLocation(0, 0);
-
-        jPanel.removeAll();
-        jPanel.add(p5, BorderLayout.CENTER);
-        jPanel.repaint();
-        jPanel.revalidate();
+        showPanel(new QLKHPanel(), 908, 333);
     }//GEN-LAST:event_jbtQLKHActionPerformed
 
     private void jbtQLKMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLKMActionPerformed
-        QLKMPanel p6 = new QLKMPanel();
-        p6.setSize(1001, 682);
-        p6.setLocation(0, 0);
-
-        jPanel.removeAll();
-        jPanel.add(p6, BorderLayout.CENTER);
-        jPanel.repaint();
-        jPanel.revalidate();
+        showPanel(new QLKMPanel(), 1001, 682);
     }//GEN-LAST:event_jbtQLKMActionPerformed
 
     private void jbtDangXuatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangXuatActionPerformed
@@ -245,14 +219,7 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtDangXuatActionPerformed
 
     private void jbtDOANHTHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDOANHTHUActionPerformed
-        DOANHTHUPanel p7 = new DOANHTHUPanel();
-        p7.setSize(642,452);
-        p7.setLocation(0, 0);
-
-        jPanel.removeAll();
-        jPanel.add(p7, BorderLayout.CENTER);
-        jPanel.repaint();
-        jPanel.revalidate();
+        showPanel(new DOANHTHUPanel(), 642, 452);
     }//GEN-LAST:event_jbtDOANHTHUActionPerformed
 
     public static void main(String args[]) {
