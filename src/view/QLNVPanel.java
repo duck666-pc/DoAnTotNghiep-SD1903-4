@@ -16,14 +16,6 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
     public QLNVPanel() {
         initComponents();
 
-        super.jTable = this.jTable;
-        super.jbtThem = this.jbtThem;
-        super.jbtSua = this.jbtSua;
-        super.jbtXoa = this.jbtXoa;
-        super.jbtTimKiem = this.jbtTimKiem;
-        super.jbtLamMoi = this.jbtLamMoi;
-        super.txtTimKiem = this.txtTimKiem;
-
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
@@ -77,20 +69,20 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
 
     private boolean isValidDate(String year, String month, String day) {
         try {
-            int y = Integer.parseInt(year),
-                    m = Integer.parseInt(month),
-                    d = Integer.parseInt(day);
+            java.time.LocalDate date = java.time.LocalDate.of(
+                    Integer.parseInt(year),
+                    Integer.parseInt(month),
+                    Integer.parseInt(day)
+            );
 
-            java.time.LocalDate date = java.time.LocalDate.of(y, m, d);
             java.time.LocalDate now = java.time.LocalDate.now();
-
             if (date.isAfter(now)) {
                 return false;
             }
 
-            java.time.Period age = java.time.Period.between(date, now);
-            return age.getYears() >= 18 && age.getYears() <= 60;
-        } catch (Exception e) {
+            return java.time.Period.between(date, now).getYears() >= 18
+                    && java.time.Period.between(date, now).getYears() <= 60;
+        } catch (NumberFormatException | java.time.DateTimeException e) {
             return false;
         }
     }
