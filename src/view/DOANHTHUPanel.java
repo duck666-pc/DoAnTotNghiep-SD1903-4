@@ -8,8 +8,6 @@ import Controller.BANHANGDAO;
 import Model.HoaDon;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -29,57 +27,54 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
         initComponents();
         orderinfo = new BANHANGDAO();
 
-        FIlter.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                String[] cols = new String[]{"ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng", "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"};
-                tableModel = new DefaultTableModel();
-                tableModel.setColumnIdentifiers(cols);
-                jTable1.setModel(tableModel);
-                try {
-                    if (jcbNamBatDau.getText() == null || jcbNamKetThuc.getText() == null) {
-                        jLabel2.setText(String.valueOf(orderinfo.getcountHoaDon()));
-                        jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDon()));
-                        List<HoaDon> listHD = orderinfo.getAllHoaDon();
-                        for (HoaDon hd : listHD) {
-                            Object[] row = new Object[]{
-                                hd.getId(),
-                                hd.getThoiGian(),
-                                hd.getIdKhachHang(),
-                                hd.getIdNguoiDung(),
-                                hd.getTongTienGoc(),
-                                hd.getMucGiamGia(),
-                                hd.getTongTienSauGiamGia()
-                            };
-                            tableModel.addRow(row);
-                        }
-                    } else {
-                        String day1 = jcbNgayBatDau.getSelectedItem().toString();
-                        String day2 = jcbNgayKetThuc.getSelectedItem().toString();
-                        String month1 = jcbThangBatDau.getSelectedItem().toString();
-                        String month2 = jcbThangKetThuc.getSelectedItem().toString();
-                        String year1 = jcbNamBatDau.getText();
-                        String year2 = jcbNamKetThuc.getText();
-
-                        jLabel2.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
-                        jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
-                        List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
-                        for (HoaDon hd : listHD) {
-                            Object[] row = new Object[]{
-                                hd.getId(),
-                                hd.getThoiGian(),
-                                hd.getIdKhachHang(),
-                                hd.getIdNguoiDung(),
-                                hd.getTongTienGoc(),
-                                hd.getMucGiamGia(),
-                                hd.getTongTienSauGiamGia()
-                            };
-                            tableModel.addRow(row);
-                        }
+        FIlter.addActionListener((java.awt.event.ActionEvent evt) -> {
+            String[] cols = new String[]{"ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng", "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"};
+            tableModel = new DefaultTableModel();
+            tableModel.setColumnIdentifiers(cols);
+            jTable1.setModel(tableModel);
+            try {
+                if (jcbNamBatDau.getText() == null || jcbNamKetThuc.getText() == null) {
+                    jLabel1.setText(String.valueOf(orderinfo.getcountHoaDon()));
+                    jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDon()));
+                    List<HoaDon> listHD = orderinfo.getAllHoaDon();
+                    for (HoaDon hd : listHD) {
+                        Object[] row = new Object[]{
+                            hd.getId(),
+                            hd.getThoiGian(),
+                            hd.getIdKhachHang(),
+                            hd.getIdNguoiDung(),
+                            hd.getTongTienGoc(),
+                            hd.getMucGiamGia(),
+                            hd.getTongTienSauGiamGia()
+                        };
+                        tableModel.addRow(row);
                     }
-                } catch (SQLException | ClassNotFoundException ex) {
-                    JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+                } else {
+                    String day1 = jcbNgayBatDau.getSelectedItem().toString();
+                    String day2 = jcbNgayKetThuc.getSelectedItem().toString();
+                    String month1 = jcbThangBatDau.getSelectedItem().toString();
+                    String month2 = jcbThangKetThuc.getSelectedItem().toString();
+                    String year1 = jcbNamBatDau.getText();
+                    String year2 = jcbNamKetThuc.getText();
+                    
+                    jLabel1.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
+                    jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
+                    List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
+                    for (HoaDon hd : listHD) {
+                        Object[] row = new Object[]{
+                            hd.getId(),
+                            hd.getThoiGian(),
+                            hd.getIdKhachHang(),
+                            hd.getIdNguoiDung(),
+                            hd.getTongTienGoc(),
+                            hd.getMucGiamGia(),
+                            hd.getTongTienSauGiamGia()
+                        };
+                        tableModel.addRow(row);
+                    }
                 }
+            } catch (SQLException | ClassNotFoundException ex) {
+                JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu: " + ex.getMessage());
             }
         });
     }

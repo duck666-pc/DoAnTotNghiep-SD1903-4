@@ -20,13 +20,13 @@ public class TrangChu extends javax.swing.JFrame {
         initComponents();
     }
 
-    private void showPanel(JPanel panel, int width, int height) {
-        panel.setSize(width, height);
-        panel.setLocation(0, 0);
+    private void showPanel(JPanel panel) {
         jPanel.removeAll();
+        jPanel.setLayout(new BorderLayout());
         jPanel.add(panel, BorderLayout.CENTER);
-        jPanel.repaint();
         jPanel.revalidate();
+        jPanel.repaint();
+        this.pack();
     }
 
     /**
@@ -180,11 +180,11 @@ public class TrangChu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtQLSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLSPActionPerformed
-        showPanel(new QLSPPanel(), 820, 474);
+        showPanel(new QLSPPanel());
     }//GEN-LAST:event_jbtQLSPActionPerformed
 
     private void jbtQLNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLNVActionPerformed
-        showPanel(new QLNVPanel(), 820, 474);
+        showPanel(new QLNVPanel());
     }//GEN-LAST:event_jbtQLNVActionPerformed
 
     private void jbtQLHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLHDActionPerformed
@@ -192,15 +192,15 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtQLHDActionPerformed
 
     private void jbtQLNLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLNLActionPerformed
-        showPanel(new QLNLPanel(), 908, 333);
+        showPanel(new QLNLPanel());
     }//GEN-LAST:event_jbtQLNLActionPerformed
 
     private void jbtQLKHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLKHActionPerformed
-        showPanel(new QLKHPanel(), 908, 333);
+        showPanel(new QLKHPanel());
     }//GEN-LAST:event_jbtQLKHActionPerformed
 
     private void jbtQLKMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLKMActionPerformed
-        showPanel(new QLKMPanel(), 1001, 682);
+        showPanel(new QLKMPanel());
     }//GEN-LAST:event_jbtQLKMActionPerformed
 
     private void jbtDangXuatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangXuatActionPerformed
@@ -219,7 +219,7 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtDangXuatActionPerformed
 
     private void jbtDOANHTHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDOANHTHUActionPerformed
-        showPanel(new DOANHTHUPanel(), 642, 452);
+        showPanel(new DOANHTHUPanel());
     }//GEN-LAST:event_jbtDOANHTHUActionPerformed
 
     public static void main(String args[]) {
