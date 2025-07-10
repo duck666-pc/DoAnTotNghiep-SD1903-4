@@ -7,32 +7,37 @@ package view;
 import controller.QLNVDAO;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.NhanVien;
 
-public final class QLNVPanel extends javax.swing.JPanel {
+public final class QLNVPanel extends BasePanel<NhanVien> {
 
-    DefaultTableModel tableModel;
     QLNVDAO qlnv = new QLNVDAO();
-    int currentRow = -1;
 
     public QLNVPanel() {
         initComponents();
-        initTable();
-        fillTable();
-        addTableSelectionListener();
+
+        super.jTable = this.jTable;
+        super.jbtThem = this.jbtThem;
+        super.jbtSua = this.jbtSua;
+        super.jbtXoa = this.jbtXoa;
+        super.jbtTimKiem = this.jbtTimKiem;
+        super.jbtLamMoi = this.jbtLamMoi;
+        super.txtTimKiem = this.txtTimKiem;
+
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();
     }
 
-    private void addTableSelectionListener() {
-        jTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
-                currentRow = jTable.getSelectedRow();
-                setFormFromRow(currentRow);
-            }
-        });
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Mật Khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ"};
     }
 
-    private void setFormFromRow(int row) {
+    @Override
+    protected void setFormFromRow(int row) {
         txtID.setText(getValue(row, 0));
         txtMatKhau.setText(getValue(row, 1));
         txtTen.setText(getValue(row, 2));
@@ -52,29 +57,8 @@ public final class QLNVPanel extends javax.swing.JPanel {
         }
     }
 
-    private String getValue(int row, int col) {
-        Object val = jTable.getValueAt(row, col);
-        return val == null ? "" : val.toString();
-    }
-
-    public void initTable() {
-        String[] cols = {"ID", "Mật Khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ"};
-        tableModel = new DefaultTableModel(cols, 0);
-        jTable.setModel(tableModel);
-    }
-
-    public void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            for (NhanVien nv : qlnv.getAll()) {
-                tableModel.addRow(qlnv.getRow(nv));
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-
-    public boolean validateForm() {
+    @Override
+    protected boolean validateForm() {
         if (txtID.getText().trim().isEmpty()
                 || txtTen.getText().trim().isEmpty()
                 || txtMatKhau.getText().trim().isEmpty()
@@ -104,7 +88,8 @@ public final class QLNVPanel extends javax.swing.JPanel {
         }
     }
 
-    private NhanVien getNhanVienFromForm() {
+    @Override
+    protected NhanVien getEntityFromForm() {
         NhanVien nv = new NhanVien();
         nv.setId(txtID.getText().trim());
         nv.setMatKhau(txtMatKhau.getText().trim());
@@ -117,7 +102,8 @@ public final class QLNVPanel extends javax.swing.JPanel {
         return nv;
     }
 
-    private void clearForm() {
+    @Override
+    protected void clearForm() {
         txtID.setText("");
         txtTen.setText("");
         txtMatKhau.setText("");
@@ -126,6 +112,36 @@ public final class QLNVPanel extends javax.swing.JPanel {
         jcbThangSinh.setSelectedIndex(0);
         jcbNgaySinh.setSelectedIndex(0);
         currentRow = -1;
+    }
+
+    @Override
+    protected List<NhanVien> getAllEntities() throws Exception {
+        return qlnv.getAll();
+    }
+
+    @Override
+    protected String getEntityId(NhanVien entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(NhanVien entity) {
+        tableModel.addRow(qlnv.getRow(entity));
+    }
+
+    @Override
+    protected int addEntity(NhanVien entity) throws Exception {
+        return qlnv.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlnv.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(NhanVien entity, String oldId) throws Exception {
+        return qlnv.edit(entity, oldId);
     }
 
     /**
@@ -396,38 +412,11 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtMatKhauActionPerformed
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtThemActionPerformed
-        if (!validateForm()) {
-            return;
-        }
-        try {
-            int result = qlnv.add(getNhanVienFromForm());
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm thành công!" : "Thêm thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+
     }//GEN-LAST:event_jbtThemActionPerformed
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtXoaActionPerformed
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần xóa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
 
-        try {
-            String id = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnv.delete(id);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa thành công!" : "Xóa thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
     }//GEN-LAST:event_jbtXoaActionPerformed
 
     private void txtTenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTenActionPerformed
@@ -439,27 +428,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbNamSinhActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-        String id = txtTimKiem.getText().trim();
-        tableModel.setRowCount(0);
-        try {
-            List<NhanVien> listNV = qlnv.getAll();
-            boolean found = false;
-            for (NhanVien nv : listNV) {
-                if (id.isEmpty() || nv.getId().equalsIgnoreCase(id)) {
-                    tableModel.addRow(qlnv.getRow(nv));
-                    found = true;
-                    if (!id.isEmpty()) {
-                        break; 
-                    }
-                }
-            }
-            if (!found && !id.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên với ID này!");
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm: " + ex.getMessage());
-        }
-        clearForm();
+
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
@@ -471,25 +440,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbChucVuActionPerformed
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSuaActionPerformed
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần sửa!");
-            return;
-        }
-        if (!validateForm()) {
-            return;
-        }
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnv.edit(getNhanVienFromForm(), oldId);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+
     }//GEN-LAST:event_jbtSuaActionPerformed
 
     private void jcbThangSinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbThangSinhActionPerformed
@@ -497,7 +448,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbThangSinhActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-        clearForm();
+
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
