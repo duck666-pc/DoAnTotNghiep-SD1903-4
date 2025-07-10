@@ -27,12 +27,6 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
-
-        jbtThem.addActionListener(evt -> handleAddAction());
-        jbtSua.addActionListener(evt -> handleUpdateAction());
-        jbtXoa.addActionListener(evt -> handleDeleteAction());
-        jbtTimKiem.addActionListener(evt -> handleSearchAction());
-        jbtLamMoi.addActionListener(evt -> handleRefreshAction());
     }
 
     @Override
@@ -425,11 +419,11 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
     }//GEN-LAST:event_txtMatKhauActionPerformed
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtThemActionPerformed
-
+        handleAddAction();
     }//GEN-LAST:event_jbtThemActionPerformed
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtXoaActionPerformed
-
+        handleDeleteAction();
     }//GEN-LAST:event_jbtXoaActionPerformed
 
     private void txtTenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTenActionPerformed
@@ -441,7 +435,7 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
     }//GEN-LAST:event_jcbNamSinhActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-
+        handleSearchAction();
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
@@ -453,7 +447,7 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
     }//GEN-LAST:event_jcbChucVuActionPerformed
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSuaActionPerformed
-
+        handleUpdateAction();
     }//GEN-LAST:event_jbtSuaActionPerformed
 
     private void jcbThangSinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbThangSinhActionPerformed
@@ -461,7 +455,7 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
     }//GEN-LAST:event_jcbThangSinhActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-
+        handleRefreshAction();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
