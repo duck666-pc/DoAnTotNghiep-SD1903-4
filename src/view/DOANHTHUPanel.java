@@ -4,79 +4,117 @@
  */
 package view;
 
+
 import Controller.BANHANGDAO;
 import Model.HoaDon;
-import java.sql.SQLException;
-import java.util.List;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *
  * @author minhd
  */
 public class DOANHTHUPanel extends javax.swing.JPanel {
-
     DefaultTableModel tableModel;
     BANHANGDAO orderinfo;
 
-    /**
-     * Creates new form DOANHTHUPanel
-     */
     public DOANHTHUPanel() {
         initComponents();
         orderinfo = new BANHANGDAO();
 
-        FIlter.addActionListener((java.awt.event.ActionEvent evt) -> {
-            String[] cols = new String[]{"ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng", "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"};
-            tableModel = new DefaultTableModel();
-            tableModel.setColumnIdentifiers(cols);
-            jTable1.setModel(tableModel);
-            try {
-                if (jcbNamBatDau.getText() == null || jcbNamKetThuc.getText() == null) {
-                    jLabel1.setText(String.valueOf(orderinfo.getcountHoaDon()));
-                    jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDon()));
-                    List<HoaDon> listHD = orderinfo.getAllHoaDon();
-                    for (HoaDon hd : listHD) {
-                        Object[] row = new Object[]{
-                            hd.getId(),
-                            hd.getThoiGian(),
-                            hd.getIdKhachHang(),
-                            hd.getIdNguoiDung(),
-                            hd.getTongTienGoc(),
-                            hd.getMucGiamGia(),
-                            hd.getTongTienSauGiamGia()
-                        };
-                        tableModel.addRow(row);
-                    }
-                } else {
-                    String day1 = jcbNgayBatDau.getSelectedItem().toString();
-                    String day2 = jcbNgayKetThuc.getSelectedItem().toString();
-                    String month1 = jcbThangBatDau.getSelectedItem().toString();
-                    String month2 = jcbThangKetThuc.getSelectedItem().toString();
-                    String year1 = jcbNamBatDau.getText();
-                    String year2 = jcbNamKetThuc.getText();
-                    
-                    jLabel1.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
-                    jLabel2.setText(String.valueOf(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
-                    List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
-                    for (HoaDon hd : listHD) {
-                        Object[] row = new Object[]{
-                            hd.getId(),
-                            hd.getThoiGian(),
-                            hd.getIdKhachHang(),
-                            hd.getIdNguoiDung(),
-                            hd.getTongTienGoc(),
-                            hd.getMucGiamGia(),
-                            hd.getTongTienSauGiamGia()
-                        };
-                        tableModel.addRow(row);
-                    }
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-            }
-        });
+        String[] cols = new String[]{
+            "ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng",
+            "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"
+        };
+        tableModel = new DefaultTableModel(cols, 0);
+        jTable1.setModel(tableModel);
+
+        FIlter.addActionListener(this::filterActionPerformed);
+
+        loadAllHoaDon();
+    }
+
+    private void loadAllHoaDon() {
+        try {
+            jLabel1.setText(String.valueOf(orderinfo.getcountHoaDon()));
+            jLabel2.setText(formatCurrency(orderinfo.gettotalHoaDon()));
+            List<HoaDon> listHD = orderinfo.getAllHoaDon();
+            updateTableData(listHD);
+        } catch (Exception e) {
+            showThongBaoLoi("Lỗi khi tải toàn bộ hóa đơn!", e);
+        }
+    }
+
+    private void loadHoaDonTheoNgay(String day1, String month1, String year1, String day2, String month2, String year2) {
+        try {
+            jLabel1.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
+            jLabel2.setText(formatCurrency(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
+            List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
+            updateTableData(listHD);
+        } catch (Exception e) {
+            showThongBaoLoi("Lỗi khi lọc hóa đơn theo ngày!", e);
+        }
+    }
+
+    private void updateTableData(List<HoaDon> listHD) {
+        tableModel.setRowCount(0);
+        for (HoaDon hd : listHD) {
+            Object[] row = new Object[]{
+                hd.getId(),
+                hd.getThoiGian(),
+                hd.getIdKhachHang(),
+                hd.getIdNguoiDung(),
+                hd.getTongTienGoc(),
+                hd.getMucGiamGia(),
+                hd.getTongTienSauGiamGia()
+            };
+            tableModel.addRow(row);
+        }
+    }
+
+    private void showThongBaoLoi(String message, Exception e) {
+        Logger.getLogger(DOANHTHUPanel.class.getName()).log(Level.SEVERE, message, e);
+        JOptionPane.showMessageDialog(this, message + "\nChi tiết: " + e.getMessage(),
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void filterActionPerformed(ActionEvent evt) {
+        String year1 = jcbNamBatDau.getText().trim();
+        String year2 = jcbNamKetThuc.getText().trim();
+
+        if (year1.isEmpty() || year2.isEmpty()) {
+            loadAllHoaDon();
+            return;
+        }
+
+        try {
+            Integer.valueOf(year1);
+            Integer.valueOf(year2);
+        } catch (NumberFormatException ex) {
+            showThongBaoLoi("Vui lòng nhập đúng định dạng năm (số)", ex);
+            return;
+        }
+
+        String day1 = jcbNgayBatDau.getSelectedItem().toString();
+        String month1 = jcbThangBatDau.getSelectedItem().toString();
+
+        String day2 = jcbNgayKetThuc.getSelectedItem().toString();
+        String month2 = jcbThangKetThuc.getSelectedItem().toString();
+
+        loadHoaDonTheoNgay(day1, month1, year1, day2, month2, year2);
+    }
+
+    private String formatCurrency(Object value) {
+        try {
+            return String.format("%,d VNĐ", ((Number) value).longValue());
+        } catch (Exception e) {
+            return value.toString();
+        }
     }
 
     /**
