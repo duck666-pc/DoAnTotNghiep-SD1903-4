@@ -7,8 +7,6 @@ package view;
 import controller.QLNVDAO;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import model.NhanVien;
 
 public final class QLNVPanel extends BasePanel<NhanVien> {
@@ -29,6 +27,12 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
+
+        jbtThem.addActionListener(evt -> handleAddAction());
+        jbtSua.addActionListener(evt -> handleUpdateAction());
+        jbtXoa.addActionListener(evt -> handleDeleteAction());
+        jbtTimKiem.addActionListener(evt -> handleSearchAction());
+        jbtLamMoi.addActionListener(evt -> handleRefreshAction());
     }
 
     @Override
@@ -79,10 +83,19 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
 
     private boolean isValidDate(String year, String month, String day) {
         try {
-            int y = Integer.parseInt(year), m = Integer.parseInt(month), d = Integer.parseInt(day);
-            int age = java.time.Year.now().getValue() - y;
-            java.time.LocalDate.of(y, m, d);
-            return age >= 18 && age <= 60;
+            int y = Integer.parseInt(year),
+                    m = Integer.parseInt(month),
+                    d = Integer.parseInt(day);
+
+            java.time.LocalDate date = java.time.LocalDate.of(y, m, d);
+            java.time.LocalDate now = java.time.LocalDate.now();
+
+            if (date.isAfter(now)) {
+                return false;
+            }
+
+            java.time.Period age = java.time.Period.between(date, now);
+            return age.getYears() >= 18 && age.getYears() <= 60;
         } catch (Exception e) {
             return false;
         }
