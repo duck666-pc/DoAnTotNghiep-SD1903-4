@@ -318,6 +318,15 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         if (!validateForm()) {
             return;
         }
+        if ("Khác".equals((String) jcbLoaiSanPham.getSelectedItem())) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn cần phải tạo một loại sản phẩm mới. Bạn có muốn không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            if (JOptionPane.YES_OPTION == confirm) {
+                new QLLSPPanel().setVisible(true);
+            } else {
+                clearForm();
+                return;
+            }
+        }
         try {
             SanPham sp = getSanPhamFromForm();
             int result = qlsp.add(sp);
@@ -391,6 +400,15 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         }
         if (!validateForm()) {
             return;
+        }
+        if ("Khác".equals((String) jcbLoaiSanPham.getSelectedItem())) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn cần phải tạo một loại sản phẩm mới. Bạn có muốn không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            if (JOptionPane.YES_OPTION == confirm) {
+                new QLLSPPanel().setVisible(true);
+            } else {
+                clearForm();
+                return;
+            }
         }
         if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
             return;
