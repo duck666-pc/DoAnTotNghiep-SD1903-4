@@ -1,6 +1,4 @@
-package Model;
-
-import java.util.logging.Logger;
+package model;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -13,7 +11,7 @@ public class LoaiSanPham {
     private String id;
     private String ten;
     private String moTa;
-
+  
     @Override
     public String toString() {
         return "LoaiSanPham{"
