@@ -33,23 +33,6 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
         return getValue(row, 0);
     }
 
-    protected String getEntityName() {
-        String n = getClass().getSimpleName();
-        if (n.contains("QLKH")) {
-            return "khách hàng";
-        }
-        if (n.contains("QLNL")) {
-            return "nguyên liệu";
-        }
-        if (n.contains("QLNV")) {
-            return "nhân viên";
-        }
-        if (n.contains("QLSP")) {
-            return "sản phẩm";
-        }
-        return "đối tượng";
-    }
-
     public BasePanel() {
     }
 
@@ -113,7 +96,7 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
         }
         try {
             int result = addEntity(getEntityFromForm());
-            showMessage(result == 1 ? "Thêm " + getEntityName() + " thành công!" : "Thêm " + getEntityName() + " thất bại!");
+            showMessage(result == 1 ? "Thêm dữ liệu thành công!" : "Thêm dữ liệu thất bại!");
             fillTable();
             clearForm();
         } catch (Exception ex) {
@@ -126,12 +109,12 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
             showMessage("Vui lòng chọn một dòng để xóa!");
             return;
         }
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa " + getEntityName() + " này?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa dữ liệu này?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
             return;
         }
         try {
             int result = deleteEntity(getEntityIdFromRow(currentRow));
-            showMessage(result == 1 ? "Xóa " + getEntityName() + " thành công!" : "Xóa " + getEntityName() + " thất bại!");
+            showMessage(result == 1 ? "Xóa dữ liệu thành công!" : "Xóa dữ liệu thất bại!");
             fillTable();
             clearForm();
             currentRow = -1;
