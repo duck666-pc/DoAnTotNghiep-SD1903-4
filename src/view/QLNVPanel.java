@@ -5,20 +5,50 @@
 package view;
 
 import controller.QLNVDAO;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import model.NhanVien;
 
 public final class QLNVPanel extends BasePanel<NhanVien> {
 
-    QLNVDAO qlnv = new QLNVDAO();
+    private final QLNVDAO qlnv = new QLNVDAO();
 
     public QLNVPanel() {
         initComponents();
-
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
+    }
+
+    private boolean isEmpty(JTextField... fields) {
+        for (JTextField f : fields) if (f.getText().trim().isEmpty()) return true;
+        return false;
+    }
+
+    private void clearFields(JTextField... fields) {
+        for (JTextField f : fields) f.setText("");
+    }
+
+    private void clearDateFields() {
+        jcbNamSinh.setText("");
+        jcbThangSinh.setSelectedIndex(0);
+        jcbNgaySinh.setSelectedIndex(0);
+    }
+
+    private boolean isValidBirthday(String y, String m, String d) {
+        try {
+            LocalDate date = LocalDate.of(Integer.parseInt(y), Integer.parseInt(m), Integer.parseInt(d));
+            int age = Period.between(date, LocalDate.now()).getYears();
+            return age >= 18 && age <= 60 && !date.isAfter(LocalDate.now());
+        } catch (Exception e) { return false; }
+    }
+
+    @Override
+    protected void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
     }
 
     @Override
@@ -34,57 +64,27 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         txtEmail.setText(getValue(row, 5));
         jcbGioiTinh.setSelectedItem(getValue(row, 4));
         jcbChucVu.setSelectedItem(getValue(row, 6));
-
         String[] dateParts = getValue(row, 3).split("-");
         if (dateParts.length == 3) {
             jcbNamSinh.setText(dateParts[0]);
             jcbThangSinh.setSelectedItem(dateParts[1]);
             jcbNgaySinh.setSelectedItem(dateParts[2]);
         } else {
-            jcbNamSinh.setText("");
-            jcbThangSinh.setSelectedIndex(0);
-            jcbNgaySinh.setSelectedIndex(0);
+            clearDateFields();
         }
     }
 
     @Override
     protected boolean validateForm() {
-        if (txtID.getText().trim().isEmpty()
-                || txtTen.getText().trim().isEmpty()
-                || txtMatKhau.getText().trim().isEmpty()
-                || txtEmail.getText().trim().isEmpty()
-                || jcbNamSinh.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+        if (isEmpty(txtID, txtTen, txtMatKhau, txtEmail, jcbNamSinh)) {
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
-        String year = jcbNamSinh.getText().trim();
-        String month = (String) jcbThangSinh.getSelectedItem();
-        String day = (String) jcbNgaySinh.getSelectedItem();
-        if (!isValidDate(year, month, day)) {
-            JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ hoặc tuổi ngoài 18-60!");
+        if (!isValidBirthday(jcbNamSinh.getText(), (String) jcbThangSinh.getSelectedItem(), (String) jcbNgaySinh.getSelectedItem())) {
+            showMessage("Ngày sinh không hợp lệ hoặc tuổi ngoài 18-60!");
             return false;
         }
         return true;
-    }
-
-    private boolean isValidDate(String year, String month, String day) {
-        try {
-            java.time.LocalDate date = java.time.LocalDate.of(
-                    Integer.parseInt(year),
-                    Integer.parseInt(month),
-                    Integer.parseInt(day)
-            );
-
-            java.time.LocalDate now = java.time.LocalDate.now();
-            if (date.isAfter(now)) {
-                return false;
-            }
-
-            return java.time.Period.between(date, now).getYears() >= 18
-                    && java.time.Period.between(date, now).getYears() <= 60;
-        } catch (NumberFormatException | java.time.DateTimeException e) {
-            return false;
-        }
     }
 
     @Override
@@ -96,52 +96,36 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         nv.setEmail(txtEmail.getText().trim());
         nv.setGioiTinh((String) jcbGioiTinh.getSelectedItem());
         nv.setChucVu((String) jcbChucVu.getSelectedItem());
-        String ngaySinh = jcbNamSinh.getText().trim() + "-" + jcbThangSinh.getSelectedItem() + "-" + jcbNgaySinh.getSelectedItem();
+        String ngaySinh = String.format("%s-%s-%s", jcbNamSinh.getText().trim(), jcbThangSinh.getSelectedItem(), jcbNgaySinh.getSelectedItem());
         nv.setNgaySinh(java.sql.Date.valueOf(ngaySinh));
         return nv;
     }
 
     @Override
     protected void clearForm() {
-        txtID.setText("");
-        txtTen.setText("");
-        txtMatKhau.setText("");
-        txtEmail.setText("");
-        jcbNamSinh.setText("");
-        jcbThangSinh.setSelectedIndex(0);
-        jcbNgaySinh.setSelectedIndex(0);
+        clearFields(txtID, txtTen, txtMatKhau, txtEmail, jcbNamSinh);
+        clearDateFields();
         currentRow = -1;
     }
 
     @Override
-    protected List<NhanVien> getAllEntities() throws Exception {
-        return qlnv.getAll();
-    }
+    protected List<NhanVien> getAllEntities() throws Exception { return qlnv.getAll(); }
 
     @Override
-    protected String getEntityId(NhanVien entity) {
-        return entity.getId();
-    }
+    protected String getEntityId(NhanVien entity) { return entity.getId(); }
 
     @Override
-    protected void addEntityToTable(NhanVien entity) {
-        tableModel.addRow(qlnv.getRow(entity));
-    }
+    protected void addEntityToTable(NhanVien entity) { tableModel.addRow(qlnv.getRow(entity)); }
 
     @Override
-    protected int addEntity(NhanVien entity) throws Exception {
-        return qlnv.add(entity);
-    }
+    protected int addEntity(NhanVien entity) throws Exception { return qlnv.add(entity); }
 
     @Override
-    protected int deleteEntity(String id) throws Exception {
-        return qlnv.delete(id);
-    }
+    protected int deleteEntity(String id) throws Exception { return qlnv.delete(id); }
 
     @Override
-    protected int updateEntity(NhanVien entity, String oldId) throws Exception {
-        return qlnv.edit(entity, oldId);
-    }
+    protected int updateEntity(NhanVien entity, String oldId) throws Exception { return qlnv.edit(entity, oldId); }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
