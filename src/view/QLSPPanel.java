@@ -1,35 +1,29 @@
 package view;
 
 import controller.QLSPDAO;
-import java.sql.SQLException;
 import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import model.SanPham;
 
-public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
+public final class QLSPPanel extends BasePanel<SanPham> {
 
-    DefaultTableModel tableModel;
-    QLSPDAO qlsp = new QLSPDAO();
-    int currentRow = -1;
+    private final QLSPDAO qlsp = new QLSPDAO();
 
     public QLSPPanel() {
         initComponents();
-        initTable();
-        fillTable();
-        addTableSelectionListener();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();
     }
 
-    private void addTableSelectionListener() {
-        jTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
-                currentRow = jTable.getSelectedRow();
-                setFormFromRow(currentRow);
-            }
-        });
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Tên", "Mô tả", "Giá", "Loại Sản Phẩm"};
     }
 
-    private void setFormFromRow(int row) {
+    @Override
+    protected void setFormFromRow(int row) {
         txtID.setText(getValue(row, 0));
         txtTen.setText(getValue(row, 1));
         txtMoTa.setText(getValue(row, 2));
@@ -37,50 +31,30 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jcbLoaiSanPham.setSelectedItem(getValue(row, 4));
     }
 
-    private String getValue(int row, int col) {
-        Object val = jTable.getValueAt(row, col);
-        return val == null ? "" : val.toString();
-    }
-
-    public void initTable() {
-        String[] cols = {"ID", "Tên", "Mô tả", "Giá", "Loại Sản Phẩm"};
-        tableModel = new DefaultTableModel(cols, 0);
-        jTable.setModel(tableModel);
-    }
-
-    public void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            for (SanPham sp : qlsp.getAll()) {
-                tableModel.addRow(qlsp.getRow(sp));
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-
-    public boolean validateForm() {
+    @Override
+    protected boolean validateForm() {
         if (txtID.getText().trim().isEmpty()
                 || txtTen.getText().trim().isEmpty()
                 || txtGia.getText().trim().isEmpty()
                 || jcbLoaiSanPham.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
         try {
             float gia = Float.parseFloat(txtGia.getText().trim());
             if (gia <= 0) {
-                JOptionPane.showMessageDialog(this, "Giá phải lớn hơn 0!");
+                showMessage("Giá phải lớn hơn 0!");
                 return false;
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Giá phải là số!");
+            showMessage("Giá phải là số!");
             return false;
         }
         return true;
     }
 
-    private SanPham getSanPhamFromForm() {
+    @Override
+    protected SanPham getEntityFromForm() {
         SanPham sp = new SanPham();
         sp.setId(txtID.getText().trim());
         sp.setTen(txtTen.getText().trim());
@@ -90,17 +64,44 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         return sp;
     }
 
-    private void showError(Exception ex, String prefix) {
-        JOptionPane.showMessageDialog(this, prefix + ex.getMessage());
-    }
-
-    private void clearForm() {
+    @Override
+    protected void clearForm() {
         txtID.setText("");
         txtTen.setText("");
         txtMoTa.setText("");
         txtGia.setText("");
         jcbLoaiSanPham.setSelectedIndex(-1);
         currentRow = -1;
+    }
+
+    @Override
+    protected List<SanPham> getAllEntities() throws Exception {
+        return qlsp.getAll();
+    }
+
+    @Override
+    protected String getEntityId(SanPham entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(SanPham entity) {
+        tableModel.addRow(qlsp.getRow(entity));
+    }
+
+    @Override
+    protected int addEntity(SanPham entity) throws Exception {
+        return qlsp.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlsp.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(SanPham entity, String oldId) throws Exception {
+        return qlsp.edit(entity, oldId);
     }
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -315,48 +316,11 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
-        if (!validateForm()) {
-            return;
-        }
-        if ("Khác".equals((String) jcbLoaiSanPham.getSelectedItem())) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn cần phải tạo một loại sản phẩm mới. Bạn có muốn không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
-                new QLLSPPanel().setVisible(true);
-            } else {
-                clearForm();
-                return;
-            }
-        }
-        try {
-            SanPham sp = getSanPhamFromForm();
-            int result = qlsp.add(sp);
-            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm sản phẩm thành công!" : "Thêm sản phẩm thất bại!");
-            fillTable();
-            clearForm();
-        } catch (Exception ex) {
-            showError(ex, "Lỗi: ");
-        }
+        handleAddAction();
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần xóa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa sản phẩm này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            String id = txtID.getText();
-            int result = qlsp.delete(id);
-            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa sản phẩm thành công!" : "Xóa sản phẩm thất bại!");
-            fillTable();
-            clearForm();
-            currentRow = -1;
-        } catch (Exception ex) {
-            showError(ex, "Lỗi: ");
-        }
+        handleDeleteAction();
     }
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -364,64 +328,11 @@ public final class QLSPPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
-        String id = txtTimKiem.getText().trim();
-        if (!id.isEmpty()) {
-            tableModel.setRowCount(0);
-            boolean found = false;
-            try {
-                List<SanPham> listSP = qlsp.getAll();
-                for (SanPham sp : listSP) {
-                    if (sp.getId().equalsIgnoreCase(id)) {
-                        tableModel.addRow(qlsp.getRow(sp));
-                        found = true;
-                        // Chọn dòng vừa thêm
-                        int row = tableModel.getRowCount() - 1;
-                        jTable.setRowSelectionInterval(row, row);
-                        jTable.scrollRectToVisible(jTable.getCellRect(row, 0, true));
-                        break;
-                    }
-                }
-                if (!found) {
-                    JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm có ID: " + id);
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-            }
-        } else {
-            fillTable();
-        }
-        clearForm();
+        handleSearchAction();
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm cần sửa!");
-            return;
-        }
-        if (!validateForm()) {
-            return;
-        }
-        if ("Khác".equals((String) jcbLoaiSanPham.getSelectedItem())) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn cần phải tạo một loại sản phẩm mới. Bạn có muốn không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
-                new QLLSPPanel().setVisible(true);
-            } else {
-                clearForm();
-                return;
-            }
-        }
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlsp.edit(getSanPhamFromForm(), oldId);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+        handleUpdateAction();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
