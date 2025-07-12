@@ -1,36 +1,28 @@
 package view;
 
 import controller.QLNLDAO;
-import java.sql.SQLException;
 import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableModel;
 import model.NguyenVatLieu;
 
-public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
-
-    DefaultTableModel tableModel;
-    QLNLDAO qlnl = new QLNLDAO();
-    int currentRow = -1;
+public final class QLNLPanel extends BasePanel<NguyenVatLieu> { 
+    private final QLNLDAO qlnl = new QLNLDAO();
 
     public QLNLPanel() {
         initComponents();
-        initTable();
-        fillTable();
-        addTableSelectionListener();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();
     }
 
-    private void addTableSelectionListener() {
-        jTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
-                currentRow = jTable.getSelectedRow();
-                setFormFromRow(currentRow);
-            }
-        });
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Tên nguyên liệu", "Đơn vị", "Số lượng có sẵn", "Mức cần đặt thêm"};
     }
 
-    private void setFormFromRow(int row) {
+    @Override
+    protected void setFormFromRow(int row) {
         txtID.setText(getValue(row, 0));
         txtTen.setText(getValue(row, 1));
         txtDonVi.setText(getValue(row, 2));
@@ -38,71 +30,81 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtMucCanThem.setText(getValue(row, 4));
     }
 
-    private String getValue(int row, int col) {
-        Object val = jTable.getValueAt(row, col);
-        return val == null ? "" : val.toString();
-    }
-
-    public void initTable() {
-        String[] cols = {"ID", "Tên nguyên liệu", "Đơn vị", "Số lượng có sẵn", "Mức cần đặt thêm"};
-        tableModel = new DefaultTableModel(cols, 0);
-        jTable.setModel(tableModel);
-    }
-
-    public void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            for (NguyenVatLieu nl : qlnl.getAll()) {
-                tableModel.addRow(new Object[]{
-                    nl.getId(),
-                    nl.getTen(),
-                    nl.getDonVi(),
-                    nl.getSoLuong(),
-                    nl.getMucCanDatThem()
-                });
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-
-    public boolean validateForm() {
+    @Override
+    protected boolean validateForm() {
         if (txtID.getText().trim().isEmpty()
                 || txtTen.getText().trim().isEmpty()
                 || txtDonVi.getText().trim().isEmpty()
                 || txtSoLuong.getText().trim().isEmpty()
                 || txtMucCanThem.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
-        // Kiểm tra số nếu cần
         try {
             Integer.parseInt(txtSoLuong.getText().trim());
             Integer.parseInt(txtMucCanThem.getText().trim());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Số lượng và mức cần thêm phải là số!");
+            showMessage("Số lượng và mức cần thêm phải là số!");
             return false;
         }
         return true;
     }
 
-    private NguyenVatLieu getNguyenLieuFromForm() {
+    @Override
+    protected NguyenVatLieu getEntityFromForm() {
         return new NguyenVatLieu(
-            txtID.getText().trim(),
-            txtTen.getText().trim(),
-            txtDonVi.getText().trim(),
-            Integer.parseInt(txtSoLuong.getText().trim()),
-            Integer.parseInt(txtMucCanThem.getText().trim())
+                txtID.getText().trim(),
+                txtTen.getText().trim(),
+                txtDonVi.getText().trim(),
+                Integer.parseInt(txtSoLuong.getText().trim()),
+                Integer.parseInt(txtMucCanThem.getText().trim())
         );
     }
 
-    private void clearForm() {
+    @Override
+    protected void clearForm() {
         txtID.setText("");
         txtTen.setText("");
         txtDonVi.setText("");
         txtSoLuong.setText("");
         txtMucCanThem.setText("");
         currentRow = -1;
+    }
+
+    @Override
+    protected List<NguyenVatLieu> getAllEntities() throws Exception {
+        return qlnl.getAll();
+    }
+
+    @Override
+    protected String getEntityId(NguyenVatLieu entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(NguyenVatLieu entity) {
+        tableModel.addRow(new Object[]{
+            entity.getId(),
+            entity.getTen(),
+            entity.getDonVi(),
+            entity.getSoLuong(),
+            entity.getMucCanDatThem()
+        });
+    }
+
+    @Override
+    protected int addEntity(NguyenVatLieu entity) throws Exception {
+        return qlnl.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlnl.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(NguyenVatLieu entity, String oldId) throws Exception {
+        return qlnl.edit(entity, oldId);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -326,35 +328,11 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
-        if (!validateForm()) return;
-        try {
-            NguyenVatLieu nl = getNguyenLieuFromForm();
-            int result = qlnl.add(nl);
-            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm nguyên liệu thành công!" : "Thêm thất bại!");
-            fillTable();
-            clearForm();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
+        handleAddAction();
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nguyên liệu cần xóa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa nguyên liệu này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
-        try {
-            String id = txtID.getText();
-            int result = qlnl.delete(id);
-            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa nguyên liệu thành công!" : "Xóa thất bại!");
-            fillTable();
-            clearForm();
-            currentRow = -1;
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
+        handleDeleteAction();
     }
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -362,54 +340,11 @@ public final class QLNLPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
-        String id = txtTimKiem.getText().trim();
-        if (!id.isEmpty()) {
-            tableModel.setRowCount(0);
-            boolean found = false;
-            try {
-                for (NguyenVatLieu nl : qlnl.getAll()) {
-                    if (nl.getId().equalsIgnoreCase(id)) {
-                        tableModel.addRow(new Object[]{
-                            nl.getId(),
-                            nl.getTen(),
-                            nl.getDonVi(),
-                            nl.getSoLuong(),
-                            nl.getMucCanDatThem()
-                        });
-                        found = true;
-                        int row = tableModel.getRowCount() - 1;
-                        jTable.setRowSelectionInterval(row, row);
-                        jTable.scrollRectToVisible(jTable.getCellRect(row, 0, true));
-                        break;
-                    }
-                }
-                if (!found) {
-                    JOptionPane.showMessageDialog(this, "Không tìm thấy nguyên liệu có ID: " + id);
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-            }
-        } else {
-            fillTable();
-        }
-
+        handleSearchAction();
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nguyên liệu cần sửa!");
-            return;
-        }
-        if (!validateForm()) return;
-        try {
-            String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnl.edit(getNguyenLieuFromForm(), oldId);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+        handleUpdateAction();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

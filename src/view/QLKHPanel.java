@@ -2,33 +2,28 @@ package view;
 
 import controller.QLKHDAO;
 import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import model.KhachHang;
 
-public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
+public final class QLKHPanel extends BasePanel<KhachHang> {
 
-    DefaultTableModel tableModel;
-    QLKHDAO qlkh = new QLKHDAO();
-    int currentRow = -1;
+    private final QLKHDAO qlkh = new QLKHDAO();
 
     public QLKHPanel() {
         initComponents();
-        initTable();
-        fillTable();
-        addTableSelectionListener();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();
     }
 
-    private void addTableSelectionListener() {
-        jTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
-                currentRow = jTable.getSelectedRow();
-                setFormFromRow(currentRow);
-            }
-        });
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Hạng KH"};
     }
 
-    private void setFormFromRow(int row) {
+    @Override
+    protected void setFormFromRow(int row) {
         txtID.setText(getValue(row, 0));
         txtTen.setText(getValue(row, 1));
         txtDienThoai.setText(getValue(row, 2));
@@ -36,43 +31,21 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         jcbHangKhachHang.setSelectedItem(getValue(row, 4));
     }
 
-    private String getValue(int row, int col) {
-        Object val = jTable.getValueAt(row, col);
-        return val == null ? "" : val.toString();
-    }
-
-    public void initTable() {
-        String[] cols = {"ID", "Tên", "Điện thoại", "Địa chỉ", "Hạng KH"};
-        tableModel = new DefaultTableModel(cols, 0);
-        jTable.setModel(tableModel);
-    }
-
-    public void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            for (KhachHang kh : qlkh.getAll()) {
-                tableModel.addRow(new Object[]{
-                    kh.getId(), kh.getTen(), kh.getDienThoai(), kh.getDiaChi(), kh.gethangKhachHangId()
-                });
-            }
-        } catch (Exception ex) {
-            showError(ex, "Lỗi khi tải dữ liệu: ");
-        }
-    }
-
-    public boolean validateForm() {
+    @Override
+    protected boolean validateForm() {
         if (txtID.getText().trim().isEmpty()
                 || txtTen.getText().trim().isEmpty()
                 || txtDienThoai.getText().trim().isEmpty()
                 || txtDiaChi.getText().trim().isEmpty()
                 || jcbHangKhachHang.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
         return true;
     }
 
-    private KhachHang getKhachHangFromForm() {
+    @Override
+    protected KhachHang getEntityFromForm() {
         return new KhachHang(
                 txtID.getText().trim(),
                 txtTen.getText().trim(),
@@ -82,17 +55,46 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         );
     }
 
-    private void showError(Exception ex, String prefix) {
-        JOptionPane.showMessageDialog(this, prefix + ex.getMessage());
-    }
-
-    private void clearForm() {
+    @Override
+    protected void clearForm() {
         txtID.setText("");
         txtTen.setText("");
         txtDienThoai.setText("");
         txtDiaChi.setText("");
         jcbHangKhachHang.setSelectedIndex(-1);
         currentRow = -1;
+    }
+
+    @Override
+    protected List<KhachHang> getAllEntities() throws Exception {
+        return qlkh.getAll();
+    }
+
+    @Override
+    protected String getEntityId(KhachHang entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(KhachHang entity) {
+        tableModel.addRow(new Object[]{
+            entity.getId(), entity.getTen(), entity.getDienThoai(), entity.getDiaChi(), entity.gethangKhachHangId()
+        });
+    }
+
+    @Override
+    protected int addEntity(KhachHang entity) throws Exception {
+        return qlkh.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlkh.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(KhachHang entity, String oldId) throws Exception {
+        return qlkh.edit(entity, oldId);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -312,48 +314,11 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
-        if (!validateForm()) {
-            return;
-        }
-        if ("Khác".equals((String) jcbHangKhachHang.getSelectedItem())) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn cần phải tạo một loại sản phẩm mới. Bạn có muốn không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
-                new QLHKHPanel().setVisible(true);
-            } else {
-                clearForm();
-                return;
-            }
-        }
-        try {
-            KhachHang kh = getKhachHangFromForm();
-            int result = qlkh.add(kh);
-            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm khách hàng thành công!" : "Thêm khách hàng thất bại!");
-            fillTable();
-            clearForm();
-        } catch (Exception ex) {
-            showError(ex, "Lỗi: ");
-        }
+        handleAddAction();
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng cần xóa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa khách hàng này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            String id = txtID.getText();
-            int result = qlkh.delete(id);
-            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa khách hàng thành công!" : "Xóa khách hàng thất bại!");
-            fillTable();
-            clearForm();
-            currentRow = -1;
-        } catch (Exception ex) {
-            showError(ex, "Lỗi: ");
-        }
+        handleDeleteAction();
     }
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -361,64 +326,11 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
-        String id = txtTimKiem.getText().trim();
-        if (!id.isEmpty()) {
-            tableModel.setRowCount(0);
-            boolean found = false;
-            try {
-                List<KhachHang> listKH = qlkh.getAll();
-                for (KhachHang kh : listKH) {
-                    if (kh.getId().equalsIgnoreCase(id)) {
-                        tableModel.addRow(new Object[]{
-                            kh.getId(), kh.getTen(), kh.getDienThoai(), kh.getDiaChi(), kh.gethangKhachHangId()
-                        });
-                        found = true;
-                        int row = tableModel.getRowCount() - 1;
-                        jTable.setRowSelectionInterval(row, row);
-                        jTable.scrollRectToVisible(jTable.getCellRect(row, 0, true));
-                        break;
-                    }
-                }
-                if (!found) {
-                    JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng có ID: " + id);
-                }
-            } catch (Exception ex) {
-                showError(ex, "Lỗi khi tải dữ liệu: ");
-            }
-        } else {
-            fillTable();
-        }
+        handleSearchAction();
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng cần sửa!");
-            return;
-        }
-        if (!validateForm()) {
-            return;
-        }
-        if ("Khác".equals((String) jcbHangKhachHang.getSelectedItem())) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn cần phải tạo một loại sản phẩm mới. Bạn có muốn không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
-                new QLHKHPanel().setVisible(true);
-            } else {
-                clearForm();
-                return;
-            }
-        }
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlkh.edit(getKhachHangFromForm(), oldId);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
-        } catch (Exception ex) {
-            showError(ex, "Lỗi: ");
-        }
-        clearForm();
+        handleUpdateAction();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
