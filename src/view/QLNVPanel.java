@@ -18,18 +18,26 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
 
     public QLNVPanel() {
         initComponents();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
     }
 
     private boolean isEmpty(JTextField... fields) {
-        for (JTextField f : fields) if (f.getText().trim().isEmpty()) return true;
+        for (JTextField f : fields) {
+            if (f.getText().trim().isEmpty()) {
+                return true;
+            }
+        }
         return false;
     }
 
     private void clearFields(JTextField... fields) {
-        for (JTextField f : fields) f.setText("");
+        for (JTextField f : fields) {
+            f.setText("");
+        }
     }
 
     private void clearDateFields() {
@@ -43,7 +51,9 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
             LocalDate date = LocalDate.of(Integer.parseInt(y), Integer.parseInt(m), Integer.parseInt(d));
             int age = Period.between(date, LocalDate.now()).getYears();
             return age >= 18 && age <= 60 && !date.isAfter(LocalDate.now());
-        } catch (Exception e) { return false; }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -109,23 +119,34 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
     }
 
     @Override
-    protected List<NhanVien> getAllEntities() throws Exception { return qlnv.getAll(); }
+    protected List<NhanVien> getAllEntities() throws Exception {
+        return qlnv.getAll();
+    }
 
     @Override
-    protected String getEntityId(NhanVien entity) { return entity.getId(); }
+    protected String getEntityId(NhanVien entity) {
+        return entity.getId();
+    }
 
     @Override
-    protected void addEntityToTable(NhanVien entity) { tableModel.addRow(qlnv.getRow(entity)); }
+    protected void addEntityToTable(NhanVien entity) {
+        tableModel.addRow(qlnv.getRow(entity));
+    }
 
     @Override
-    protected int addEntity(NhanVien entity) throws Exception { return qlnv.add(entity); }
+    protected int addEntity(NhanVien entity) throws Exception {
+        return qlnv.add(entity);
+    }
 
     @Override
-    protected int deleteEntity(String id) throws Exception { return qlnv.delete(id); }
+    protected int deleteEntity(String id) throws Exception {
+        return qlnv.delete(id);
+    }
 
     @Override
-    protected int updateEntity(NhanVien entity, String oldId) throws Exception { return qlnv.edit(entity, oldId); }
-
+    protected int updateEntity(NhanVien entity, String oldId) throws Exception {
+        return qlnv.edit(entity, oldId);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
