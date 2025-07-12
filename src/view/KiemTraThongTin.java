@@ -7,6 +7,7 @@ package view;
 import controller.QLNVDAO;
 import java.awt.Component;
 import java.sql.Date;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
@@ -301,13 +302,12 @@ public class KiemTraThongTin extends javax.swing.JFrame {
 
             boolean hopLe = false;
             for (NhanVien n : qlnv.getAll()) {
-                if (n.getId().equals(id)
-                        && n.getTenDayDu().equals(ten)
-                        && n.getNgaySinh().equals(ngaySinh)
-                        && n.getEmail().equals(email)
-                        && n.getGioiTinh().equals(gioiTinh)
-                        && n.getChucVu().equals(chucVu)) {
-
+                if (Objects.equals(n.getId(), id)
+                        && Objects.equals(n.getTenDayDu(), ten)
+                        && Objects.equals(n.getNgaySinh(), ngaySinh)
+                        && Objects.equals(n.getEmail(), email)
+                        && Objects.equals(n.getGioiTinh(), gioiTinh)
+                        && Objects.equals(n.getChucVu(), chucVu)) {
                     new TrangChu(n).setVisible(true);
                     this.dispose();
                     hopLe = true;

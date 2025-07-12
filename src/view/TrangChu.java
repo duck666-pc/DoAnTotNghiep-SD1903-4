@@ -12,7 +12,7 @@ import model.NhanVien;
 
 public class TrangChu extends javax.swing.JFrame {
 
-    private TrangChu (NhanVien n) {
+    public TrangChu (NhanVien n) {
         initComponents();
     }
     

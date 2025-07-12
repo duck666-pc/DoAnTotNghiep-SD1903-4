@@ -8,7 +8,6 @@ import controller.QLNVDAO;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import model.NhanVien;
 
 public class Login extends javax.swing.JFrame {
@@ -25,7 +24,7 @@ public class Login extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
 
-    private KiemTraThongTin ktttInstance = null;
+    private final KiemTraThongTin ktttInstance = null;
 
     /**
      * This method is called from within the constructor to initialize the form.
