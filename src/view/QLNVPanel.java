@@ -13,7 +13,6 @@ import javax.swing.JTextField;
 import model.NhanVien;
 
 public final class QLNVPanel extends BasePanel<NhanVien> {
-
     private final QLNVDAO qlnv = new QLNVDAO();
 
     public QLNVPanel() {
