@@ -4,19 +4,96 @@
  */
 package view;
 
+import controller.QLLSPDAO;
+import java.util.List;
+import model.LoaiSanPham;
+
 /**
  *
  * @author minhd
  */
-public class QLLSPPanel extends javax.swing.JPanel {
+public class QLLSPPanel extends BasePanel<LoaiSanPham> {
 
-    /**
-     * Creates new form QLLSPPanel1
-     */
+    private final QLLSPDAO qllsp = new QLLSPDAO();
+    
     public QLLSPPanel() {
         initComponents();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();        
     }
 
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Tên", "Mô tả"};
+    }
+
+    @Override
+    protected void setFormFromRow(int row) {
+        txtID.setText(getValue(row, 0));
+        txtTen.setText(getValue(row, 1));
+        txtMoTa.setText(getValue(row, 2));
+    }
+
+    @Override
+    protected boolean validateForm() {
+        if (txtID.getText().trim().isEmpty()
+                || txtTen.getText().trim().isEmpty()
+                || txtMoTa.getText().trim().isEmpty()) {
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected LoaiSanPham getEntityFromForm() {
+        LoaiSanPham lsp = new LoaiSanPham();
+        lsp.setId(txtID.getText().trim());
+        lsp.setTen(txtTen.getText().trim());
+        lsp.setMoTa(txtMoTa.getText().trim());
+        return lsp;
+    }
+
+    @Override
+    protected void clearForm() {
+        txtID.setText("");
+        txtTen.setText("");
+        txtMoTa.setText("");
+        currentRow = -1;
+    }
+
+    @Override
+    protected List<LoaiSanPham> getAllEntities() throws Exception {
+        return qllsp.getAll();
+    }
+
+    @Override
+    protected String getEntityId(LoaiSanPham entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(LoaiSanPham entity) {
+        tableModel.addRow(qllsp.getRow(entity));
+    }
+
+    @Override
+    protected int addEntity(LoaiSanPham entity) throws Exception {
+        return qllsp.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qllsp.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(LoaiSanPham entity, String oldId) throws Exception {
+        return qllsp.edit(entity, oldId);
+    }    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -198,19 +275,19 @@ public class QLLSPPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtMoTaActionPerformed
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtThemActionPerformed
-        // TODO add your handling code here:
+        handleAddAction();
     }//GEN-LAST:event_jbtThemActionPerformed
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSuaActionPerformed
-        // TODO add your handling code here:
+        handleUpdateAction();
     }//GEN-LAST:event_jbtSuaActionPerformed
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtXoaActionPerformed
-        // TODO add your handling code here:
+        handleDeleteAction();
     }//GEN-LAST:event_jbtXoaActionPerformed
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
-        // TODO add your handling code here:
+        handleSearchAction();
     }//GEN-LAST:event_txtTimKiemActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
@@ -218,7 +295,7 @@ public class QLLSPPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-
+        clearForm();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
 

@@ -12,10 +12,10 @@ import model.NhanVien;
 
 public class TrangChu extends javax.swing.JFrame {
 
-    public TrangChu(NhanVien nv) {
+    private TrangChu (NhanVien n) {
         initComponents();
     }
-
+    
     private TrangChu() {
         initComponents();
     }
@@ -47,6 +47,8 @@ public class TrangChu extends javax.swing.JFrame {
         jbtDangXuat = new javax.swing.JButton();
         jPanel = new javax.swing.JPanel();
         jbtDOANHTHU = new javax.swing.JButton();
+        jbtLOAISANPHAM = new javax.swing.JButton();
+        jbtLOAIKHACHHANG = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setLocationByPlatform(true);
@@ -101,7 +103,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtDangXuat.setBackground(new java.awt.Color(255, 0, 0));
         jbtDangXuat.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtDangXuat.setForeground(new java.awt.Color(255, 255, 255));
         jbtDangXuat.setText("Đăng Xuất");
         jbtDangXuat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -115,7 +119,7 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel.setLayout(jPanelLayout);
         jPanelLayout.setHorizontalGroup(
             jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 780, Short.MAX_VALUE)
+            .addGap(0, 751, Short.MAX_VALUE)
         );
         jPanelLayout.setVerticalGroup(
             jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -127,6 +131,22 @@ public class TrangChu extends javax.swing.JFrame {
         jbtDOANHTHU.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtDOANHTHUActionPerformed(evt);
+            }
+        });
+
+        jbtLOAISANPHAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtLOAISANPHAM.setText("Loại Sản Phẩm");
+        jbtLOAISANPHAM.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLOAISANPHAMActionPerformed(evt);
+            }
+        });
+
+        jbtLOAIKHACHHANG.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtLOAIKHACHHANG.setText("Loại Khách Hàng");
+        jbtLOAIKHACHHANG.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLOAIKHACHHANGActionPerformed(evt);
             }
         });
 
@@ -144,7 +164,9 @@ public class TrangChu extends javax.swing.JFrame {
                     .addComponent(jbtQLKH, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbtQLKM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbtDangXuat, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbtDOANHTHU, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jbtDOANHTHU, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbtLOAISANPHAM, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbtLOAIKHACHHANG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -160,11 +182,15 @@ public class TrangChu extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLSP)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtLOAISANPHAM)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLHD)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLNL)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLKH)
+                        .addGap(7, 7, 7)
+                        .addComponent(jbtLOAIKHACHHANG)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLKM)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -222,6 +248,14 @@ public class TrangChu extends javax.swing.JFrame {
         showPanel(new DOANHTHUPanel());
     }//GEN-LAST:event_jbtDOANHTHUActionPerformed
 
+    private void jbtLOAISANPHAMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLOAISANPHAMActionPerformed
+        showPanel(new QLLSPPanel());
+    }//GEN-LAST:event_jbtLOAISANPHAMActionPerformed
+
+    private void jbtLOAIKHACHHANGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLOAIKHACHHANGActionPerformed
+        showPanel(new QLHKHPanel());
+    }//GEN-LAST:event_jbtLOAIKHACHHANGActionPerformed
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -252,6 +286,8 @@ public class TrangChu extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel;
     private javax.swing.JButton jbtDOANHTHU;
     private javax.swing.JButton jbtDangXuat;
+    private javax.swing.JButton jbtLOAIKHACHHANG;
+    private javax.swing.JButton jbtLOAISANPHAM;
     private javax.swing.JButton jbtQLHD;
     private javax.swing.JButton jbtQLKH;
     private javax.swing.JButton jbtQLKM;

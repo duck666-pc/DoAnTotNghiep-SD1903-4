@@ -4,19 +4,98 @@
  */
 package view;
 
+import controller.QLHKHDAO;
+import java.util.List;
+import model.HangKhachHang;
+
 /**
  *
  * @author minhd
  */
-public class QLHKHPanel extends javax.swing.JPanel {
+public class QLHKHPanel extends BasePanel<HangKhachHang> {
 
-    /**
-     * Creates new form QLHKHPanel1
-     */
+    private final QLHKHDAO qlhkh = new QLHKHDAO();
+    
     public QLHKHPanel() {
         initComponents();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();        
     }
 
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Hạng KH"};
+    }
+
+    @Override
+    protected void setFormFromRow(int row) {
+        txtID.setText(getValue(row, 0));
+        txtTen.setText(getValue(row, 1));
+        txtMucGiamGia.setText(getValue(row, 2));
+    }
+
+    @Override
+    protected boolean validateForm() {
+        if (txtID.getText().trim().isEmpty()
+                || txtTen.getText().trim().isEmpty()
+                || txtMucGiamGia.getText().trim().isEmpty()) {
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected HangKhachHang getEntityFromForm() {
+        HangKhachHang hkh = new HangKhachHang();
+        hkh.setId(txtID.getText().trim());
+        hkh.setTen(txtTen.getText().trim());
+        hkh.setMucGiamGia(Float.parseFloat(txtMucGiamGia.getText().trim()));
+        return hkh;
+    }
+
+    @Override
+    protected void clearForm() {
+        txtID.setText("");
+        txtTen.setText("");
+        txtMucGiamGia.setText("");
+        currentRow = -1;
+    }
+
+    @Override
+    protected List<HangKhachHang> getAllEntities() throws Exception {
+        return qlhkh.getAll();
+    }
+
+    @Override
+    protected String getEntityId(HangKhachHang entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(HangKhachHang entity) {
+        tableModel.addRow(new Object[]{
+            entity.getId(), entity.getTen(), entity.getMucGiamGia()
+        });
+    }
+
+    @Override
+    protected int addEntity(HangKhachHang entity) throws Exception {
+        return qlhkh.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlhkh.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(HangKhachHang entity, String oldId) throws Exception {
+        return qlhkh.edit(entity, oldId);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -196,7 +275,7 @@ public class QLHKHPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtIDActionPerformed
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtThemActionPerformed
-        // TODO add your handling code here:
+        handleAddAction();
     }//GEN-LAST:event_jbtThemActionPerformed
 
     private void txtMucGiamGiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMucGiamGiaActionPerformed
@@ -204,11 +283,11 @@ public class QLHKHPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtMucGiamGiaActionPerformed
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSuaActionPerformed
-        // TODO add your handling code here:
+        handleUpdateAction();
     }//GEN-LAST:event_jbtSuaActionPerformed
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtXoaActionPerformed
-        // TODO add your handling code here:
+        handleDeleteAction();
     }//GEN-LAST:event_jbtXoaActionPerformed
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
@@ -216,11 +295,11 @@ public class QLHKHPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtTimKiemActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-        // TODO add your handling code here:
+        handleSearchAction();
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-
+        clearForm();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
 
