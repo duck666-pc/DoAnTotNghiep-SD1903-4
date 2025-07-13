@@ -11,6 +11,14 @@ public class LoaiSanPham {
     private String id;
     private String ten;
     private String moTa;
+    
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }    
   
     @Override
     public String toString() {

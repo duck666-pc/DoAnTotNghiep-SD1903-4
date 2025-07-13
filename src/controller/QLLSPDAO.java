@@ -51,7 +51,7 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
         return "UPDATE LOAISANPHAM SET "
                 + "ID = ?, "
                 + "TEN = ?, "
-                + "MOTA = ?, "
+                + "MOTA = ? "
                 + "WHERE ID = ?";
     }
 

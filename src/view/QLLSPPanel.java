@@ -287,11 +287,11 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
     }//GEN-LAST:event_jbtXoaActionPerformed
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
-        handleSearchAction();
+
     }//GEN-LAST:event_txtTimKiemActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-        // TODO add your handling code here:
+        handleSearchAction();
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
