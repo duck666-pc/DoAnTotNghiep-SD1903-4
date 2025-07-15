@@ -22,6 +22,7 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
     private boolean isEmpty(JTextField... fields) {

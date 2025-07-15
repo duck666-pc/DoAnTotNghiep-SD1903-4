@@ -15,6 +15,7 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
     @Override

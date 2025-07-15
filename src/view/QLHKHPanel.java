@@ -22,7 +22,8 @@ public class QLHKHPanel extends BasePanel<HangKhachHang> {
         this.baseTxtTimKiem = txtTimKiem;
         super.initTable();
         super.fillTable();
-        super.addTableSelectionListener();        
+        super.addTableSelectionListener();  
+        super.enableAutoFilter();
     }
 
     @Override

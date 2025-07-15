@@ -7,6 +7,12 @@ package view;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.RowFilter;
+
 
 public abstract class BasePanel<T> extends javax.swing.JPanel {
 
@@ -88,6 +94,41 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
         } catch (Exception ex) {
             showError(ex, "Lỗi khi tải dữ liệu: ");
         }
+    }
+
+    protected void enableAutoFilter() {
+        if (baseJTable == null || baseTxtTimKiem == null) {
+            throw new IllegalStateException("baseJTable hoặc baseTxtTimKiem chưa được gán.");
+        }
+
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(baseJTable.getModel());
+        baseJTable.setRowSorter(sorter);
+
+        baseTxtTimKiem.getDocument().addDocumentListener(new DocumentListener() {
+            private void filter() {
+                String keyword = baseTxtTimKiem.getText().trim();
+                if (keyword.isEmpty()) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + keyword));
+                }
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filter();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filter();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filter();
+            }
+        });
     }
 
     protected void handleAddAction() {

@@ -15,6 +15,7 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
     @Override

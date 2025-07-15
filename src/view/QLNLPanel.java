@@ -15,6 +15,7 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
     @Override

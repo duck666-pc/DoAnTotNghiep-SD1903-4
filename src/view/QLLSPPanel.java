@@ -22,7 +22,8 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
         this.baseTxtTimKiem = txtTimKiem;
         super.initTable();
         super.fillTable();
-        super.addTableSelectionListener();        
+        super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
     @Override
