@@ -41,6 +41,10 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
             showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
+    if (!txtDienThoai.getText().trim().matches("\\d+")) {
+        showMessage("Số điện thoại phải là số!");
+        return false;
+    }       
         return true;
     }
 

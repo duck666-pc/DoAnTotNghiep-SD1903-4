@@ -42,8 +42,8 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         }
         try {
             float gia = Float.parseFloat(txtGia.getText().trim());
-            if (gia <= 0) {
-                showMessage("Giá phải lớn hơn 0!");
+            if (gia <= 10000) {
+                showMessage("Giá phải lớn hơn 10000!");
                 return false;
             }
         } catch (NumberFormatException e) {

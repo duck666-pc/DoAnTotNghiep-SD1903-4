@@ -4,7 +4,8 @@ import controller.QLNLDAO;
 import java.util.List;
 import model.NguyenVatLieu;
 
-public final class QLNLPanel extends BasePanel<NguyenVatLieu> { 
+public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
+
     private final QLNLDAO qlnl = new QLNLDAO();
 
     public QLNLPanel() {
@@ -41,8 +42,12 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
             return false;
         }
         try {
-            Integer.parseInt(txtSoLuong.getText().trim());
-            Integer.parseInt(txtMucCanThem.getText().trim());
+            int SoLuong = Integer.parseInt(txtSoLuong.getText().trim());
+            int MucCanThem = Integer.parseInt(txtMucCanThem.getText().trim());
+            if (MucCanThem > SoLuong) {
+                showMessage("Số lượng phải nhiều hơn mức cần thêm, nếu không phải mua thêm nguyên liệu!");
+                return false;
+            }
         } catch (NumberFormatException e) {
             showMessage("Số lượng và mức cần thêm phải là số!");
             return false;
