@@ -28,7 +28,7 @@ public class QLHKHPanel extends BasePanel<HangKhachHang> {
 
     @Override
     protected String[] getColumnNames() {
-        return new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Hạng KH"};
+        return new String[]{"ID", "Tên", "Điện thoại"};
     }
 
     @Override
