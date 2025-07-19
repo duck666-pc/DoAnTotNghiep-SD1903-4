@@ -124,6 +124,8 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
         jbtLamMoi = new javax.swing.JButton();
         jcbHangKhachHang = new javax.swing.JComboBox<>();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jLabel1.setText("ID:");
 
         jLabel2.setText("Tên:");

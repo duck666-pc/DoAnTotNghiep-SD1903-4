@@ -5,12 +5,30 @@
 package view;
 
 import controller.QLNVDAO;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.border.EmptyBorder;
 import model.NhanVien;
 
 public class Login extends javax.swing.JFrame {
+
+    // Modern color scheme matching TrangChu
+    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color SECONDARY_COLOR = new Color(52, 152, 219);
+    private static final Color ACCENT_COLOR = new Color(231, 76, 60);
+    private static final Color BACKGROUND_COLOR = new Color(246, 248, 250);
+    private static final Color CARD_COLOR = Color.WHITE;
+    private static final Color TEXT_COLOR = new Color(44, 62, 80);
+    private static final Color BUTTON_HOVER = new Color(52, 73, 94);
+    private static final Color INPUT_BORDER = new Color(220, 221, 225);
 
     /**
      * Creates new form Login
@@ -22,9 +40,113 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         defaultEchoChar = txtMatKhau.getEchoChar();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        customizeUI();
+        setLocationRelativeTo(null); // Center the window
     }
 
     private final KiemTraThongTin ktttInstance = null;
+
+    private void customizeUI() {
+        setTitle("Đăng Nhập - Hệ Thống Quản Lý");
+        getContentPane().setBackground(BACKGROUND_COLOR);
+        customizeLabels();
+        customizeInputFields();
+        customizeButtons();
+    }
+
+    private void customizeLabels() {
+        // Title label
+        jLabel2.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        jLabel2.setForeground(PRIMARY_COLOR);
+
+        // Input labels
+        jLabel3.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        jLabel3.setForeground(TEXT_COLOR);
+
+        jLabel4.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        jLabel4.setForeground(TEXT_COLOR);
+    }
+
+    private void customizeInputFields() {
+        // ID field
+        txtID.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtID.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(INPUT_BORDER, 1),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+        txtID.setBackground(Color.WHITE);
+
+        // Password field
+        txtMatKhau.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtMatKhau.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(INPUT_BORDER, 1),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+        txtMatKhau.setBackground(Color.WHITE);
+
+        // Checkbox
+        jCheckBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        jCheckBox.setForeground(TEXT_COLOR);
+        jCheckBox.setBackground(BACKGROUND_COLOR);
+        jCheckBox.setFocusPainted(false);
+    }
+
+    private void customizeButtons() {
+        // Login button
+        styleButton(jbtDangNhap, PRIMARY_COLOR, Color.WHITE, SECONDARY_COLOR);
+
+        // Forgot password button
+        styleLinkButton(jbtQuenMatKhau);
+    }
+
+    private void styleButton(JButton button, Color bgColor, Color textColor, Color hoverColor) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setForeground(textColor);
+        button.setBackground(bgColor);
+        button.setBorder(new EmptyBorder(12, 24, 12, 24));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+
+        // Add hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(hoverColor);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(bgColor);
+            }
+        });
+    }
+
+    private void styleLinkButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        button.setForeground(PRIMARY_COLOR);
+        button.setBackground(BACKGROUND_COLOR);
+        button.setBorder(new EmptyBorder(8, 16, 8, 16));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Add hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(SECONDARY_COLOR);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(PRIMARY_COLOR);
+            }
+        });
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -155,24 +277,35 @@ public class Login extends javax.swing.JFrame {
         String id = txtID.getText().trim();
         String matKhau = new String(txtMatKhau.getPassword()).trim();
 
+        // Input validation
+        if (id.isEmpty()) {
+            showErrorMessage("Vui lòng nhập ID!");
+            txtID.requestFocus();
+            return;
+        }
+        
+        if (matKhau.isEmpty()) {
+            showErrorMessage("Vui lòng nhập mật khẩu!");
+            txtMatKhau.requestFocus();
+            return;
+        }
+
         try {
-            for (NhanVien n : qlnv.getAll()) {
-                if (n.getId().equals(id) && n.getMatKhau().equals(matKhau)) {
-                    new TrangChu(n).setVisible(true);
-                    this.dispose();
-                    return;
-                }
+            // Optimized authentication
+            NhanVien authenticatedUser = authenticateUser(id, matKhau);
+            
+            if (authenticatedUser != null) {
+                // Successful login
+                new TrangChu(authenticatedUser).setVisible(true);
+                this.dispose();
+            } else {
+                showErrorMessage("Sai ID hoặc mật khẩu!");
+                clearFields();
             }
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Sai ID hoặc mật khẩu!",
-                    "Đăng nhập thất bại",
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            
         } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Lỗi hệ thống khi đăng nhập!",
-                    "Lỗi",
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            showErrorMessage("Lỗi hệ thống khi đăng nhập!");
         }
     }//GEN-LAST:event_jbtDangNhapActionPerformed
 
@@ -185,6 +318,30 @@ public class Login extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
+    
+    private NhanVien authenticateUser(String id, String matKhau) throws SQLException, ClassNotFoundException {
+        for (NhanVien n : qlnv.getAll()) {
+            if (id.equals(n.getId()) && matKhau.equals(n.getMatKhau())) {
+                return n;
+            }
+        }
+        return null;
+    }
+    
+    // Helper method for consistent error messaging
+    private void showErrorMessage(String message) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+                message,
+                "Thông báo",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+    }
+    
+    // Helper method to clear input fields
+    private void clearFields() {
+        txtMatKhau.setText("");
+        txtID.requestFocus();
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -212,6 +369,16 @@ public class Login extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new Login().setVisible(true);

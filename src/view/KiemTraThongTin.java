@@ -5,14 +5,20 @@
 package view;
 
 import controller.QLNVDAO;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Font;
 import java.sql.Date;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import model.NhanVien;
 
 /**
@@ -21,39 +27,174 @@ import model.NhanVien;
  */
 public class KiemTraThongTin extends javax.swing.JFrame {
 
-    /**
-     * Creates new form KiemTraThongTin
-     */
-    QLNVDAO qlnv = new QLNVDAO();
+    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color SECONDARY_COLOR = new Color(52, 152, 219);
+    private static final Color ACCENT_COLOR = new Color(231, 76, 60);
+    private static final Color SUCCESS_COLOR = new Color(39, 174, 96);
+    private static final Color WARNING_COLOR = new Color(243, 156, 18);
+    private static final Color BACKGROUND_COLOR = new Color(246, 248, 250);
+    private static final Color TEXT_COLOR = new Color(73, 80, 87);
+    private static final Color BORDER_COLOR = new Color(220, 221, 225);
+
+    private final QLNVDAO qlnv = new QLNVDAO();
 
     public KiemTraThongTin() {
         initComponents();
+        customizeUI();
+        centerWindow();
     }
 
-    private String toStringOrEmpty(Object obj) {
-        return obj != null ? obj.toString().trim() : "";
+    private void centerWindow() {
+        setLocationRelativeTo(null);
+        setResizable(true);
+        // Set minimum size to ensure all components are visible
+        setMinimumSize(new java.awt.Dimension(500, 400));
     }
 
-    public class FormUtils {
+    private void customizeUI() {
+        setTitle("Kiểm Tra Thông Tin - Đặt Lại Mật Khẩu");
+        getContentPane().setBackground(BACKGROUND_COLOR);
+
+        customizeLabels();
+        customizeInputFields();
+        customizeButtons();
+        applyModernStyling();
+    }
+
+    private void customizeLabels() {
+        // Increase font size of jLabel8 from 22 to 26
+        jLabel8.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        jLabel8.setForeground(PRIMARY_COLOR);
+
+        jLabel9.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        jLabel9.setForeground(TEXT_COLOR);
+
+        JComponent[] labels = {jLabel1, jLabel2, jLabel3, jLabel4, jLabel5, jLabel6};
+        for (JComponent label : labels) {
+            label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            label.setForeground(TEXT_COLOR);
+        }
+    }
+
+    private void customizeInputFields() {
+        JTextField[] textFields = {txtID, txtTen, txtEmail, jcbNamSinh};
+        for (JTextField field : textFields) {
+            styleTextField(field);
+        }
+
+        JComboBox<?>[] comboBoxes = {jcbGioiTinh, jcbNgaySinh, jcbThangSinh, jcbChucVu};
+        for (JComboBox<?> combo : comboBoxes) {
+            styleComboBox(combo);
+        }
+    }
+
+    private void styleTextField(JTextField field) {
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                new EmptyBorder(6, 10, 6, 10)
+        ));
+        field.setBackground(Color.WHITE);
+        field.setForeground(TEXT_COLOR);
+
+        // Add focus effect
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                field.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(PRIMARY_COLOR, 2),
+                        new EmptyBorder(5, 9, 5, 9)
+                ));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                field.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                        new EmptyBorder(6, 10, 6, 10)
+                ));
+            }
+        });
+    }
+
+    private void styleComboBox(JComboBox<?> combo) {
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        combo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                new EmptyBorder(3, 6, 3, 6)
+        ));
+        combo.setBackground(Color.WHITE);
+        combo.setForeground(TEXT_COLOR);
+        combo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void customizeButtons() {
+        styleButton(jButton1, PRIMARY_COLOR, Color.WHITE, new Color(31, 97, 141));
+        styleButton(jbtQuayLai, new Color(108, 117, 125), Color.WHITE, new Color(90, 98, 104));
+        styleButton(jbtLamMoi, WARNING_COLOR, Color.WHITE, new Color(212, 136, 16));
+    }
+
+    private void styleButton(javax.swing.JButton button, Color bgColor, Color textColor, Color hoverColor) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setForeground(textColor);
+        button.setBackground(bgColor);
+        button.setBorder(new EmptyBorder(8, 16, 8, 16));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(hoverColor);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(bgColor);
+            }
+        });
+    }
+
+    private void applyModernStyling() {
+        getRootPane().setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                new EmptyBorder(10, 10, 10, 10)
+        ));
+    }
+
+    public static class FormUtils {
 
         public static String getText(Component c) {
             if (c instanceof JTextField jTextField) {
                 return jTextField.getText().trim();
-            } else {
-                JTextField jTextField = (JTextField) c;
-            }
-            if (c instanceof JComboBox<?> cb) {
-                Object item = cb.getSelectedItem();
+            } else if (c instanceof JComboBox) {
+                Object item = ((JComboBox<?>) c).getSelectedItem();
                 return item != null ? item.toString().trim() : "";
             }
             return "";
         }
 
-        public static Date parseDate(String day, String month, String year) {
+        public static java.sql.Date parseDate(String day, String month, String year) {
+            if (day.isEmpty() || month.isEmpty() || year.isEmpty()) {
+                return null;
+            }
+
             try {
-                String s = String.format("%s-%02d-%02d", year, Integer.parseInt(month), Integer.parseInt(day));
-                return Date.valueOf(s);
-            } catch (Exception e) {
+                int dayInt = Integer.parseInt(day);
+                int monthInt = Integer.parseInt(month);
+                int yearInt = Integer.parseInt(year);
+
+                if (dayInt < 1 || dayInt > 31 || monthInt < 1 || monthInt > 12 || yearInt < 1900) {
+                    return null;
+                }
+
+                String dateString = String.format("%d-%02d-%02d", yearInt, monthInt, dayInt);
+                return java.sql.Date.valueOf(dateString);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Lỗi khi chuyển đổi ngày tháng: " + e.getMessage());
                 return null;
             }
         }
@@ -367,12 +508,19 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new KiemTraThongTin().setVisible(true);
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
             }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(KiemTraThongTin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> {
+            new KiemTraThongTin().setVisible(true);
         });
     }
 

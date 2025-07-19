@@ -119,6 +119,8 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
         jbtTimKiem = new javax.swing.JButton();
         jbtLamMoi = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jLabel1.setText("ID:");
 
         jLabel2.setText("Tên:");

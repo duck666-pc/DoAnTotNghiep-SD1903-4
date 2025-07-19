@@ -182,6 +182,8 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         jcbChucVu = new javax.swing.JComboBox<>();
         jbtLamMoi = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jLabel1.setText("ID:");
 
         jLabel2.setText("Tên:");

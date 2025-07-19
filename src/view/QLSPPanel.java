@@ -126,6 +126,8 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         jbtLamMoi = new javax.swing.JButton();
         jcbLoaiSanPham = new javax.swing.JComboBox<>();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jLabel1.setText("ID:");
 
         jLabel2.setText("Tên:");

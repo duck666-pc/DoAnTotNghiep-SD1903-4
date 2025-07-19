@@ -135,6 +135,8 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
         jbtTimKiem = new javax.swing.JButton();
         jbtLamMoi = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jLabel1.setText("ID:");
 
         jLabel2.setText("Tên:");
@@ -175,6 +177,9 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
             }
         });
 
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jTable.setForeground(new java.awt.Color(255, 255, 255));
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -186,6 +191,9 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
                 "ID", "Tên", "Đơn vị", "Số lượng có sẵn", "Mức cần đặt thêm"
             }
         ));
+        jTable.setGridColor(new java.awt.Color(255, 255, 255));
+        jTable.setSelectionBackground(new java.awt.Color(255, 255, 255));
+        jTable.setSelectionForeground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setViewportView(jTable);
 
         jbtThem.setText("Thêm");
