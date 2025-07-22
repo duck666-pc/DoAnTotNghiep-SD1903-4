@@ -5,20 +5,14 @@
 package view;
 
 import controller.QLNVDAO;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
 import java.sql.Date;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 import model.NhanVien;
 
 /**
@@ -27,142 +21,10 @@ import model.NhanVien;
  */
 public class KiemTraThongTin extends javax.swing.JFrame {
 
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
-    private static final Color SECONDARY_COLOR = new Color(52, 152, 219);
-    private static final Color ACCENT_COLOR = new Color(231, 76, 60);
-    private static final Color SUCCESS_COLOR = new Color(39, 174, 96);
-    private static final Color WARNING_COLOR = new Color(243, 156, 18);
-    private static final Color BACKGROUND_COLOR = new Color(246, 248, 250);
-    private static final Color TEXT_COLOR = new Color(73, 80, 87);
-    private static final Color BORDER_COLOR = new Color(220, 221, 225);
-
     private final QLNVDAO qlnv = new QLNVDAO();
 
     public KiemTraThongTin() {
         initComponents();
-        customizeUI();
-        centerWindow();
-    }
-
-    private void centerWindow() {
-        setLocationRelativeTo(null);
-        setResizable(true);
-        // Set minimum size to ensure all components are visible
-        setMinimumSize(new java.awt.Dimension(500, 400));
-    }
-
-    private void customizeUI() {
-        setTitle("Kiểm Tra Thông Tin - Đặt Lại Mật Khẩu");
-        getContentPane().setBackground(BACKGROUND_COLOR);
-
-        customizeLabels();
-        customizeInputFields();
-        customizeButtons();
-        applyModernStyling();
-    }
-
-    private void customizeLabels() {
-        // Increase font size of jLabel8 from 22 to 26
-        jLabel8.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        jLabel8.setForeground(PRIMARY_COLOR);
-
-        jLabel9.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        jLabel9.setForeground(TEXT_COLOR);
-
-        JComponent[] labels = {jLabel1, jLabel2, jLabel3, jLabel4, jLabel5, jLabel6};
-        for (JComponent label : labels) {
-            label.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            label.setForeground(TEXT_COLOR);
-        }
-    }
-
-    private void customizeInputFields() {
-        JTextField[] textFields = {txtID, txtTen, txtEmail, jcbNamSinh};
-        for (JTextField field : textFields) {
-            styleTextField(field);
-        }
-
-        JComboBox<?>[] comboBoxes = {jcbGioiTinh, jcbNgaySinh, jcbThangSinh, jcbChucVu};
-        for (JComboBox<?> combo : comboBoxes) {
-            styleComboBox(combo);
-        }
-    }
-
-    private void styleTextField(JTextField field) {
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
-                new EmptyBorder(6, 10, 6, 10)
-        ));
-        field.setBackground(Color.WHITE);
-        field.setForeground(TEXT_COLOR);
-
-        // Add focus effect
-        field.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                field.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(PRIMARY_COLOR, 2),
-                        new EmptyBorder(5, 9, 5, 9)
-                ));
-            }
-
-            @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                field.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER_COLOR, 1),
-                        new EmptyBorder(6, 10, 6, 10)
-                ));
-            }
-        });
-    }
-
-    private void styleComboBox(JComboBox<?> combo) {
-        combo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        combo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
-                new EmptyBorder(3, 6, 3, 6)
-        ));
-        combo.setBackground(Color.WHITE);
-        combo.setForeground(TEXT_COLOR);
-        combo.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-
-    private void customizeButtons() {
-        styleButton(jButton1, PRIMARY_COLOR, Color.WHITE, new Color(31, 97, 141));
-        styleButton(jbtQuayLai, new Color(108, 117, 125), Color.WHITE, new Color(90, 98, 104));
-        styleButton(jbtLamMoi, WARNING_COLOR, Color.WHITE, new Color(212, 136, 16));
-    }
-
-    private void styleButton(javax.swing.JButton button, Color bgColor, Color textColor, Color hoverColor) {
-        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        button.setForeground(textColor);
-        button.setBackground(bgColor);
-        button.setBorder(new EmptyBorder(8, 16, 8, 16));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setOpaque(true);
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(hoverColor);
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(bgColor);
-            }
-        });
-    }
-
-    private void applyModernStyling() {
-        getRootPane().setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
-                new EmptyBorder(10, 10, 10, 10)
-        ));
     }
 
     public static class FormUtils {
@@ -232,10 +94,10 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel8.setForeground(new java.awt.Color(41, 120, 185));
         jLabel8.setText("--- Đặt lại mật khẩu ---");
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setText("Mời bạn nhập thông tin của bạn vào đây");
 
         jLabel4.setText("Chức vụ:");
@@ -292,6 +154,8 @@ public class KiemTraThongTin extends javax.swing.JFrame {
 
         jLabel3.setText("Email:");
 
+        jButton1.setBackground(new java.awt.Color(41, 120, 185));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Kiểm tra");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -299,6 +163,8 @@ public class KiemTraThongTin extends javax.swing.JFrame {
             }
         });
 
+        jbtQuayLai.setBackground(new java.awt.Color(102, 102, 102));
+        jbtQuayLai.setForeground(new java.awt.Color(255, 255, 255));
         jbtQuayLai.setText("Quay Lại");
         jbtQuayLai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -306,6 +172,8 @@ public class KiemTraThongTin extends javax.swing.JFrame {
             }
         });
 
+        jbtLamMoi.setBackground(new java.awt.Color(255, 102, 0));
+        jbtLamMoi.setForeground(new java.awt.Color(255, 255, 255));
         jbtLamMoi.setText("Làm Mới");
         jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -318,14 +186,9 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel9)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(40, 40, 40)
-                        .addComponent(jLabel8))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
+                        .addGap(39, 39, 39)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -353,13 +216,20 @@ public class KiemTraThongTin extends javax.swing.JFrame {
                                     .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
+                        .addGap(57, 57, 57)
                         .addComponent(jbtQuayLai)
                         .addGap(18, 18, 18)
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
-                        .addComponent(jbtLamMoi)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addComponent(jbtLamMoi))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel9))
+                            .addComponent(jLabel8))))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -399,7 +269,7 @@ public class KiemTraThongTin extends javax.swing.JFrame {
                     .addComponent(jButton1)
                     .addComponent(jbtQuayLai)
                     .addComponent(jbtLamMoi))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         pack();
@@ -507,17 +377,6 @@ public class KiemTraThongTin extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(KiemTraThongTin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(KiemTraThongTin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new KiemTraThongTin().setVisible(true);

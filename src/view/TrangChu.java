@@ -5,186 +5,26 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 import model.NhanVien;
 
 public class TrangChu extends javax.swing.JFrame {
 
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
-    private static final Color SECONDARY_COLOR = new Color(52, 152, 219);
-    private static final Color ACCENT_COLOR = new Color(231, 76, 60);
-    private static final Color BACKGROUND_COLOR = new Color(246, 248, 250);
-    private static final Color SIDEBAR_COLOR = new Color(44, 62, 80);
-    private static final Color BUTTON_HOVER = new Color(52, 73, 94);
-    private static final Color TEXT_COLOR = Color.WHITE;
-    private static final Color CONTENT_BG = Color.WHITE;
-
     public TrangChu(NhanVien n) {
         initComponents();
-        customizeUI();
         setFullScreen();
     }
 
     private TrangChu() {
         initComponents();
-        customizeUI();
         setFullScreen();
     }
 
     private void setFullScreen() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-    }
-
-    private void customizeUI() {
-        setTitle("Hệ Thống Quản Lý - Trang Chủ");
-        customizeNavigationPanel();
-        customizeButtons();
-        customizeContentPanel();
-        showWelcomePanel();
-    }
-
-    private void customizeNavigationPanel() {
-        navigationPanel.setBackground(SIDEBAR_COLOR);
-        navigationPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(189, 195, 199)),
-                new EmptyBorder(15, 10, 15, 10)
-        ));
-    }
-
-    private void customizeButtons() {
-        JButton[] buttons = {
-            jbtTRANGCHU, jbtQLNV, jbtQLSP, jbtLOAISANPHAM, jbtQLHD,
-            jbtQLNL, jbtQLKH, jbtLOAIKHACHHANG, jbtQLKM, jbtDOANHTHU
-        };
-
-        for (JButton button : buttons) {
-            styleNavigationButton(button);
-        }
-
-        styleLogoutButton(jbtDangXuat);
-    }
-
-    private void styleNavigationButton(JButton button) {
-        button.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        button.setForeground(TEXT_COLOR);
-        button.setBackground(SIDEBAR_COLOR);
-        button.setBorder(new EmptyBorder(12, 16, 12, 16));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        button.setOpaque(true);
-
-        addHoverEffect(button, SIDEBAR_COLOR, BUTTON_HOVER);
-    }
-
-    private void styleLogoutButton(JButton button) {
-        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        button.setForeground(TEXT_COLOR);
-        button.setBackground(ACCENT_COLOR);
-        button.setBorder(new EmptyBorder(12, 16, 12, 16));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setOpaque(true);
-
-        addHoverEffect(button, ACCENT_COLOR, new Color(192, 57, 43));
-    }
-
-    private void addHoverEffect(JButton button, Color normalColor, Color hoverColor) {
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(hoverColor);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(normalColor);
-            }
-        });
-    }
-
-    private void customizeContentPanel() {
-        jPanel.setBackground(CONTENT_BG);
-        jPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 221, 225), 1),
-                new EmptyBorder(20, 20, 20, 20)
-        ));
-    }
-
-    private void showWelcomePanel() {
-        JPanel welcomePanel = createWelcomePanel();
-        displayPanel(welcomePanel);
-    }
-
-    private JPanel createWelcomePanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(CONTENT_BG);
-
-        // Main welcome content
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.setBackground(CONTENT_BG);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        // Welcome title
-        JLabel titleLabel = new JLabel("Chào Mừng Đến Với Hệ Thống Quản Lý Bán Đồ Ăn");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(PRIMARY_COLOR);
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        centerPanel.add(titleLabel, gbc);
-
-        // Subtitle
-        gbc.gridy++;
-        JLabel subtitleLabel = new JLabel("Vui lòng chọn chức năng từ menu bên trái để bắt đầu");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        subtitleLabel.setForeground(new Color(108, 117, 125));
-        subtitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        centerPanel.add(subtitleLabel, gbc);
-
-        // Add center panel to main panel
-        panel.add(centerPanel, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    private JPanel createFeatureCard(String title) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(BACKGROUND_COLOR);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 221, 225), 1),
-                new EmptyBorder(15, 15, 15, 15)
-        ));
-
-        JLabel label = new JLabel(title);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        label.setForeground(new Color(73, 80, 87));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-
-        card.add(label, BorderLayout.CENTER);
-        return card;
     }
 
     private void showPanel(JPanel panel) {
@@ -223,11 +63,17 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(44, 62, 80));
         setLocationByPlatform(true);
         setMaximumSize(new java.awt.Dimension(0, 0));
         setResizable(false);
 
+        navigationPanel.setBackground(new java.awt.Color(41, 62, 80));
+        navigationPanel.setForeground(new java.awt.Color(255, 255, 255));
+
+        jbtQLSP.setBackground(new java.awt.Color(44, 62, 80));
         jbtQLSP.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLSP.setForeground(new java.awt.Color(255, 255, 255));
         jbtQLSP.setText("Sản Phẩm");
         jbtQLSP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -235,7 +81,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtQLNV.setBackground(new java.awt.Color(44, 62, 80));
         jbtQLNV.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLNV.setForeground(new java.awt.Color(255, 255, 255));
         jbtQLNV.setText("Nhân Viên");
         jbtQLNV.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -243,7 +91,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtTRANGCHU.setBackground(new java.awt.Color(44, 62, 80));
         jbtTRANGCHU.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtTRANGCHU.setForeground(new java.awt.Color(255, 255, 255));
         jbtTRANGCHU.setText("Trang Chủ");
         jbtTRANGCHU.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -251,7 +101,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtLOAISANPHAM.setBackground(new java.awt.Color(44, 62, 80));
         jbtLOAISANPHAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtLOAISANPHAM.setForeground(new java.awt.Color(255, 255, 255));
         jbtLOAISANPHAM.setText("Loại Sản Phẩm");
         jbtLOAISANPHAM.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -259,7 +111,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtQLHD.setBackground(new java.awt.Color(44, 62, 80));
         jbtQLHD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLHD.setForeground(new java.awt.Color(255, 255, 255));
         jbtQLHD.setText("Hóa Đơn");
         jbtQLHD.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -267,7 +121,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtQLNL.setBackground(new java.awt.Color(44, 62, 80));
         jbtQLNL.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLNL.setForeground(new java.awt.Color(255, 255, 255));
         jbtQLNL.setText("Nguyên Liệu");
         jbtQLNL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -275,7 +131,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtQLKH.setBackground(new java.awt.Color(44, 62, 80));
         jbtQLKH.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLKH.setForeground(new java.awt.Color(255, 255, 255));
         jbtQLKH.setText("Khách Hàng");
         jbtQLKH.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -283,7 +141,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtLOAIKHACHHANG.setBackground(new java.awt.Color(44, 62, 80));
         jbtLOAIKHACHHANG.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtLOAIKHACHHANG.setForeground(new java.awt.Color(255, 255, 255));
         jbtLOAIKHACHHANG.setText("Loại Khách Hàng");
         jbtLOAIKHACHHANG.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -291,7 +151,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtQLKM.setBackground(new java.awt.Color(44, 62, 80));
         jbtQLKM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtQLKM.setForeground(new java.awt.Color(255, 255, 255));
         jbtQLKM.setText("Khuyến Mại");
         jbtQLKM.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -299,7 +161,9 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jbtDOANHTHU.setBackground(new java.awt.Color(44, 62, 80));
         jbtDOANHTHU.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbtDOANHTHU.setForeground(new java.awt.Color(255, 255, 255));
         jbtDOANHTHU.setText("Doanh Thu");
         jbtDOANHTHU.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -317,13 +181,14 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jPanel.setBackground(new java.awt.Color(255, 255, 255));
         jPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
         javax.swing.GroupLayout jPanelLayout = new javax.swing.GroupLayout(jPanel);
         jPanel.setLayout(jPanelLayout);
         jPanelLayout.setHorizontalGroup(
             jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 603, Short.MAX_VALUE)
+            .addGap(0, 608, Short.MAX_VALUE)
         );
         jPanelLayout.setVerticalGroup(
             jPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -357,7 +222,7 @@ public class TrangChu extends javax.swing.JFrame {
             .addGroup(navigationPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, navigationPanelLayout.createSequentialGroup()
+                    .addGroup(navigationPanelLayout.createSequentialGroup()
                         .addComponent(jbtTRANGCHU)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLNV)
@@ -377,28 +242,13 @@ public class TrangChu extends javax.swing.JFrame {
                         .addComponent(jbtQLKM)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtDOANHTHU)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtDangXuat)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                        .addComponent(jbtDangXuat))
+                    .addComponent(jPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        getContentPane().add(navigationPanel, java.awt.BorderLayout.CENTER);
 
         getAccessibleContext().setAccessibleDescription("");
 
@@ -457,7 +307,7 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtLOAIKHACHHANGActionPerformed
 
     private void jbtTRANGCHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTRANGCHUActionPerformed
-        showWelcomePanel();
+
     }//GEN-LAST:event_jbtTRANGCHUActionPerformed
 
     public static void main(String args[]) {
