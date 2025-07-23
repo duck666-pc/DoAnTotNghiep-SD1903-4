@@ -6,13 +6,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class BaseDAO<T> {
 
     private final MyConnection conn;
+    protected Connection connection;
 
     public BaseDAO() {
         conn = new MyConnection();
+        try {
+            connection = conn.DBConnect();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(BaseDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     protected abstract String getTableName();

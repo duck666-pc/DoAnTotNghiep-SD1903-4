@@ -8,11 +8,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BANHANGDAO {
+public class DOANHTHUDAO {
 
     private final MyConnection conn;
 
-    public BANHANGDAO() {
+    public DOANHTHUDAO() {
         conn = new MyConnection();
     }
 
