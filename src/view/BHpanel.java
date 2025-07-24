@@ -152,6 +152,8 @@ public class BHpanel extends javax.swing.JPanel {
         tblsp = new javax.swing.JTable();
         txtidkh = new javax.swing.JTextField();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         tblcthd.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -192,6 +194,9 @@ public class BHpanel extends javax.swing.JPanel {
 
         jLabel1.setText("Hóa Đơn");
 
+        btntaoHD.setBackground(new java.awt.Color(41, 62, 80));
+        btntaoHD.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btntaoHD.setForeground(new java.awt.Color(255, 255, 255));
         btntaoHD.setText("Tạo Hóa Đơn");
         btntaoHD.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -201,6 +206,9 @@ public class BHpanel extends javax.swing.JPanel {
 
         jLabel2.setText("Chi tiết hóa đơn");
 
+        btnthaydoiHD.setBackground(new java.awt.Color(41, 62, 80));
+        btnthaydoiHD.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnthaydoiHD.setForeground(new java.awt.Color(255, 255, 255));
         btnthaydoiHD.setText("Sửa Hóa Đơn");
         btnthaydoiHD.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -236,6 +244,9 @@ public class BHpanel extends javax.swing.JPanel {
 
         jScrollPane5.setViewportView(jScrollPane1);
 
+        btnxoaHD.setBackground(new java.awt.Color(41, 62, 80));
+        btnxoaHD.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnxoaHD.setForeground(new java.awt.Color(255, 255, 255));
         btnxoaHD.setText("Xóa Hóa Đơn");
         btnxoaHD.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -253,6 +264,9 @@ public class BHpanel extends javax.swing.JPanel {
 
         jLabel13.setText("Mã Giảm Giá");
 
+        btnthanhtoan.setBackground(new java.awt.Color(41, 62, 80));
+        btnthanhtoan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnthanhtoan.setForeground(new java.awt.Color(255, 255, 255));
         btnthanhtoan.setText("Thanh Toán");
         btnthanhtoan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -260,6 +274,9 @@ public class BHpanel extends javax.swing.JPanel {
             }
         });
 
+        btnadd.setBackground(new java.awt.Color(41, 62, 80));
+        btnadd.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnadd.setForeground(new java.awt.Color(255, 255, 255));
         btnadd.setText("Thêm Vào Hóa Đơn");
         btnadd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -267,6 +284,9 @@ public class BHpanel extends javax.swing.JPanel {
             }
         });
 
+        btndelete.setBackground(new java.awt.Color(41, 62, 80));
+        btndelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btndelete.setForeground(new java.awt.Color(255, 255, 255));
         btndelete.setText("Xóa Khỏi Hóa Đơn");
         btndelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -280,6 +300,9 @@ public class BHpanel extends javax.swing.JPanel {
 
         jLabel7.setText("ID Nhân Viên");
 
+        btnupdate.setBackground(new java.awt.Color(41, 62, 80));
+        btnupdate.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnupdate.setForeground(new java.awt.Color(255, 255, 255));
         btnupdate.setText("Thay Đổi Hóa Đơn");
         btnupdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -328,7 +351,7 @@ public class BHpanel extends javax.swing.JPanel {
                                             .addComponent(btnupdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(btndelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(btnthanhtoan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(jLabel6)
                                             .addComponent(jLabel11)

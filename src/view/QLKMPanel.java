@@ -70,6 +70,8 @@ public class QLKMPanel extends javax.swing.JPanel {
 
         popupMenu3.setLabel("popupMenu3");
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         txtDiaChi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDiaChiActionPerformed(evt);
@@ -95,6 +97,9 @@ public class QLKMPanel extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(jTable);
 
+        jbtThem.setBackground(new java.awt.Color(41, 62, 80));
+        jbtThem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtThem.setForeground(new java.awt.Color(255, 255, 255));
         jbtThem.setText("Thêm");
         jbtThem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -102,6 +107,9 @@ public class QLKMPanel extends javax.swing.JPanel {
             }
         });
 
+        jbtSua.setBackground(new java.awt.Color(41, 62, 80));
+        jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtSua.setForeground(new java.awt.Color(255, 255, 255));
         jbtSua.setText("Sửa");
         jbtSua.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -109,6 +117,9 @@ public class QLKMPanel extends javax.swing.JPanel {
             }
         });
 
+        jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
+        jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtXoa.setForeground(new java.awt.Color(255, 255, 255));
         jbtXoa.setText("Xóa");
         jbtXoa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -151,6 +162,9 @@ public class QLKMPanel extends javax.swing.JPanel {
             }
         });
 
+        jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
+        jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtLamMoi.setForeground(new java.awt.Color(255, 255, 255));
         jbtLamMoi.setText("Làm mới");
         jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -352,7 +366,7 @@ public class QLKMPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(67, Short.MAX_VALUE))
+                        .addContainerGap(66, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel8)
