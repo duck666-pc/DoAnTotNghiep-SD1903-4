@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import Model.HoaDon;
 import Model.ChiTietHoaDon;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +86,68 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
             hd.getMucGiamGia(),
             hd.getTongTienSauGiamGia()
         };
+    }
+
+    public List<HoaDon> search(String keyword, Timestamp fromTime, Timestamp toTime,
+            BigDecimal minTotal, BigDecimal maxTotal) throws SQLException {
+        List<HoaDon> resultList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM " + getTableName() + " WHERE 1=1");
+
+        // Điều kiện tìm kiếm theo từ khóa
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND (ID LIKE ? OR KhachHangID LIKE ? OR NguoiDungID LIKE ?)");
+        }
+
+        // Điều kiện tìm kiếm theo khoảng thời gian
+        if (fromTime != null) {
+            sql.append(" AND ThoiGian >= ?");
+        }
+        if (toTime != null) {
+            sql.append(" AND ThoiGian <= ?");
+        }
+
+        // Điều kiện tìm kiếm theo khoảng tổng tiền
+        if (minTotal != null) {
+            sql.append(" AND TongTienSauGiamGia >= ?");
+        }
+        if (maxTotal != null) {
+            sql.append(" AND TongTienSauGiamGia <= ?");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+
+            // Thiết lập tham số cho từ khóa
+            if (keyword != null && !keyword.isEmpty()) {
+                String pattern = "%" + keyword + "%";
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+            }
+
+            // Thiết lập tham số cho thời gian
+            if (fromTime != null) {
+                ps.setTimestamp(paramIndex++, fromTime);
+            }
+            if (toTime != null) {
+                ps.setTimestamp(paramIndex++, toTime);
+            }
+
+            // Thiết lập tham số cho tổng tiền
+            if (minTotal != null) {
+                ps.setBigDecimal(paramIndex++, minTotal);
+            }
+            if (maxTotal != null) {
+                ps.setBigDecimal(paramIndex++, maxTotal);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultList.add(mapResultSetToObject(rs));
+                }
+            }
+        }
+        return resultList;
     }
 }
 
@@ -171,6 +235,24 @@ class ChiTietHoaDonDAO extends BaseDAO<ChiTietHoaDon> {
             cthd.getDonGia()
         };
     }
+
+    public List<ChiTietHoaDon> getCTHDByHoaDonID(String hoaDonID) {
+        List<ChiTietHoaDon> list = new ArrayList<>();
+        String sql = "SELECT * FROM ChiTietHoaDon WHERE HoaDonID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, hoaDonID);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ChiTietHoaDon ct = mapResultSetToObject(rs);
+                list.add(ct);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }
 
 public class QLHDDAO {
@@ -229,5 +311,14 @@ public class QLHDDAO {
 
     public Object[] getRow(ChiTietHoaDon cthd) {
         return chiTietHoaDonDAO.getRowArray(cthd);
+    }
+
+    public List<HoaDon> searchHoaDon(String keyword, Timestamp fromTime, Timestamp toTime,
+            BigDecimal minTotal, BigDecimal maxTotal) throws SQLException {
+        return hoaDonDAO.search(keyword, fromTime, toTime, minTotal, maxTotal);
+    }
+
+    public List<ChiTietHoaDon> getCTHDByHoaDonID(String hoaDonID) {
+        return chiTietHoaDonDAO.getCTHDByHoaDonID(hoaDonID);
     }
 }

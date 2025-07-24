@@ -4,13 +4,18 @@
  */
 package view;
 
-
 import controller.QLHDDAO;
+import Model.HoaDon;
+import Model.ChiTietHoaDon;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
-
 
 /**
  *
@@ -22,7 +27,9 @@ public class QLHDPanel extends javax.swing.JPanel {
 
     public QLHDPanel() {
         initComponents();
+        orderinfo = new QLHDDAO();
         addEventListeners();
+        loadAllHoaDon(); // Load initial data
     }
 
     private void addEventListeners() {
@@ -31,85 +38,164 @@ public class QLHDPanel extends javax.swing.JPanel {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = jTableHD.getSelectedRow();
                 if (selectedRow >= 0) {
-                    String maHD = jTableHD.getValueAt(selectedRow, 0).toString();
-                    QLHDDAO dao = new QLHDDAO();
-                    DefaultTableModel model = (DefaultTableModel) jTableCTHD.getModel();
-                    model.setRowCount(0);
-                    dao.getCTHD(maHD).forEach(ct -> {
-                        model.addRow(new Object[]{
-                            ct.getMaCTHD(), ct.getMaHD(), ct.getMaSP(), ct.getSoLuong(), ct.getDonGia()
-                        });
-                    });
+                    String hoaDonID = jTableHD.getValueAt(selectedRow, 0).toString();
+                    loadChiTietHoaDon(hoaDonID);
                 }
             }
         });
 
+        // Add document listeners for real-time filtering
         addFilterListener(txtIDHoaDon);
         addFilterListener(txtIDKhachHang);
         addFilterListener(txtIDNguoiDung);
+        addFilterListener(jcbMinTongTien);
+        addFilterListener(jcbMaxTongTien);
+        addFilterListener(jcbNamBatDau);
+        addFilterListener(jcbNamKetThuc);
 
-        txtMinTongTien.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterAll(); }
-            public void removeUpdate(DocumentEvent e) { filterAll(); }
-            public void changedUpdate(DocumentEvent e) { filterAll(); }
-        });
-        txtMaxTongTien.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterAll(); }
-            public void removeUpdate(DocumentEvent e) { filterAll(); }
-            public void changedUpdate(DocumentEvent e) { filterAll(); }
-        });
-
+        // Add action listeners for combo boxes
         jcbNgayBatDau.addActionListener(e -> filterAll());
         jcbThangBatDau.addActionListener(e -> filterAll());
-        jcbNamBatDau.addActionListener(e -> filterAll());
         jcbNgayKetThuc.addActionListener(e -> filterAll());
         jcbThangKetThuc.addActionListener(e -> filterAll());
-        jcbNamKetThuc.addActionListener(e -> filterAll());
     }
 
     private void addFilterListener(javax.swing.JTextField field) {
         field.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void insertUpdate(DocumentEvent e) { filterAll(); }
+            @Override
             public void removeUpdate(DocumentEvent e) { filterAll(); }
+            @Override
             public void changedUpdate(DocumentEvent e) { filterAll(); }
         });
     }
 
-    private void filterAll() {
-        String idHD = txtIDHoaDon.getText().trim();
-        String idKH = txtIDKhachHang.getText().trim();
-        String idND = txtIDNguoiDung.getText().trim();
-
-        double min = 0, max = Double.MAX_VALUE;
-        try { min = Double.parseDouble(txtMinTongTien.getText().trim()); } catch (Exception e) {}
-        try { max = Double.parseDouble(txtMaxTongTien.getText().trim()); } catch (Exception e) {}
-
-        String tuNgay = getNgayTuCombo(jcbNgayBatDau, jcbThangBatDau, jcbNamBatDau);
-        String denNgay = getNgayTuCombo(jcbNgayKetThuc, jcbThangKetThuc, jcbNamKetThuc);
-
-        QLHDDAO dao = new QLHDDAO();
-        DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
-        model.setRowCount(0);
-
-        dao.getAll().stream()
-            .filter(hd -> (idHD.isEmpty() || hd.getMaHD().contains(idHD))
-                    && (idKH.isEmpty() || hd.getMaKH().contains(idKH))
-                    && (idND.isEmpty() || hd.getMaND().contains(idND))
-                    && (hd.getTongTien() >= min && hd.getTongTien() <= max)
-                    && (hd.getNgay().compareTo(tuNgay) >= 0 && hd.getNgay().compareTo(denNgay) <= 0))
-            .forEach(hd -> model.addRow(new Object[]{
-                hd.getMaHD(), hd.getMaKH(), hd.getMaND(), hd.getNgay(), hd.getTongTien()
-            }));
+    private void loadAllHoaDon() {
+        try {
+            List<HoaDon> hoaDonList = orderinfo.getAllHD();
+            DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
+            model.setRowCount(0);
+            
+            for (HoaDon hd : hoaDonList) {
+                model.addRow(new Object[]{
+                    hd.getId(),
+                    hd.getThoiGian(),
+                    hd.getIdKhachHang(),
+                    hd.getIdNguoiDung(),
+                    hd.getTongTienGoc(),
+                    hd.getMucGiamGia(),
+                    hd.getTongTienSauGiamGia()
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private String getNgayTuCombo(javax.swing.JComboBox<String> ngay, javax.swing.JComboBox<String> thang, javax.swing.JTextField nam) {
+    private void loadChiTietHoaDon(String hoaDonID) {
+        List<ChiTietHoaDon> chiTietList = orderinfo.getCTHDByHoaDonID(hoaDonID);
+        DefaultTableModel model = (DefaultTableModel) jTableCTHD.getModel();
+        model.setRowCount(0);
+        
+        for (ChiTietHoaDon ct : chiTietList) {
+            model.addRow(new Object[]{
+                ct.getId(),
+                ct.getSoLuong(),
+                ct.getIdSanPham(),
+                ct.getDonGia()
+            });
+        }
+    }
+
+    private void filterAll() {
         try {
-            String d = ngay.getSelectedItem().toString();
-            String m = thang.getSelectedItem().toString();
-            String y = nam.getText().trim();
-            return y + "-" + (m.length() == 1 ? "0" + m : m) + "-" + (d.length() == 1 ? "0" + d : d);
-        } catch (Exception e) {
-            return "0000-01-01"; // fallback
+            // Get search criteria
+            String keyword = "";
+            if (!txtIDHoaDon.getText().trim().isEmpty()) {
+                keyword = txtIDHoaDon.getText().trim();
+            } else if (!txtIDKhachHang.getText().trim().isEmpty()) {
+                keyword = txtIDKhachHang.getText().trim();
+            } else if (!txtIDNguoiDung.getText().trim().isEmpty()) {
+                keyword = txtIDNguoiDung.getText().trim();
+            }
+
+            // Get time range
+            Timestamp fromTime = getTimestampFromDate(true);
+            Timestamp toTime = getTimestampFromDate(false);
+
+            // Get amount range
+            BigDecimal minTotal = null;
+            BigDecimal maxTotal = null;
+            
+            try {
+                if (!jcbMinTongTien.getText().trim().isEmpty()) {
+                    minTotal = new BigDecimal(jcbMinTongTien.getText().trim());
+                }
+            } catch (NumberFormatException e) {
+                // Ignore invalid number
+            }
+            
+            try {
+                if (!jcbMaxTongTien.getText().trim().isEmpty()) {
+                    maxTotal = new BigDecimal(jcbMaxTongTien.getText().trim());
+                }
+            } catch (NumberFormatException e) {
+                // Ignore invalid number
+            }
+
+            // Perform search
+            List<HoaDon> searchResults = orderinfo.searchHoaDon(keyword, fromTime, toTime, minTotal, maxTotal);
+            
+            // Update table
+            DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
+            model.setRowCount(0);
+            
+            for (HoaDon hd : searchResults) {
+                model.addRow(new Object[]{
+                    hd.getId(),
+                    hd.getThoiGian(),
+                    hd.getIdKhachHang(),
+                    hd.getIdNguoiDung(),
+                    hd.getTongTienGoc(),
+                    hd.getMucGiamGia(),
+                    hd.getTongTienSauGiamGia()
+                });
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Timestamp getTimestampFromDate(boolean isFromDate) {
+        try {
+            String day, month, year;
+            
+            if (isFromDate) {
+                day = jcbNgayBatDau.getSelectedItem().toString();
+                month = jcbThangBatDau.getSelectedItem().toString();
+                year = jcbNamBatDau.getText().trim();
+            } else {
+                day = jcbNgayKetThuc.getSelectedItem().toString();
+                month = jcbThangKetThuc.getSelectedItem().toString();
+                year = jcbNamKetThuc.getText().trim();
+            }
+            
+            if (year.isEmpty()) {
+                return null;
+            }
+            
+            String dateString = year + "-" + 
+                               (month.length() == 1 ? "0" + month : month) + "-" + 
+                               (day.length() == 1 ? "0" + day : day);
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date date = sdf.parse(dateString);
+            return new Timestamp(date.getTime());
+            
+        } catch (ParseException | NumberFormatException e) {
+            return null;
         }
     }
 

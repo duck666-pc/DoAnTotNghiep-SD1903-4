@@ -19,7 +19,7 @@ public class MyConnection {
     public Connection DBConnect() throws ClassNotFoundException, SQLException{
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         String url = "jdbc:sqlserver://localhost\\SQLEXPRESS01:1433;databaseName=DoAnTotNghiep;trustServerCertificate=true";
-        String user = "akithemerc";
+        String user = "sa";
         String pass = "123456789";
         return DriverManager.getConnection(url, user, pass);
     }
