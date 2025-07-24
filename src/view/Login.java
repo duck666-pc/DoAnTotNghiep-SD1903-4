@@ -8,10 +8,11 @@ import controller.QLNVDAO;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import model.NhanVien;
 
 public class Login extends javax.swing.JFrame {
+
+
 
     /**
      * Creates new form Login
@@ -23,9 +24,10 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         defaultEchoChar = txtMatKhau.getEchoChar();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
     }
 
-    private KiemTraThongTin ktttInstance = null;
+    private final KiemTraThongTin ktttInstance = null;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -50,7 +52,7 @@ public class Login extends javax.swing.JFrame {
         setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel2.setForeground(new java.awt.Color(41, 120, 185));
         jLabel2.setText("Đăng Nhập");
 
         jLabel3.setText("ID:");
@@ -63,6 +65,8 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
+        jbtDangNhap.setBackground(new java.awt.Color(41, 120, 185));
+        jbtDangNhap.setForeground(new java.awt.Color(255, 255, 255));
         jbtDangNhap.setText("Đăng nhập");
         jbtDangNhap.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -77,8 +81,11 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
+        jbtQuenMatKhau.setForeground(new java.awt.Color(41, 120, 185));
         jbtQuenMatKhau.setText("--- Quên mật khẩu? ---");
-        jbtQuenMatKhau.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jbtQuenMatKhau.setBorder(null);
+        jbtQuenMatKhau.setBorderPainted(false);
+        jbtQuenMatKhau.setFocusPainted(false);
         jbtQuenMatKhau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtQuenMatKhauActionPerformed(evt);
@@ -154,67 +161,76 @@ public class Login extends javax.swing.JFrame {
 
     private void jbtDangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangNhapActionPerformed
         String id = txtID.getText().trim();
-        String matKhau = txtMatKhau.getText().trim();
+        String matKhau = new String(txtMatKhau.getPassword()).trim();
 
-        boolean dangNhapThanhCong = false;
-
-        try {
-            for (NhanVien n : qlnv.getAll()) {
-                if (n.getId().equals(id) && n.getMatKhau().equals(matKhau)) {
-                    TrangChu tc = new TrangChu(n);
-                    tc.setVisible(true);
-                    this.dispose();
-                    dangNhapThanhCong = true;
-                    break;
-                }
-            }
-
-            if (!dangNhapThanhCong) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                        "Sai ID hoặc mật khẩu!",
-                        "Đăng nhập thất bại",
-                        javax.swing.JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Lỗi hệ thống khi đăng nhập!",
-                    "Lỗi",
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
+        // Input validation
+        if (id.isEmpty()) {
+            showErrorMessage("Vui lòng nhập ID!");
+            txtID.requestFocus();
+            return;
+        }
+        
+        if (matKhau.isEmpty()) {
+            showErrorMessage("Vui lòng nhập mật khẩu!");
+            txtMatKhau.requestFocus();
+            return;
         }
 
+        try {
+            // Optimized authentication
+            NhanVien authenticatedUser = authenticateUser(id, matKhau);
+            
+            if (authenticatedUser != null) {
+                // Successful login
+                new TrangChu(authenticatedUser).setVisible(true);
+                this.dispose();
+            } else {
+                showErrorMessage("Sai ID hoặc mật khẩu!");
+                clearFields();
+            }
+            
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            showErrorMessage("Lỗi hệ thống khi đăng nhập!");
+        }
     }//GEN-LAST:event_jbtDangNhapActionPerformed
 
     private void jCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActionPerformed
-        if (jCheckBox.isSelected()) {
-            txtMatKhau.setEchoChar((char) 0);
-        } else {
-            txtMatKhau.setEchoChar(defaultEchoChar);
-
-        }
+        txtMatKhau.setEchoChar(jCheckBox.isSelected() ? (char) 0 : '*');
     }//GEN-LAST:event_jCheckBoxActionPerformed
 
     private void jbtQuenMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuenMatKhauActionPerformed
-        if (ktttInstance == null || !ktttInstance.isDisplayable()) {
-            SwingUtilities.invokeLater(() -> {
-                ktttInstance = new KiemTraThongTin();
-                ktttInstance.setVisible(true);
-            });
-        } else {
-            ktttInstance.toFront();
-            ktttInstance.requestFocus();
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Chỉ bấm nút này 1 lần!",
-                    "Lỗi",
-                    javax.swing.JOptionPane.ERROR_MESSAGE
-            );
-        }
+        new KiemTraThongTin().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
+    
+    private NhanVien authenticateUser(String id, String matKhau) throws SQLException, ClassNotFoundException {
+        for (NhanVien n : qlnv.getAll()) {
+            if (id.equals(n.getId()) && matKhau.equals(n.getMatKhau())) {
+                return n;
+            }
+        }
+        return null;
+    }
+    
+    // Helper method for consistent error messaging
+    private void showErrorMessage(String message) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+                message,
+                "Thông báo",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+    }
+    
+    // Helper method to clear input fields
+    private void clearFields() {
+        txtMatKhau.setText("");
+        txtID.requestFocus();
+    }
+    
     /**
-         * @param args the command line arguments
-         */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -238,7 +254,6 @@ public class Login extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new Login().setVisible(true);

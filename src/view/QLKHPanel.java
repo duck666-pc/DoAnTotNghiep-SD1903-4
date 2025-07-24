@@ -1,120 +1,105 @@
 package view;
 
 import controller.QLKHDAO;
-import java.sql.SQLException;
 import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import model.KhachHang;
 
-public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame -> JPanel
+public final class QLKHPanel extends BasePanel<KhachHang> {
 
-    DefaultTableModel tableModel;
-    QLKHDAO qlkh = new QLKHDAO();
-    int currentRow = -1;
+    private final QLKHDAO qlkh = new QLKHDAO();
 
     public QLKHPanel() {
         initComponents();
-        initTable();
-        fillTable();
-        setupTableSelection();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
-    public void initTable() {
-        String[] cols = new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Id Hạng Khách Hàng"};
-        tableModel = new DefaultTableModel();
-        tableModel.setColumnIdentifiers(cols);
-        jTable.setModel(tableModel);
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Tên", "Điện thoại", "Địa chỉ", "Hạng KH"};
     }
 
-    private void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            List<KhachHang> listKH = qlkh.getAll();
-            for (KhachHang kh : listKH) {
-                Object[] row = new Object[]{
-                    kh.getId(),
-                    kh.getTen(),
-                    kh.getDienThoai(),
-                    kh.getDiaChi(),
-                    kh.gethangKhachHangId()
-                };
-                tableModel.addRow(row);
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
+    @Override
+    protected void setFormFromRow(int row) {
+        txtID.setText(getValue(row, 0));
+        txtTen.setText(getValue(row, 1));
+        txtDienThoai.setText(getValue(row, 2));
+        txtDiaChi.setText(getValue(row, 3));
+        jcbHangKhachHang.setSelectedItem(getValue(row, 4));
     }
 
-    private void setupTableSelection() {
-        jTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting() && jTable.getSelectedRow() != -1) {
-                    currentRow = jTable.getSelectedRow();
-                    KhachHang kh = getSelectedKhachHang();
-                    if (kh != null) {
-                        fillForm(kh);
-                    }
-                }
-            }
-        });
-    }
-
-    private KhachHang getSelectedKhachHang() {
-        if (currentRow >= 0) {
-            String id = tableModel.getValueAt(currentRow, 0).toString();
-            try {
-                List<KhachHang> listKH = qlkh.getAll();
-                for (KhachHang kh : listKH) {
-                    if (kh.getId().equals(id)) {
-                        return kh;
-                    }
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-            }
-        }
-        return null;
-    }
-
-    private void fillForm(KhachHang kh) {
-        txtID.setText(kh.getId());
-        txtTen.setText(kh.getTen());
-        txtDienThoai.setText(kh.getDienThoai());
-        txtDiaChi.setText(kh.getDiaChi());
-        txtHangKhachHang.setText(kh.gethangKhachHangId());
-    }
-
-    private KhachHang getFormData() {
-        String id = txtID.getText().trim();
-        String ten = txtTen.getText().trim();
-        String dienThoai = txtDienThoai.getText().trim();
-        String diaChi = txtDiaChi.getText().trim();
-        String hangKhachHangId = txtHangKhachHang.getText().trim();
-        return new KhachHang(id, ten, dienThoai, diaChi, hangKhachHangId);
-    }
-
-    public boolean validateForm() {
-        if (txtID.getText().isEmpty()
-                || txtTen.getText().isEmpty()
-                || txtDienThoai.getText().isEmpty()
-                || txtDiaChi.getText().isEmpty()
-                || txtHangKhachHang.getText().isEmpty()) {
+    @Override
+    protected boolean validateForm() {
+        if (txtID.getText().trim().isEmpty()
+                || txtTen.getText().trim().isEmpty()
+                || txtDienThoai.getText().trim().isEmpty()
+                || txtDiaChi.getText().trim().isEmpty()
+                || jcbHangKhachHang.getSelectedItem() == null) {
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
+    if (!txtDienThoai.getText().trim().matches("\\d+")) {
+        showMessage("Số điện thoại phải là số!");
+        return false;
+    }       
         return true;
     }
 
-    private void clearForm() {
+    @Override
+    protected KhachHang getEntityFromForm() {
+        return new KhachHang(
+                txtID.getText().trim(),
+                txtTen.getText().trim(),
+                txtDienThoai.getText().trim(),
+                txtDiaChi.getText().trim(),
+                (String) jcbHangKhachHang.getSelectedItem()
+        );
+    }
+
+    @Override
+    protected void clearForm() {
         txtID.setText("");
         txtTen.setText("");
         txtDienThoai.setText("");
         txtDiaChi.setText("");
-        txtHangKhachHang.setText("");
+        jcbHangKhachHang.setSelectedIndex(-1);
         currentRow = -1;
+    }
+
+    @Override
+    protected List<KhachHang> getAllEntities() throws Exception {
+        return qlkh.getAll();
+    }
+
+    @Override
+    protected String getEntityId(KhachHang entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(KhachHang entity) {
+        tableModel.addRow(new Object[]{
+            entity.getId(), entity.getTen(), entity.getDienThoai(), entity.getDiaChi(), entity.gethangKhachHangId()
+        });
+    }
+
+    @Override
+    protected int addEntity(KhachHang entity) throws Exception {
+        return qlkh.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlkh.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(KhachHang entity, String oldId) throws Exception {
+        return qlkh.edit(entity, oldId);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -129,7 +114,6 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtID = new javax.swing.JTextField();
         txtDienThoai = new javax.swing.JTextField();
         txtDiaChi = new javax.swing.JTextField();
-        txtHangKhachHang = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         jbtThem = new javax.swing.JButton();
@@ -138,46 +122,53 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         txtTimKiem = new javax.swing.JTextField();
         jbtTimKiem = new javax.swing.JButton();
         jbtLamMoi = new javax.swing.JButton();
+        jcbHangKhachHang = new javax.swing.JComboBox<>();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setText("ID:");
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(94, 19, -1, -1));
 
         jLabel2.setText("Tên:");
+        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(85, 60, -1, -1));
 
         jLabel3.setText("Hạng Khách Hàng:");
+        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 180, -1, -1));
 
         jLabel5.setText("Địa chỉ:");
+        add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(69, 140, -1, -1));
 
         jLabel6.setText("Điện thoại:");
+        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(51, 100, -1, -1));
 
         txtTen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTenActionPerformed(evt);
             }
         });
+        add(txtTen, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 57, 175, -1));
 
         txtID.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtIDActionPerformed(evt);
             }
         });
+        add(txtID, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 16, 175, -1));
 
         txtDienThoai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDienThoaiActionPerformed(evt);
             }
         });
+        add(txtDienThoai, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 97, 175, -1));
 
         txtDiaChi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDiaChiActionPerformed(evt);
             }
         });
-
-        txtHangKhachHang.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtHangKhachHangActionPerformed(evt);
-            }
-        });
+        add(txtDiaChi, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 137, 175, -1));
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -192,125 +183,72 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
         ));
         jScrollPane1.setViewportView(jTable);
 
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 57, 556, 270));
+
+        jbtThem.setBackground(new java.awt.Color(41, 62, 80));
+        jbtThem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtThem.setForeground(new java.awt.Color(255, 255, 255));
         jbtThem.setText("Thêm");
         jbtThem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtThemActionPerformed(evt);
             }
         });
+        add(jbtThem, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 217, 293, -1));
 
+        jbtSua.setBackground(new java.awt.Color(41, 62, 80));
+        jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtSua.setForeground(new java.awt.Color(255, 255, 255));
         jbtSua.setText("Sửa");
         jbtSua.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtSuaActionPerformed(evt);
             }
         });
+        add(jbtSua, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 246, 293, -1));
 
+        jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
+        jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtXoa.setForeground(new java.awt.Color(255, 255, 255));
         jbtXoa.setText("Xóa");
         jbtXoa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtXoaActionPerformed(evt);
             }
         });
+        add(jbtXoa, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 275, 293, -1));
 
         txtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTimKiemActionPerformed(evt);
             }
         });
+        add(txtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 16, 410, -1));
 
+        jbtTimKiem.setBackground(new java.awt.Color(41, 62, 80));
+        jbtTimKiem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtTimKiem.setForeground(new java.awt.Color(255, 255, 255));
         jbtTimKiem.setText("Tìm kiếm bằng ID");
         jbtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtTimKiemActionPerformed(evt);
             }
         });
+        add(jbtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(747, 16, -1, -1));
 
+        jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
+        jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtLamMoi.setForeground(new java.awt.Color(255, 255, 255));
         jbtLamMoi.setText("Làm mới");
         jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtLamMoiActionPerformed(evt);
             }
         });
+        add(jbtLamMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 304, 293, -1));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(8, 8, 8)
-                                .addComponent(jLabel3))
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtHangKhachHang)
-                            .addComponent(txtDiaChi)
-                            .addComponent(txtTen)
-                            .addComponent(txtID)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jbtXoa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
-                            .addComponent(jbtSua, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtThem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtLamMoi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(txtTimKiem)
-                        .addGap(18, 18, 18)
-                        .addComponent(jbtTimKiem))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 556, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbtTimKiem))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(txtHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jbtThem)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtSua)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtXoa)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtLamMoi))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        jcbHangKhachHang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "HC001 - Đồng", "HC002 - Bạc", "HC003 - Vàng", "HC004 - Bạch kim", "HC005 - Kim cương" }));
+        add(jcbHangKhachHang, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 177, 175, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
@@ -338,49 +276,11 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {
-        if (!validateForm()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
-            return;
-        }
-        KhachHang kh = getFormData();
-        if (kh == null) {
-            return;
-        }
-        try {
-            int result = qlkh.addKH(kh);
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm nguyên vật liệu thành công!");
-                fillTable();
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm thất bại!");
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thêm: " + ex.getMessage());
-        }
+        handleAddAction();
     }
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một nguyên vật liệu để xóa!");
-            return;
-        }
-        String id = tableModel.getValueAt(currentRow, 0).toString();
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                int result = qlkh.deleteKH(id);
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
-                    fillTable();
-                    clearForm();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại!");
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi xóa: " + ex.getMessage());
-            }
-        }
+        handleDeleteAction();
     }
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -388,58 +288,11 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     }
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {
-        String id = txtTimKiem.getText().trim();
-        if (!id.isEmpty()) {
-            tableModel.setRowCount(0);
-            try {
-                List<KhachHang> listKH = qlkh.getAll();
-                for (KhachHang kh : listKH) {
-                    if (kh.getId().equalsIgnoreCase(id)) {
-                        tableModel.addRow(qlkh.getRow(kh));
-                        for (int i = 0; i < tableModel.getRowCount(); i++) {
-                            if (tableModel.getValueAt(i, 0).toString().equalsIgnoreCase(id)) {
-                                jTable.setRowSelectionInterval(i, i);
-                                jTable.scrollRectToVisible(jTable.getCellRect(i, 0, true));
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-            }
-        } else {
-            fillTable();
-        }
+        handleSearchAction();
     }
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (currentRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một nguyên vật liệu để sửa!");
-            return;
-        }
-        if (!validateForm()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
-            return;
-        }
-        KhachHang kh = getFormData();
-        if (kh == null) {
-            return;
-        }
-        String oldId = tableModel.getValueAt(currentRow, 0).toString();
-        try {
-            int result = qlkh.editKH(kh, oldId);
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Sửa nguyên vật liệu thành công!");
-                fillTable();
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Sửa thất bại!");
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi sửa: " + ex.getMessage());
-        }
+        handleUpdateAction();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -455,9 +308,9 @@ public final class QLKHPanel extends javax.swing.JPanel { // Đổi từ JFrame 
     private javax.swing.JButton jbtThem;
     private javax.swing.JButton jbtTimKiem;
     private javax.swing.JButton jbtXoa;
+    private javax.swing.JComboBox<String> jcbHangKhachHang;
     private javax.swing.JTextField txtDiaChi;
     private javax.swing.JTextField txtDienThoai;
-    private javax.swing.JTextField txtHangKhachHang;
     private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;

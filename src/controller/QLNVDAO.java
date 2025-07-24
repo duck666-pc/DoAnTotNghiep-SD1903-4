@@ -4,99 +4,84 @@
  */
 package controller;
 
-import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import model.NhanVien;
 
 /**
  *
  * @author minhd
  */
-public class QLNVDAO {
+public class QLNVDAO extends BaseDAO<NhanVien> {
 
-    private final MyConnection conn;
-
-    public QLNVDAO() {
-        conn = new MyConnection();
+    @Override
+    protected String getTableName() {
+        return "NGUOIDUNG";
     }
 
-    public List<NhanVien> getAll() throws SQLException, ClassNotFoundException {
-        List<NhanVien> lstNV = new ArrayList<>();
-        String query = "SELECT * FROM NGUOIDUNG";
-        Connection connect = conn.DBConnect();
-        Statement stmt = connect.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        while (rs.next()) {
-            NhanVien nv = new NhanVien();
-            nv.setId(rs.getString(1));
-            nv.setMatKhau(rs.getString(2));
-            nv.setTenDayDu(rs.getString(3));
-            nv.setNgaySinh(Date.valueOf(rs.getString(4)));
-            nv.setGioiTinh(rs.getString(5));
-            nv.setEmail(rs.getString(6));
-            nv.setChucVu(rs.getString(7));
-            lstNV.add(nv);
-        }
-        return lstNV;
+    @Override
+    protected String getPrimaryKeyColumn() {
+        return "ID";
     }
 
-    public int addNV(NhanVien nv) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO NGUOIDUNG (ID, MATKHAU, TENDAYDU, NGAYSINH, GIOITINH, EMAIL, CHUCVU) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, nv.getId());
-            pstm.setString(2, nv.getMatKhau());
-            pstm.setString(3, nv.getTenDayDu());
-            pstm.setDate(4, new java.sql.Date(nv.getNgaySinh().getTime()));
-            pstm.setString(5, nv.getGioiTinh());
-            pstm.setString(6, nv.getEmail());
-            pstm.setString(7, nv.getChucVu());
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    @Override
+    protected NhanVien mapResultSetToObject(ResultSet rs) throws SQLException {
+        NhanVien nv = new NhanVien();
+        nv.setId(rs.getString("ID"));
+        nv.setMatKhau(rs.getString("MATKHAU"));
+        nv.setTenDayDu(rs.getString("TENDAYDU"));
+        nv.setNgaySinh(rs.getDate("NGAYSINH"));
+        nv.setGioiTinh(rs.getString("GIOITINH"));
+        nv.setEmail(rs.getString("EMAIL"));
+        nv.setChucVu(rs.getString("CHUCVU"));
+        return nv;
     }
 
-    public int editNV(NhanVien nv, String oldId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE NGUOIDUNG SET "
-                + "ID = ?, "
-                + "MATKHAU = ?, "
-                + "TENDAYDU = ?, "
-                + "NGAYSINH = ?, "
-                + "GIOITINH = ?, "
-                + "EMAIL = ?, "
-                + "CHUCVU = ? "                
-                + "WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, nv.getId());
-            pstm.setString(2, nv.getMatKhau());
-            pstm.setString(3, nv.getTenDayDu());
-            pstm.setDate(4, new java.sql.Date(nv.getNgaySinh().getTime()));
-            pstm.setString(5, nv.getGioiTinh());
-            pstm.setString(6, nv.getEmail());
-            pstm.setString(7, nv.getChucVu());
-            pstm.setString(8, oldId);
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    @Override
+    protected String getInsertQuery() {
+        return "INSERT INTO NGUOIDUNG (ID, MATKHAU, TENDAYDU, NGAYSINH, GIOITINH, EMAIL, CHUCVU) "
+             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
     }
 
-    public int deleteNV(String id) throws SQLException, ClassNotFoundException {
-        String sql = "DELETE FROM NGUOIDUNG WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, id);
-            return pstm.executeUpdate();
-        }
+    @Override
+    protected void setInsertParameters(PreparedStatement ps, NhanVien nv) throws SQLException {
+        ps.setString(1, nv.getId());
+        ps.setString(2, nv.getMatKhau());
+        ps.setString(3, nv.getTenDayDu());
+        ps.setDate(4, new java.sql.Date(nv.getNgaySinh().getTime()));
+        ps.setString(5, nv.getGioiTinh());
+        ps.setString(6, nv.getEmail());
+        ps.setString(7, nv.getChucVu());
+    }
+
+    @Override
+    protected String getUpdateQuery() {
+        return "UPDATE NGUOIDUNG SET "
+             + "ID = ?, "
+             + "MATKHAU = ?, "
+             + "TENDAYDU = ?, "
+             + "NGAYSINH = ?, "
+             + "GIOITINH = ?, "
+             + "EMAIL = ?, "
+             + "CHUCVU = ? "
+             + "WHERE ID = ?";
+    }
+
+    @Override
+    protected void setUpdateParameters(PreparedStatement ps, NhanVien nv) throws SQLException {
+        ps.setString(1, nv.getId());
+        ps.setString(2, nv.getMatKhau());
+        ps.setString(3, nv.getTenDayDu());
+        ps.setDate(4, new java.sql.Date(nv.getNgaySinh().getTime()));
+        ps.setString(5, nv.getGioiTinh());
+        ps.setString(6, nv.getEmail());
+        ps.setString(7, nv.getChucVu());
+    }
+
+    @Override
+    protected int getUpdateWhereIndex() {
+        return 8; 
     }
 
     public Object[] getRow(NhanVien nv) {

@@ -7,6 +7,7 @@ package view;
 import controller.QLNVDAO;
 import java.awt.Component;
 import java.sql.Date;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
@@ -20,39 +21,42 @@ import model.NhanVien;
  */
 public class KiemTraThongTin extends javax.swing.JFrame {
 
-    /**
-     * Creates new form KiemTraThongTin
-     */
-    QLNVDAO qlnv = new QLNVDAO();
+    private final QLNVDAO qlnv = new QLNVDAO();
 
     public KiemTraThongTin() {
         initComponents();
     }
 
-    private String toStringOrEmpty(Object obj) {
-        return obj != null ? obj.toString().trim() : "";
-    }
-
-    public class FormUtils {
+    public static class FormUtils {
 
         public static String getText(Component c) {
             if (c instanceof JTextField jTextField) {
                 return jTextField.getText().trim();
-            } else {
-                JTextField jTextField = (JTextField) c;
-            }
-            if (c instanceof JComboBox<?> cb) {
-                Object item = cb.getSelectedItem();
+            } else if (c instanceof JComboBox) {
+                Object item = ((JComboBox<?>) c).getSelectedItem();
                 return item != null ? item.toString().trim() : "";
             }
             return "";
         }
 
-        public static Date parseDate(String day, String month, String year) {
+        public static java.sql.Date parseDate(String day, String month, String year) {
+            if (day.isEmpty() || month.isEmpty() || year.isEmpty()) {
+                return null;
+            }
+
             try {
-                String s = String.format("%s-%02d-%02d", year, Integer.parseInt(month), Integer.parseInt(day));
-                return Date.valueOf(s);
-            } catch (Exception e) {
+                int dayInt = Integer.parseInt(day);
+                int monthInt = Integer.parseInt(month);
+                int yearInt = Integer.parseInt(year);
+
+                if (dayInt < 1 || dayInt > 31 || monthInt < 1 || monthInt > 12 || yearInt < 1900) {
+                    return null;
+                }
+
+                String dateString = String.format("%d-%02d-%02d", yearInt, monthInt, dayInt);
+                return java.sql.Date.valueOf(dateString);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Lỗi khi chuyển đổi ngày tháng: " + e.getMessage());
                 return null;
             }
         }
@@ -84,14 +88,16 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jbtQuayLai = new javax.swing.JButton();
+        jbtLamMoi = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel8.setForeground(new java.awt.Color(41, 120, 185));
         jLabel8.setText("--- Đặt lại mật khẩu ---");
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setText("Mời bạn nhập thông tin của bạn vào đây");
 
         jLabel4.setText("Chức vụ:");
@@ -148,10 +154,30 @@ public class KiemTraThongTin extends javax.swing.JFrame {
 
         jLabel3.setText("Email:");
 
+        jButton1.setBackground(new java.awt.Color(41, 120, 185));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Kiểm tra");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
+            }
+        });
+
+        jbtQuayLai.setBackground(new java.awt.Color(102, 102, 102));
+        jbtQuayLai.setForeground(new java.awt.Color(255, 255, 255));
+        jbtQuayLai.setText("Quay Lại");
+        jbtQuayLai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtQuayLaiActionPerformed(evt);
+            }
+        });
+
+        jbtLamMoi.setBackground(new java.awt.Color(255, 102, 0));
+        jbtLamMoi.setForeground(new java.awt.Color(255, 255, 255));
+        jbtLamMoi.setText("Làm Mới");
+        jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtLamMoiActionPerformed(evt);
             }
         });
 
@@ -160,14 +186,9 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel9)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(40, 40, 40)
-                        .addComponent(jLabel8))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
+                        .addGap(39, 39, 39)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -195,9 +216,20 @@ public class KiemTraThongTin extends javax.swing.JFrame {
                                     .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(130, 130, 130)
-                        .addComponent(jButton1)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addGap(57, 57, 57)
+                        .addComponent(jbtQuayLai)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jbtLamMoi))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel9))
+                            .addComponent(jLabel8))))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -233,8 +265,11 @@ public class KiemTraThongTin extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(jcbChucVu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jbtQuayLai)
+                    .addComponent(jbtLamMoi))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         pack();
@@ -278,13 +313,12 @@ public class KiemTraThongTin extends javax.swing.JFrame {
 
             boolean hopLe = false;
             for (NhanVien n : qlnv.getAll()) {
-                if (n.getId().equals(id)
-                        && n.getTenDayDu().equals(ten)
-                        && n.getNgaySinh().equals(ngaySinh)
-                        && n.getEmail().equals(email)
-                        && n.getGioiTinh().equals(gioiTinh)
-                        && n.getChucVu().equals(chucVu)) {
-
+                if (Objects.equals(n.getId(), id)
+                        && Objects.equals(n.getTenDayDu(), ten)
+                        && Objects.equals(n.getNgaySinh(), ngaySinh)
+                        && Objects.equals(n.getEmail(), email)
+                        && Objects.equals(n.getGioiTinh(), gioiTinh)
+                        && Objects.equals(n.getChucVu(), chucVu)) {
                     new TrangChu(n).setVisible(true);
                     this.dispose();
                     hopLe = true;
@@ -302,6 +336,20 @@ public class KiemTraThongTin extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jbtQuayLaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQuayLaiActionPerformed
+        new Login().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jbtQuayLaiActionPerformed
+
+    private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
+        txtID.setText("");
+        txtTen.setText("");
+        txtEmail.setText("");
+        jcbNamSinh.setText("");
+        jcbThangSinh.setSelectedIndex(0);
+        jcbNgaySinh.setSelectedIndex(0);
+    }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     /**
      * @param args the command line arguments
@@ -329,13 +377,9 @@ public class KiemTraThongTin extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(KiemTraThongTin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new KiemTraThongTin().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new KiemTraThongTin().setVisible(true);
         });
     }
 
@@ -349,6 +393,8 @@ public class KiemTraThongTin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JButton jbtLamMoi;
+    private javax.swing.JButton jbtQuayLai;
     private javax.swing.JComboBox<String> jcbChucVu;
     private javax.swing.JComboBox<String> jcbGioiTinh;
     private javax.swing.JTextField jcbNamSinh;

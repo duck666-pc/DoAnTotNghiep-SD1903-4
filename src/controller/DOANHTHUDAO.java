@@ -8,11 +8,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BANHANGDAO {
+public class DOANHTHUDAO {
 
     private final MyConnection conn;
 
-    public BANHANGDAO() {
+    public DOANHTHUDAO() {
         conn = new MyConnection();
     }
 
@@ -50,7 +50,7 @@ public class BANHANGDAO {
 
     public int gettotalHoaDon() throws ClassNotFoundException, SQLException {
         int count = 0;
-        String query = "SELECT SUM AS COUNT FROM HOADON";
+        String query = "SELECT SUM(TONGTIENSAUGIAMGIA) AS COUNT FROM HOADON";
         Connection connect = conn.DBConnect();
         Statement stmt = connect.createStatement();
         ResultSet rs = stmt.executeQuery(query);

@@ -5,106 +5,100 @@
 package view;
 
 import controller.QLNVDAO;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.JTextField;
 import model.NhanVien;
 
-public final class QLNVPanel extends javax.swing.JPanel {
-
-    DefaultTableModel tableModel;
-    QLNVDAO qlnv = new QLNVDAO();
-    int currentRow = -1;
+public final class QLNVPanel extends BasePanel<NhanVien> {
+    private final QLNVDAO qlnv = new QLNVDAO();
 
     public QLNVPanel() {
         initComponents();
-        initTable();
-        fillTable();
-        addTableSelectionListener();
+        this.baseJTable = jTable;
+        this.baseTxtTimKiem = txtTimKiem;
+        super.initTable();
+        super.fillTable();
+        super.addTableSelectionListener();
+        super.enableAutoFilter();
     }
 
-    private void addTableSelectionListener() {
-        jTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && jTable.getSelectedRow() >= 0) {
-                currentRow = jTable.getSelectedRow();
-                setFormFromRow(currentRow);
+    private boolean isEmpty(JTextField... fields) {
+        for (JTextField f : fields) {
+            if (f.getText().trim().isEmpty()) {
+                return true;
             }
-        });
+        }
+        return false;
     }
 
-    private void setFormFromRow(int row) {
+    private void clearFields(JTextField... fields) {
+        for (JTextField f : fields) {
+            f.setText("");
+        }
+    }
+
+    private void clearDateFields() {
+        jcbNamSinh.setText("");
+        jcbThangSinh.setSelectedIndex(0);
+        jcbNgaySinh.setSelectedIndex(0);
+    }
+
+    private boolean isValidBirthday(String y, String m, String d) {
+        try {
+            LocalDate date = LocalDate.of(Integer.parseInt(y), Integer.parseInt(m), Integer.parseInt(d));
+            int age = Period.between(date, LocalDate.now()).getYears();
+            return age >= 18 && age <= 60 && !date.isAfter(LocalDate.now());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    protected void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
+    }
+
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Mật Khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ"};
+    }
+
+    @Override
+    protected void setFormFromRow(int row) {
         txtID.setText(getValue(row, 0));
         txtMatKhau.setText(getValue(row, 1));
         txtTen.setText(getValue(row, 2));
         txtEmail.setText(getValue(row, 5));
         jcbGioiTinh.setSelectedItem(getValue(row, 4));
         jcbChucVu.setSelectedItem(getValue(row, 6));
-
         String[] dateParts = getValue(row, 3).split("-");
         if (dateParts.length == 3) {
             jcbNamSinh.setText(dateParts[0]);
             jcbThangSinh.setSelectedItem(dateParts[1]);
             jcbNgaySinh.setSelectedItem(dateParts[2]);
         } else {
-            jcbNamSinh.setText("");
-            jcbThangSinh.setSelectedIndex(0);
-            jcbNgaySinh.setSelectedIndex(0);
+            clearDateFields();
         }
     }
 
-    private String getValue(int row, int col) {
-        Object val = jTable.getValueAt(row, col);
-        return val == null ? "" : val.toString();
-    }
-
-    public void initTable() {
-        String[] cols = {"ID", "Mật Khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ"};
-        tableModel = new DefaultTableModel(cols, 0);
-        jTable.setModel(tableModel);
-    }
-
-    public void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            for (NhanVien nv : qlnv.getAll()) {
-                tableModel.addRow(qlnv.getRow(nv));
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-
-    public boolean validateForm() {
-        if (txtID.getText().trim().isEmpty()
-                || txtTen.getText().trim().isEmpty()
-                || txtMatKhau.getText().trim().isEmpty()
-                || txtEmail.getText().trim().isEmpty()
-                || jcbNamSinh.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+    @Override
+    protected boolean validateForm() {
+        if (isEmpty(txtID, txtTen, txtMatKhau, txtEmail, jcbNamSinh)) {
+            showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
-        String year = jcbNamSinh.getText().trim();
-        String month = (String) jcbThangSinh.getSelectedItem();
-        String day = (String) jcbNgaySinh.getSelectedItem();
-        if (!isValidDate(year, month, day)) {
-            JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ hoặc tuổi ngoài 18-60!");
+        if (!isValidBirthday(jcbNamSinh.getText(), (String) jcbThangSinh.getSelectedItem(), (String) jcbNgaySinh.getSelectedItem())) {
+            showMessage("Ngày sinh không hợp lệ hoặc tuổi ngoài 18-60!");
             return false;
         }
         return true;
     }
 
-    private boolean isValidDate(String year, String month, String day) {
-        try {
-            int y = Integer.parseInt(year), m = Integer.parseInt(month), d = Integer.parseInt(day);
-            int age = java.time.Year.now().getValue() - y;
-            java.time.LocalDate.of(y, m, d);
-            return age >= 18 && age <= 60;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private NhanVien getNhanVienFromForm() {
+    @Override
+    protected NhanVien getEntityFromForm() {
         NhanVien nv = new NhanVien();
         nv.setId(txtID.getText().trim());
         nv.setMatKhau(txtMatKhau.getText().trim());
@@ -112,20 +106,46 @@ public final class QLNVPanel extends javax.swing.JPanel {
         nv.setEmail(txtEmail.getText().trim());
         nv.setGioiTinh((String) jcbGioiTinh.getSelectedItem());
         nv.setChucVu((String) jcbChucVu.getSelectedItem());
-        String ngaySinh = jcbNamSinh.getText().trim() + "-" + jcbThangSinh.getSelectedItem() + "-" + jcbNgaySinh.getSelectedItem();
+        String ngaySinh = String.format("%s-%s-%s", jcbNamSinh.getText().trim(), jcbThangSinh.getSelectedItem(), jcbNgaySinh.getSelectedItem());
         nv.setNgaySinh(java.sql.Date.valueOf(ngaySinh));
         return nv;
     }
 
-    private void clearForm() {
-        txtID.setText("");
-        txtTen.setText("");
-        txtMatKhau.setText("");
-        txtEmail.setText("");
-        jcbNamSinh.setText("");
-        jcbThangSinh.setSelectedIndex(0);
-        jcbNgaySinh.setSelectedIndex(0);
+    @Override
+    protected void clearForm() {
+        clearFields(txtID, txtTen, txtMatKhau, txtEmail, jcbNamSinh);
+        clearDateFields();
         currentRow = -1;
+    }
+
+    @Override
+    protected List<NhanVien> getAllEntities() throws Exception {
+        return qlnv.getAll();
+    }
+
+    @Override
+    protected String getEntityId(NhanVien entity) {
+        return entity.getId();
+    }
+
+    @Override
+    protected void addEntityToTable(NhanVien entity) {
+        tableModel.addRow(qlnv.getRow(entity));
+    }
+
+    @Override
+    protected int addEntity(NhanVien entity) throws Exception {
+        return qlnv.add(entity);
+    }
+
+    @Override
+    protected int deleteEntity(String id) throws Exception {
+        return qlnv.delete(id);
+    }
+
+    @Override
+    protected int updateEntity(NhanVien entity, String oldId) throws Exception {
+        return qlnv.edit(entity, oldId);
     }
 
     /**
@@ -162,35 +182,47 @@ public final class QLNVPanel extends javax.swing.JPanel {
         jcbChucVu = new javax.swing.JComboBox<>();
         jbtLamMoi = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         jLabel1.setText("ID:");
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(51, 19, -1, -1));
 
         jLabel2.setText("Tên:");
+        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(42, 88, -1, -1));
 
         jLabel3.setText("Email:");
+        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 190, -1, -1));
 
         jLabel4.setText("Chức vụ:");
+        add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 224, -1, -1));
 
         jLabel5.setText("Giới tính:");
+        add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 156, -1, -1));
 
         jLabel6.setText("Ngày sinh:");
+        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 122, -1, -1));
 
         txtMatKhau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtMatKhauActionPerformed(evt);
             }
         });
+        add(txtMatKhau, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 51, 225, -1));
 
         txtID.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtIDActionPerformed(evt);
             }
         });
+        add(txtID, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 16, 225, -1));
 
         txtEmail.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtEmailActionPerformed(evt);
             }
         });
+        add(txtEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 187, 228, -1));
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -206,38 +238,56 @@ public final class QLNVPanel extends javax.swing.JPanel {
         jTable.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jScrollPane1.setViewportView(jTable);
 
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(326, 51, 630, 312));
+
+        jbtThem.setBackground(new java.awt.Color(41, 62, 80));
+        jbtThem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtThem.setForeground(new java.awt.Color(255, 255, 255));
         jbtThem.setText("Thêm");
         jbtThem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtThemActionPerformed(evt);
             }
         });
+        add(jbtThem, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 253, 296, -1));
 
+        jbtSua.setBackground(new java.awt.Color(41, 62, 80));
+        jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtSua.setForeground(new java.awt.Color(255, 255, 255));
         jbtSua.setText("Sửa");
         jbtSua.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtSuaActionPerformed(evt);
             }
         });
+        add(jbtSua, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 282, 296, -1));
 
+        jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
+        jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtXoa.setForeground(new java.awt.Color(255, 255, 255));
         jbtXoa.setText("Xóa");
         jbtXoa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtXoaActionPerformed(evt);
             }
         });
+        add(jbtXoa, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 311, 296, -1));
 
         jcbGioiTinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nam", "Nữ" }));
+        add(jcbGioiTinh, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 153, 228, -1));
 
         jLabel7.setText("Mật khẩu:");
+        add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 54, -1, -1));
 
         txtTen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTenActionPerformed(evt);
             }
         });
+        add(txtTen, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 85, 225, -1));
 
         jcbNgaySinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+        add(jcbNgaySinh, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 119, 48, -1));
 
         jcbThangSinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" }));
         jcbThangSinh.addActionListener(new java.awt.event.ActionListener() {
@@ -245,25 +295,32 @@ public final class QLNVPanel extends javax.swing.JPanel {
                 jcbThangSinhActionPerformed(evt);
             }
         });
+        add(jcbThangSinh, new org.netbeans.lib.awtextra.AbsoluteConstraints(134, 119, 48, -1));
 
         jcbNamSinh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbNamSinhActionPerformed(evt);
             }
         });
+        add(jcbNamSinh, new org.netbeans.lib.awtextra.AbsoluteConstraints(188, 119, 120, -1));
 
+        jbtTimKiem.setBackground(new java.awt.Color(41, 62, 80));
+        jbtTimKiem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtTimKiem.setForeground(new java.awt.Color(255, 255, 255));
         jbtTimKiem.setText("Tìm kiếm bằng ID");
         jbtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtTimKiemActionPerformed(evt);
             }
         });
+        add(jbtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 16, 140, -1));
 
         txtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTimKiemActionPerformed(evt);
             }
         });
+        add(txtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(326, 16, 480, -1));
 
         jcbChucVu.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nhân viên", "Quản lý" }));
         jcbChucVu.addActionListener(new java.awt.event.ActionListener() {
@@ -271,116 +328,18 @@ public final class QLNVPanel extends javax.swing.JPanel {
                 jcbChucVuActionPerformed(evt);
             }
         });
+        add(jcbChucVu, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 221, 228, -1));
 
+        jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
+        jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtLamMoi.setForeground(new java.awt.Color(255, 255, 255));
         jbtLamMoi.setText("Làm mới");
         jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtLamMoiActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jbtThem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtSua, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtXoa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtLamMoi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel1))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtMatKhau, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-                            .addComponent(txtID)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtTen))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jcbChucVu, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtEmail)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jcbNgaySinh, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jcbThangSinh, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jcbNamSinh, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jcbGioiTinh, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtTimKiem)
-                        .addGap(18, 18, 18)
-                        .addComponent(jbtTimKiem))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE))
-                .addGap(10, 10, 10))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbtTimKiem)
-                    .addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtMatKhau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(jcbNgaySinh, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jcbThangSinh, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jcbNamSinh, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jcbGioiTinh, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(jcbChucVu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(10, 10, 10)
-                        .addComponent(jbtThem)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtSua)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtXoa)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtLamMoi))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        add(jbtLamMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 340, 296, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIDActionPerformed
@@ -396,38 +355,11 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtMatKhauActionPerformed
 
     private void jbtThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtThemActionPerformed
-        if (!validateForm()) {
-            return;
-        }
-        try {
-            int result = qlnv.addNV(getNhanVienFromForm());
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Thêm thành công!" : "Thêm thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+        handleAddAction();
     }//GEN-LAST:event_jbtThemActionPerformed
 
     private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtXoaActionPerformed
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần xóa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        try {
-            String id = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnv.deleteNV(id);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Xóa thành công!" : "Xóa thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+        handleDeleteAction();
     }//GEN-LAST:event_jbtXoaActionPerformed
 
     private void txtTenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTenActionPerformed
@@ -439,27 +371,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbNamSinhActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-        String id = txtTimKiem.getText().trim();
-        tableModel.setRowCount(0);
-        try {
-            List<NhanVien> listNV = qlnv.getAll();
-            boolean found = false;
-            for (NhanVien nv : listNV) {
-                if (id.isEmpty() || nv.getId().equalsIgnoreCase(id)) {
-                    tableModel.addRow(qlnv.getRow(nv));
-                    found = true;
-                    if (!id.isEmpty()) {
-                        break; 
-                    }
-                }
-            }
-            if (!found && !id.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên với ID này!");
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm: " + ex.getMessage());
-        }
-        clearForm();
+        handleSearchAction();
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
@@ -471,25 +383,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbChucVuActionPerformed
 
     private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSuaActionPerformed
-        if (currentRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần sửa!");
-            return;
-        }
-        if (!validateForm()) {
-            return;
-        }
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            String oldId = tableModel.getValueAt(currentRow, 0).toString();
-            int result = qlnv.editNV(getNhanVienFromForm(), oldId);
-            fillTable();
-            JOptionPane.showMessageDialog(this, result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
-        }
-        clearForm();
+        handleUpdateAction();
     }//GEN-LAST:event_jbtSuaActionPerformed
 
     private void jcbThangSinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbThangSinhActionPerformed
@@ -497,7 +391,7 @@ public final class QLNVPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbThangSinhActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-        clearForm();
+        handleRefreshAction();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

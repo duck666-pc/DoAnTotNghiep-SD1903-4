@@ -4,13 +4,10 @@
  */
 package controller;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import model.KhuyenMai;
 import model.ChiTietKhuyenMai;
@@ -21,19 +18,20 @@ import model.ChiTietKhuyenMai;
  */
 public class QLKMDAO {
 
-    private final MyConnection conn;
+    public static class KhuyenMaiDAO extends BaseDAO<KhuyenMai> {
 
-    public QLKMDAO() {
-        conn = new MyConnection();
-    }
+        @Override
+        protected String getTableName() {
+            return "KHUYENMAI";
+        }
 
-    public List<KhuyenMai> getAllKM() throws SQLException, ClassNotFoundException {
-        List<KhuyenMai> lstKM = new ArrayList<>();
-        String query = "SELECT * FROM KHUYENMAI";
-        Connection connect = conn.DBConnect();
-        Statement stmt = connect.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        while (rs.next()) {
+        @Override
+        protected String getPrimaryKeyColumn() {
+            return "ID";
+        }
+
+        @Override
+        protected KhuyenMai mapResultSetToObject(ResultSet rs) throws SQLException {
             KhuyenMai km = new KhuyenMai();
             km.setId(rs.getString("ID"));
             km.setChiTietid(rs.getString("CHITIETID"));
@@ -42,136 +40,174 @@ public class QLKMDAO {
             km.setMoTa(rs.getString("MOTA"));
             km.setSoLuong(rs.getInt("SOLUONG"));
             km.setThoiGianApDung(rs.getDate("THOIGIANAPDUNG"));
-            km.setThoiGianKetThuc(rs.getDate("THOIGIANKETTHUC"));            
-            lstKM.add(km);
+            km.setThoiGianKetThuc(rs.getDate("THOIGIANKETTHUC"));
+            return km;
         }
-        return lstKM;
+
+        @Override
+        protected String getInsertQuery() {
+            return "INSERT INTO KHUYENMAI (ID, CHITIETID, KHACHHANGID, TEN, MOTA, SOLUONG, THOIGIANAPDUNG, THOIGIANKETTHUC) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        }
+
+        @Override
+        protected void setInsertParameters(PreparedStatement ps, KhuyenMai km) throws SQLException {
+            ps.setString(1, km.getId());
+            ps.setString(2, km.getChiTietid());
+            ps.setString(3, km.getKhachHangid());
+            ps.setString(4, km.getTen());
+            ps.setString(5, km.getMoTa());
+            ps.setInt(6, km.getSoLuong());
+            ps.setDate(7, (Date) km.getThoiGianApDung());
+            ps.setDate(8, (Date) km.getThoiGianKetThuc());
+        }
+
+        @Override
+        protected String getUpdateQuery() {
+            return "UPDATE KHUYENMAI SET "
+                    + "ID = ?, "
+                    + "CHITIETID = ?, "
+                    + "KHACHHANGID = ?, "
+                    + "TEN = ?, "
+                    + "MOTA = ?, "
+                    + "SOLUONG = ?, "
+                    + "THOIGIANAPDUNG = ?, "
+                    + "THOIGIANKETTHUC = ? "
+                    + "WHERE ID = ?";
+        }
+
+        @Override
+        protected void setUpdateParameters(PreparedStatement ps, KhuyenMai km) throws SQLException {
+            ps.setString(1, km.getId());
+            ps.setString(2, km.getChiTietid());
+            ps.setString(3, km.getKhachHangid());
+            ps.setString(4, km.getTen());
+            ps.setString(5, km.getMoTa());
+            ps.setInt(6, km.getSoLuong());
+            ps.setDate(7, (Date) km.getThoiGianApDung());
+            ps.setDate(8, (Date) km.getThoiGianKetThuc());
+        }
+
+        @Override
+        protected int getUpdateWhereIndex() {
+            return 9;
+        }
     }
-    
-    public List<ChiTietKhuyenMai> getAllCTKM() throws SQLException, ClassNotFoundException {
-        List<ChiTietKhuyenMai> lstCTKM = new ArrayList<>();
-        String query = "SELECT * FROM CHITIETKHUYENMAI";
-        Connection connect = conn.DBConnect();
-        Statement stmt = connect.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        while (rs.next()) {
+
+    public static class ChiTietKhuyenMaiDAO extends BaseDAO<ChiTietKhuyenMai> {
+
+        @Override
+        protected String getTableName() {
+            return "CHITIETKHUYENMAI";
+        }
+
+        @Override
+        protected String getPrimaryKeyColumn() {
+            return "ID";
+        }
+
+        @Override
+        protected ChiTietKhuyenMai mapResultSetToObject(ResultSet rs) throws SQLException {
             ChiTietKhuyenMai ctkm = new ChiTietKhuyenMai();
             ctkm.setId(rs.getString("ID"));
             ctkm.setHinhThucGiam(rs.getString("HINHTHUCGIAM"));
             ctkm.setSoTienGiamGia(rs.getFloat("SOTIENGIAMGIA"));
             ctkm.setSanPhamid(rs.getString("SANPHAMID"));
             ctkm.setMucGiamGia(rs.getFloat("MUCGIAMGIA"));
-            ctkm.setQuaTang(rs.getString("QUATANG"));           
-            lstCTKM.add(ctkm);
+            ctkm.setQuaTang(rs.getString("QUATANG"));
+            return ctkm;
         }
-        return lstCTKM;
-    }    
+
+        @Override
+        protected String getInsertQuery() {
+            return "INSERT INTO CHITIETKHUYENMAI (ID, HINHTHUCGIAM, SOTIENGIAMGIA, SANPHAMID, MUCGIAMGIA, QUATANG) VALUES (?, ?, ?, ?, ?, ?)";
+        }
+
+        @Override
+        protected void setInsertParameters(PreparedStatement ps, ChiTietKhuyenMai ctkm) throws SQLException {
+            ps.setString(1, ctkm.getId());
+            ps.setString(2, ctkm.getHinhThucGiam());
+            ps.setFloat(3, ctkm.getSoTienGiamGia());
+            ps.setString(4, ctkm.getSanPhamid());
+            ps.setFloat(5, ctkm.getMucGiamGia());
+            ps.setString(6, ctkm.getQuaTang());
+        }
+
+        @Override
+        protected String getUpdateQuery() {
+            return "UPDATE CHITIETKHUYENMAI SET "
+                    + "ID = ?, "
+                    + "HINHTHUCGIAM = ?, "
+                    + "SOTIENGIAMGIA = ?, "
+                    + "SANPHAMID = ?, "
+                    + "MUCGIAMGIA = ?, "
+                    + "QUATANG = ? "
+                    + "WHERE ID = ?";
+        }
+
+        @Override
+        protected void setUpdateParameters(PreparedStatement ps, ChiTietKhuyenMai ctkm) throws SQLException {
+            ps.setString(1, ctkm.getId());
+            ps.setString(2, ctkm.getHinhThucGiam());
+            ps.setFloat(3, ctkm.getSoTienGiamGia());
+            ps.setString(4, ctkm.getSanPhamid());
+            ps.setFloat(5, ctkm.getMucGiamGia());
+            ps.setString(6, ctkm.getQuaTang());
+        }
+
+        @Override
+        protected int getUpdateWhereIndex() {
+            return 7;
+        }
+    }
+
+    // Instance của các DAO
+    private final KhuyenMaiDAO khuyenMaiDAO;
+    private final ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO;
+
+    public QLKMDAO() {
+        khuyenMaiDAO = new KhuyenMaiDAO();
+        chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
+    }
+
+    public List<KhuyenMai> getAllKM() throws SQLException, ClassNotFoundException {
+        return khuyenMaiDAO.getAll();
+    }
 
     public int addKM(KhuyenMai km) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO KHUYENMAI (ID, CHITIETID, KHACHHANGID, TEN, MOTA, SOLUONG, THOIGIANAPDUNG, THOIGIANKETTHUC) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, km.getId());
-            pstm.setString(2, km.getChiTietid());
-            pstm.setString(3, km.getKhachHangid());
-            pstm.setString(4, km.getTen());
-            pstm.setString(5, km.getMoTa());
-            pstm.setInt(6, km.getSoLuong());
-            pstm.setDate(7, (Date) km.getThoiGianApDung());
-            pstm.setDate(8, (Date) km.getThoiGianKetThuc());            
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+        return khuyenMaiDAO.add(km);
     }
-    
-    public int addCTKM(ChiTietKhuyenMai ctkm) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO CHITIETKHUYENMAI (ID, HINHTHUCGIAM, SOTIENGIAMGIA, SANPHAMID, MUCGIAMGIA, QUATANG) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, ctkm.getId());
-            pstm.setString(2, ctkm.getHinhThucGiam());
-            pstm.setFloat(3, ctkm.getSoTienGiamGia());            
-            pstm.setString(4, ctkm.getSanPhamid());
-            pstm.setFloat(5, ctkm.getMucGiamGia());            
-            pstm.setString(6, ctkm.getQuaTang());         
-
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
-    }    
 
     public int editKM(KhuyenMai km, String oldId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE SANPHAM SET "
-                + "ID = ?, "
-                + "CHITIETID = ?, "                
-                + "KHACHHANGID = ?, "                
-                + "TEN = ?, "
-                + "MOTA = ?, "
-                + "SOLUONG = ?, "
-                + "THOIGIANAPDUNG = ? "
-                + "THOIGIANKETTHUC = ? "                
-                + "WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, km.getId());
-            pstm.setString(2, km.getChiTietid());
-            pstm.setString(3, km.getKhachHangid());
-            pstm.setString(4, km.getTen());
-            pstm.setString(5, km.getMoTa());
-            pstm.setInt(6, km.getSoLuong());
-            pstm.setDate(7, (Date) km.getThoiGianApDung());
-            pstm.setDate(8, (Date) km.getThoiGianKetThuc());  
-            pstm.setString(9, oldId);
+        return khuyenMaiDAO.edit(km, oldId);
+    }
 
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
+    public int deleteKM(String id) throws SQLException, ClassNotFoundException {
+        return khuyenMaiDAO.delete(id);
+    }
+
+    public KhuyenMai getKMById(String id) throws SQLException, ClassNotFoundException {
+        return khuyenMaiDAO.getRow(id);
+    }
+
+    public List<ChiTietKhuyenMai> getAllCTKM() throws SQLException, ClassNotFoundException {
+        return chiTietKhuyenMaiDAO.getAll();
+    }
+
+    public int addCTKM(ChiTietKhuyenMai ctkm) throws SQLException, ClassNotFoundException {
+        return chiTietKhuyenMaiDAO.add(ctkm);
     }
 
     public int editCTKM(ChiTietKhuyenMai ctkm, String oldId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE SANPHAM SET "
-                + "ID = ?, "
-                + "HINHTHUCGIAM = ?, "                
-                + "SOTIENGIAMGIA = ?, "                
-                + "SANPHAMID = ?, "
-                + "MUCGIAMGIA = ?, "
-                + "QUATANG = ?, "             
-                + "WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, ctkm.getId());
-            pstm.setString(2, ctkm.getHinhThucGiam());
-            pstm.setFloat(3, ctkm.getSoTienGiamGia());            
-            pstm.setString(4, ctkm.getSanPhamid());
-            pstm.setFloat(5, ctkm.getMucGiamGia());            
-            pstm.setString(6, ctkm.getQuaTang());
-            pstm.setString(7, oldId);
+        return chiTietKhuyenMaiDAO.edit(ctkm, oldId);
+    }
 
-            if (pstm.executeUpdate() > 0) {
-                return 1;
-            }
-        }
-        return 0;
-    }
-    
-    public int deleteKM(String id) throws SQLException, ClassNotFoundException {
-        String sql = "DELETE FROM KHUYENMAI WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, id);
-            return pstm.executeUpdate();
-        }
-    }
-    
     public int deleteCTKM(String id) throws SQLException, ClassNotFoundException {
-        String sql = "DELETE FROM CHITIETKHUYENMAI WHERE ID = ?";
-        try (Connection con = conn.DBConnect(); PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, id);
-            return pstm.executeUpdate();
-        }
-    }    
+        return chiTietKhuyenMaiDAO.delete(id);
+    }
+
+    public ChiTietKhuyenMai getCTKMById(String id) throws SQLException, ClassNotFoundException {
+        return chiTietKhuyenMaiDAO.getRow(id);
+    }
 
     public Object[] getRow(KhuyenMai km) {
         return new Object[]{
@@ -182,10 +218,10 @@ public class QLKMDAO {
             km.getMoTa(),
             km.getSoLuong(),
             km.getThoiGianApDung(),
-            km.getThoiGianKetThuc()     
+            km.getThoiGianKetThuc()
         };
     }
-    
+
     public Object[] getRow(ChiTietKhuyenMai ctkm) {
         return new Object[]{
             ctkm.getId(),
@@ -193,7 +229,7 @@ public class QLKMDAO {
             ctkm.getSoTienGiamGia(),
             ctkm.getSanPhamid(),
             ctkm.getMucGiamGia(),
-            ctkm.getQuaTang(),     
+            ctkm.getQuaTang()
         };
-    }    
+    }   
 }

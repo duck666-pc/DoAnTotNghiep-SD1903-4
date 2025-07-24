@@ -11,24 +11,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChiTietKhuyenMai {
-
+public class HangKhachHang {
     private String id;
-    private String hinhThucGiam;
-    private float soTienGiamGia;
-    private String sanPhamid;
+    private String ten;
     private float mucGiamGia;
-    private String quaTang;
-
+    
     @Override
     public String toString() {
-        return "ChiTietKhuyenMai{"
+        return "KhachHang(){"
                 + "id=" + id
-                + ", hinhThucGiam=" + hinhThucGiam
-                + ", soTienGiamGia=" + soTienGiamGia
-                + ", sanPhamid=" + sanPhamid
-                + ", mucGiamGia=" + mucGiamGia
-                + ", quaTang=" + quaTang
+                + ", ten='" + ten + '\''
+                + ", mucGiamGia=" + mucGiamGia + '\''
                 + '}';
-    }
+    }    
 }
