@@ -163,7 +163,6 @@ public class Login extends javax.swing.JFrame {
         String id = txtID.getText().trim();
         String matKhau = new String(txtMatKhau.getPassword()).trim();
 
-        // Input validation
         if (id.isEmpty()) {
             showErrorMessage("Vui lòng nhập ID!");
             txtID.requestFocus();
@@ -177,11 +176,9 @@ public class Login extends javax.swing.JFrame {
         }
 
         try {
-            // Optimized authentication
             NhanVien authenticatedUser = authenticateUser(id, matKhau);
             
             if (authenticatedUser != null) {
-                // Successful login
                 new TrangChu(authenticatedUser).setVisible(true);
                 this.dispose();
             } else {
@@ -214,7 +211,6 @@ public class Login extends javax.swing.JFrame {
         return null;
     }
     
-    // Helper method for consistent error messaging
     private void showErrorMessage(String message) {
         javax.swing.JOptionPane.showMessageDialog(this,
                 message,
@@ -222,7 +218,6 @@ public class Login extends javax.swing.JFrame {
                 javax.swing.JOptionPane.WARNING_MESSAGE);
     }
     
-    // Helper method to clear input fields
     private void clearFields() {
         txtMatKhau.setText("");
         txtID.requestFocus();

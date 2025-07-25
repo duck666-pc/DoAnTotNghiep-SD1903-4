@@ -4,11 +4,9 @@
  */
 package view;
 
-import Model.ChiTietHoaDon;
 import Model.HoaDon;
 import controller.BHDAO1;
 import java.awt.HeadlessException;
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,7 +22,7 @@ import java.io.FileOutputStream;
  *
  * @author Admin
  */
-public class BHpanel extends javax.swing.JPanel {
+public final class BHpanel extends javax.swing.JPanel {
 
     public BHDAO1 BHdao = new BHDAO1();
     DefaultTableModel modelhd = new DefaultTableModel();
