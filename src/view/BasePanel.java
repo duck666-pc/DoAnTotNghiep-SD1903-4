@@ -12,7 +12,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.RowFilter;
-
+import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class BasePanel<T> extends javax.swing.JPanel {
 
@@ -70,26 +71,30 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
         }
     }
 
-    public void searchById(String id) {
+    // Changed from searchById to searchByName
+    public void searchByName(String name) {
         tableModel.setRowCount(0);
-        if (id.isEmpty()) {
+        if (name.isEmpty()) {
             fillTable();
             return;
         }
         boolean found = false;
         try {
             for (T entity : getAllEntities()) {
-                if (getEntityId(entity).equalsIgnoreCase(id)) {
+                // Use case-insensitive contains search for partial name matching
+                if (getEntityName(entity).toLowerCase().contains(name.toLowerCase())) {
                     addEntityToTable(entity);
                     found = true;
-                    int row = tableModel.getRowCount() - 1;
-                    baseJTable.setRowSelectionInterval(row, row);
-                    baseJTable.scrollRectToVisible(baseJTable.getCellRect(row, 0, true));
-                    break;
                 }
             }
             if (!found) {
-                showMessage("Không tìm thấy với ID: " + id);
+                showMessage("Không tìm thấy với tên: " + name);
+            } else {
+                // If found, select the first matching row
+                if (tableModel.getRowCount() > 0) {
+                    baseJTable.setRowSelectionInterval(0, 0);
+                    baseJTable.scrollRectToVisible(baseJTable.getCellRect(0, 0, true));
+                }
             }
         } catch (Exception ex) {
             showError(ex, "Lỗi khi tải dữ liệu: ");
@@ -131,12 +136,73 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
         });
     }
 
+    protected String generateNextId() {
+        try {
+            List<T> entities = getAllEntities();
+            if (entities.isEmpty()) {
+                return getIdPrefix() + "001";
+            }
+
+            List<String> ids = new ArrayList<>();
+            for (T entity : entities) {
+                ids.add(getEntityId(entity));
+            }
+
+            Collections.sort(ids, (String id1, String id2) -> extractLastThreeDigits(id1) - extractLastThreeDigits(id2));
+
+            String highestId = ids.get(ids.size() - 1);
+            int highestNumber = extractLastThreeDigits(highestId);
+            int nextNumber = highestNumber + 1;
+
+            return getIdPrefix() + String.format("%03d", nextNumber);
+        } catch (Exception ex) {
+            showError(ex, "Lỗi khi tạo ID mới: ");
+            return getIdPrefix() + "001";
+        }
+    }
+
+    protected int extractLastThreeDigits(String id) {
+        if (id == null || id.length() < 3) {
+            return 0;
+        }
+        try {
+            String lastThree = id.substring(id.length() - 3);
+            return Integer.parseInt(lastThree);
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
+
+    protected void updateIdsAfterDeletion(String deletedId) {
+        try {
+            int deletedNumber = extractLastThreeDigits(deletedId);
+            List<T> entities = getAllEntities();
+
+            for (T entity : entities) {
+                String currentId = getEntityId(entity);
+                int currentNumber = extractLastThreeDigits(currentId);
+
+                if (currentNumber > deletedNumber) {
+                    int newNumber = currentNumber - 1;
+                    String newId = getIdPrefix() + String.format("%03d", newNumber);
+                    updateEntityId(entity, newId);
+                }
+            }
+        } catch (Exception ex) {
+            showError(ex, "Lỗi khi cập nhật ID sau khi xóa: ");
+        }
+    }
+
     protected void handleAddAction() {
         if (!validateForm()) {
             return;
         }
         try {
-            int result = addEntity(getEntityFromForm());
+            T entity = getEntityFromForm();
+            String newId = generateNextId();
+            setEntityId(entity, newId);
+
+            int result = addEntity(entity);
             showMessage(result == 1 ? "Thêm dữ liệu thành công!" : "Thêm dữ liệu thất bại!");
             fillTable();
             clearForm();
@@ -154,8 +220,16 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
             return;
         }
         try {
-            int result = deleteEntity(getEntityIdFromRow(currentRow));
-            showMessage(result == 1 ? "Xóa dữ liệu thành công!" : "Xóa dữ liệu thất bại!");
+            String deletedId = getEntityIdFromRow(currentRow);
+            int result = deleteEntity(deletedId);
+
+            if (result == 1) {
+                updateIdsAfterDeletion(deletedId);
+                showMessage("Xóa dữ liệu thành công!");
+            } else {
+                showMessage("Xóa dữ liệu thất bại!");
+            }
+
             fillTable();
             clearForm();
             currentRow = -1;
@@ -176,7 +250,11 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
             return;
         }
         try {
-            int result = updateEntity(getEntityFromForm(), getEntityIdFromRow(currentRow));
+            T entity = getEntityFromForm();
+            String currentId = getEntityIdFromRow(currentRow);
+            setEntityId(entity, currentId); // Ensure the entity has the correct ID for updating
+
+            int result = updateEntity(entity, currentId);
             fillTable();
             showMessage(result == 1 ? "Cập nhật thành công!" : "Cập nhật thất bại!");
         } catch (Exception ex) {
@@ -185,8 +263,9 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
         clearForm();
     }
 
+    // Changed method name to reflect searching by name
     protected void handleSearchAction() {
-        searchById(baseTxtTimKiem.getText().trim());
+        searchByName(baseTxtTimKiem.getText().trim());
     }
 
     protected void handleRefreshAction() {
@@ -207,6 +286,9 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
 
     protected abstract String getEntityId(T entity);
 
+    // New abstract method to get entity name for searching
+    protected abstract String getEntityName(T entity);
+
     protected abstract void addEntityToTable(T entity);
 
     protected abstract int addEntity(T entity) throws Exception;
@@ -214,4 +296,11 @@ public abstract class BasePanel<T> extends javax.swing.JPanel {
     protected abstract int deleteEntity(String id) throws Exception;
 
     protected abstract int updateEntity(T entity, String oldId) throws Exception;
+
+    protected abstract String getIdPrefix();
+
+    protected abstract void setEntityId(T entity, String id);
+
+    protected abstract void updateEntityId(T entity, String newId) throws Exception;
+
 }

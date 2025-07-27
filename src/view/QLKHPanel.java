@@ -25,7 +25,7 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
 
     @Override
     protected void setFormFromRow(int row) {
-        txtID.setText(getValue(row, 0));
+        // Chỉ hiển thị các trường thông tin, không hiển thị ID
         txtTen.setText(getValue(row, 1));
         txtDienThoai.setText(getValue(row, 2));
         txtDiaChi.setText(getValue(row, 3));
@@ -34,35 +34,34 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
 
     @Override
     protected boolean validateForm() {
-        if (txtID.getText().trim().isEmpty()
-                || txtTen.getText().trim().isEmpty()
+        // Không kiểm tra ID
+        if (txtTen.getText().trim().isEmpty()
                 || txtDienThoai.getText().trim().isEmpty()
                 || txtDiaChi.getText().trim().isEmpty()
                 || jcbHangKhachHang.getSelectedItem() == null) {
             showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
-    if (!txtDienThoai.getText().trim().matches("\\d+")) {
-        showMessage("Số điện thoại phải là số!");
-        return false;
-    }       
+        if (!txtDienThoai.getText().trim().matches("\\d+")) {
+            showMessage("Số điện thoại phải là số!");
+            return false;
+        }       
         return true;
     }
 
     @Override
     protected KhachHang getEntityFromForm() {
-        return new KhachHang(
-                txtID.getText().trim(),
-                txtTen.getText().trim(),
-                txtDienThoai.getText().trim(),
-                txtDiaChi.getText().trim(),
-                (String) jcbHangKhachHang.getSelectedItem()
-        );
+        KhachHang kh = new KhachHang();
+        // ID sẽ được tự động sinh khi thêm mới
+        kh.setTen(txtTen.getText().trim());
+        kh.setDienThoai(txtDienThoai.getText().trim());
+        kh.setDiaChi(txtDiaChi.getText().trim());
+        kh.sethangKhachHangId((String) jcbHangKhachHang.getSelectedItem());
+        return kh;
     }
 
     @Override
     protected void clearForm() {
-        txtID.setText("");
         txtTen.setText("");
         txtDienThoai.setText("");
         txtDiaChi.setText("");
@@ -81,9 +80,18 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
     }
 
     @Override
+    protected String getEntityName(KhachHang entity) {
+        return entity.getTen(); // Trả về tên khách hàng để tìm kiếm
+    }
+
+    @Override
     protected void addEntityToTable(KhachHang entity) {
         tableModel.addRow(new Object[]{
-            entity.getId(), entity.getTen(), entity.getDienThoai(), entity.getDiaChi(), entity.gethangKhachHangId()
+            entity.getId(), 
+            entity.getTen(), 
+            entity.getDienThoai(), 
+            entity.getDiaChi(), 
+            entity.gethangKhachHangId()
         });
     }
 
@@ -102,16 +110,31 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
         return qlkh.edit(entity, oldId);
     }
 
+    @Override
+    protected String getIdPrefix() {
+        return "KH"; // Tiền tố ID khách hàng
+    }
+
+    @Override
+    protected void setEntityId(KhachHang entity, String id) {
+        entity.setId(id);
+    }
+
+    @Override
+    protected void updateEntityId(KhachHang entity, String newId) throws Exception {
+        String oldId = entity.getId();
+        entity.setId(newId);
+        qlkh.edit(entity, oldId); // Cập nhật ID trong database
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         txtTen = new javax.swing.JTextField();
-        txtID = new javax.swing.JTextField();
         txtDienThoai = new javax.swing.JTextField();
         txtDiaChi = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -125,50 +148,32 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
         jcbHangKhachHang = new javax.swing.JComboBox<>();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setText("ID:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(94, 19, -1, -1));
 
         jLabel2.setText("Tên:");
-        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(85, 60, -1, -1));
 
         jLabel3.setText("Hạng Khách Hàng:");
-        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 180, -1, -1));
 
         jLabel5.setText("Địa chỉ:");
-        add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(69, 140, -1, -1));
 
         jLabel6.setText("Điện thoại:");
-        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(51, 100, -1, -1));
 
         txtTen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTenActionPerformed(evt);
             }
         });
-        add(txtTen, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 57, 175, -1));
-
-        txtID.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDActionPerformed(evt);
-            }
-        });
-        add(txtID, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 16, 175, -1));
 
         txtDienThoai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDienThoaiActionPerformed(evt);
             }
         });
-        add(txtDienThoai, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 97, 175, -1));
 
         txtDiaChi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDiaChiActionPerformed(evt);
             }
         });
-        add(txtDiaChi, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 137, 175, -1));
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -183,8 +188,6 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
         ));
         jScrollPane1.setViewportView(jTable);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 57, 556, 270));
-
         jbtThem.setBackground(new java.awt.Color(41, 62, 80));
         jbtThem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtThem.setForeground(new java.awt.Color(255, 255, 255));
@@ -194,7 +197,6 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
                 jbtThemActionPerformed(evt);
             }
         });
-        add(jbtThem, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 217, 293, -1));
 
         jbtSua.setBackground(new java.awt.Color(41, 62, 80));
         jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -205,7 +207,6 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
                 jbtSuaActionPerformed(evt);
             }
         });
-        add(jbtSua, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 246, 293, -1));
 
         jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
         jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -216,25 +217,22 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
                 jbtXoaActionPerformed(evt);
             }
         });
-        add(jbtXoa, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 275, 293, -1));
 
         txtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTimKiemActionPerformed(evt);
             }
         });
-        add(txtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 16, 410, -1));
 
         jbtTimKiem.setBackground(new java.awt.Color(41, 62, 80));
         jbtTimKiem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtTimKiem.setForeground(new java.awt.Color(255, 255, 255));
-        jbtTimKiem.setText("Tìm kiếm bằng ID");
+        jbtTimKiem.setText("Tìm kiếm");
         jbtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtTimKiemActionPerformed(evt);
             }
         });
-        add(jbtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(747, 16, -1, -1));
 
         jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
         jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -245,10 +243,90 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
                 jbtLamMoiActionPerformed(evt);
             }
         });
-        add(jbtLamMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 304, 293, -1));
 
         jcbHangKhachHang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "HC001 - Đồng", "HC002 - Bạc", "HC003 - Vàng", "HC004 - Bạch kim", "HC005 - Kim cương" }));
-        add(jcbHangKhachHang, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 177, 175, -1));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(77, 77, 77)
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(43, 43, 43)
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addComponent(jLabel5)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(jcbHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jbtThem, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtSua, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtLamMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtTimKiem)
+                        .addGap(18, 18, 18)
+                        .addComponent(jbtTimKiem))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 546, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel2))
+                    .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jbtTimKiem)))
+                .addGap(17, 17, 17)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel6))
+                            .addComponent(txtDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel5))
+                            .addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel3))
+                            .addComponent(jcbHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jbtThem)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtSua)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtXoa)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtLamMoi))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
@@ -296,7 +374,6 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -311,7 +388,6 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
     private javax.swing.JComboBox<String> jcbHangKhachHang;
     private javax.swing.JTextField txtDiaChi;
     private javax.swing.JTextField txtDienThoai;
-    private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;
     // End of variables declaration//GEN-END:variables

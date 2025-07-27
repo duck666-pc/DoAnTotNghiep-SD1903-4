@@ -27,44 +27,17 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="jScrollPane2" max="32767" attributes="0"/>
-                      <Component id="jScrollPane1" alignment="0" min="-2" pref="609" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="txtIDHoaDon" min="-2" pref="130" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="txtIDNguoiDung" min="-2" pref="130" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="txtIDKhachHang" min="-2" pref="130" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jcbMinTongTien" min="-2" pref="91" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jcbMaxTongTien" min="-2" pref="100" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jcbMinTongTien" min="-2" pref="91" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jcbMaxTongTien" min="-2" pref="100" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
@@ -85,24 +58,19 @@
                       <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                       <Component id="jcbNamKetThuc" min="-2" pref="100" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="jScrollPane1" alignment="0" pref="587" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace pref="11" max="32767" attributes="0"/>
+              <EmptySpace pref="33" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="20" pref="20" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="txtIDHoaDon" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="txtIDKhachHang" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Group type="103" groupAlignment="3" attributes="0">
+                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
                       <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jcbNgayBatDau" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -110,7 +78,7 @@
                       <Component id="jcbNamBatDau" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
                       <Component id="jcbNgayKetThuc" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jcbThangKetThuc" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jcbNamKetThuc" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -118,19 +86,17 @@
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="txtIDNguoiDung" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jcbMinTongTien" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jcbMaxTongTien" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jScrollPane2" min="-2" pref="250" max="-2" attributes="0"/>
-              <EmptySpace min="20" pref="20" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="130" max="-2" attributes="0"/>
-              <EmptySpace pref="24" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="175" max="-2" attributes="0"/>
+              <EmptySpace pref="20" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -250,16 +216,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="jLabel1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="ID H&#xf3;a &#x110;&#x1a1;n:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtIDHoaDon">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtIDHoaDonActionPerformed"/>
-      </Events>
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
         <Property name="text" type="java.lang.String" value="T&#x1eeb;"/>
@@ -416,30 +372,10 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jcbNamKetThucActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="ID Kh&#xe1;ch H&#xe0;ng:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtIDKhachHang">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtIDKhachHangActionPerformed"/>
-      </Events>
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" value="T&#x1ed5;ng ti&#x1ec1;n:"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="ID Ng&#x1b0;&#x1edd;i D&#xf9;ng:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtIDNguoiDung">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtIDNguoiDungActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>

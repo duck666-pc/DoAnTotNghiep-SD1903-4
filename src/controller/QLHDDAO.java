@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class HoaDonDAO extends BaseDAO<HoaDon> {
-
     @Override
     protected String getTableName() {
         return "HoaDon";
@@ -88,15 +87,10 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
         };
     }
 
-    public List<HoaDon> search(String keyword, Timestamp fromTime, Timestamp toTime,
+    public List<HoaDon> search(Timestamp fromTime, Timestamp toTime,
             BigDecimal minTotal, BigDecimal maxTotal) throws SQLException {
         List<HoaDon> resultList = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM " + getTableName() + " WHERE 1=1");
-
-        // Điều kiện tìm kiếm theo từ khóa
-        if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" AND (ID LIKE ? OR KhachHangID LIKE ? OR NguoiDungID LIKE ?)");
-        }
 
         // Điều kiện tìm kiếm theo khoảng thời gian
         if (fromTime != null) {
@@ -116,14 +110,6 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int paramIndex = 1;
-
-            // Thiết lập tham số cho từ khóa
-            if (keyword != null && !keyword.isEmpty()) {
-                String pattern = "%" + keyword + "%";
-                ps.setString(paramIndex++, pattern);
-                ps.setString(paramIndex++, pattern);
-                ps.setString(paramIndex++, pattern);
-            }
 
             // Thiết lập tham số cho thời gian
             if (fromTime != null) {
@@ -313,9 +299,9 @@ public class QLHDDAO {
         return chiTietHoaDonDAO.getRowArray(cthd);
     }
 
-    public List<HoaDon> searchHoaDon(String keyword, Timestamp fromTime, Timestamp toTime,
+    public List<HoaDon> searchHoaDon(Timestamp fromTime, Timestamp toTime,
             BigDecimal minTotal, BigDecimal maxTotal) throws SQLException {
-        return hoaDonDAO.search(keyword, fromTime, toTime, minTotal, maxTotal);
+        return hoaDonDAO.search(fromTime, toTime, minTotal, maxTotal);
     }
 
     public List<ChiTietHoaDon> getCTHDByHoaDonID(String hoaDonID) {

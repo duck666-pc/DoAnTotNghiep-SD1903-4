@@ -4,116 +4,214 @@
  */
 package view;
 
-
 import Controller.DOANHTHUDAO;
-import Model.HoaDon;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
+import Controller.DOANHTHUDAO.DoanhThuSanPham;
+import java.text.NumberFormat;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Locale;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
+public final class DOANHTHUPanel extends javax.swing.JPanel {
 
-/**
- *
- * @author minhd
- */
-public class DOANHTHUPanel extends javax.swing.JPanel {
-    DefaultTableModel tableModel;
-    DOANHTHUDAO orderinfo;
+    private DOANHTHUDAO doanhThuDAO;
+    private DefaultTableModel tableModel;
+    private NumberFormat currencyFormat;
 
     public DOANHTHUPanel() {
         initComponents();
-        orderinfo = new DOANHTHUDAO();
+        initializeBusinessLogic();
+    }
 
-        String[] cols = new String[]{
-            "ID Hóa Đơn", "Thời Gian", "ID Khách Hàng", "ID Người Dùng",
-            "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"
+    public void initializeBusinessLogic() {
+        try {
+            doanhThuDAO = new DOANHTHUDAO();
+            currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+            setupTableModel();
+            initializeDateFields();
+            loadInitialData();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khởi tạo: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void setupTableModel() {
+        String[] columnNames = {"ID Sản phẩm", "Tên sản phẩm", "Giá", "Số lượng", "Thành tiền"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
-        tableModel = new DefaultTableModel(cols, 0);
         jTable1.setModel(tableModel);
-
-        FIlter.addActionListener(this::filterActionPerformed);
-
-        loadAllHoaDon();
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(200);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(100);
+        jTable1.getColumnModel().getColumn(3).setPreferredWidth(80);
+        jTable1.getColumnModel().getColumn(4).setPreferredWidth(120);
     }
 
-    private void loadAllHoaDon() {
+    private void initializeDateFields() {
+        jcbNgayBatDau.setSelectedIndex(0);
+        jcbThangBatDau.setSelectedIndex(0);
+        jcbNamBatDau.setText("");
+
+        jcbNgayKetThuc.setSelectedIndex(0);
+        jcbThangKetThuc.setSelectedIndex(0);
+        jcbNamKetThuc.setText("");
+    }
+
+    private void loadInitialData() {
         try {
-            jLabel1.setText(String.valueOf(orderinfo.getcountHoaDon()));
-            jLabel2.setText(formatCurrency(orderinfo.gettotalHoaDon()));
-            List<HoaDon> listHD = orderinfo.getAllHoaDon();
-            updateTableData(listHD);
+            // Load all products with their total sales data
+            List<DoanhThuSanPham> danhSach = doanhThuDAO.getAllProductsWithSales();
+            updateTable(danhSach);
+
+            // Calculate and display total statistics for all time
+            int tongSanPham = calculateTotalProductsSold(danhSach);
+            double tongDoanhThu = calculateTotalRevenue(danhSach);
+            updateSummaryLabels(tongSanPham, tongDoanhThu);
         } catch (Exception e) {
-            showThongBaoLoi("Lỗi khi tải toàn bộ hóa đơn!", e);
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi tải dữ liệu: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void loadHoaDonTheoNgay(String day1, String month1, String year1, String day2, String month2, String year2) {
+    public void filterData() {
         try {
-            jLabel1.setText(String.valueOf(orderinfo.getcountHoaDondate(day1, month1, year1, day2, month2, year2)));
-            jLabel2.setText(formatCurrency(orderinfo.gettotalHoaDondate(day1, month1, year1, day2, month2, year2)));
-            List<HoaDon> listHD = orderinfo.getAllHoaDondate(day1, month1, year1, day2, month2, year2);
-            updateTableData(listHD);
+            String startYear = jcbNamBatDau.getText().trim();
+            String endYear = jcbNamKetThuc.getText().trim();
+
+            if (startYear.isEmpty() || endYear.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng nhập đầy đủ thông tin ngày tháng!",
+                        "Thiếu thông tin",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int dayStart, monthStart, yearStart;
+            int dayEnd, monthEnd, yearEnd;
+
+            try {
+                dayStart = Integer.parseInt((String) jcbNgayBatDau.getSelectedItem());
+                monthStart = Integer.parseInt((String) jcbThangBatDau.getSelectedItem());
+                yearStart = Integer.parseInt(startYear);
+
+                dayEnd = Integer.parseInt((String) jcbNgayKetThuc.getSelectedItem());
+                monthEnd = Integer.parseInt((String) jcbThangKetThuc.getSelectedItem());
+                yearEnd = Integer.parseInt(endYear);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Dữ liệu ngày tháng không hợp lệ! Vui lòng kiểm tra lại.",
+                        "Lỗi định dạng",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String ngayBatDau = DOANHTHUDAO.formatDate(dayStart, monthStart, yearStart);
+            String ngayKetThuc = DOANHTHUDAO.formatDate(dayEnd, monthEnd, yearEnd);
+
+            if (!isValidDateRange(ngayBatDau, ngayKetThuc)) {
+                JOptionPane.showMessageDialog(this,
+                        "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!",
+                        "Lỗi ngày tháng",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Get filtered data for the date range
+            List<DoanhThuSanPham> danhSach = doanhThuDAO.getDoanhThuTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
+            updateTable(danhSach);
+
+            // Get totals for the date range from database
+            int tongSanPham = doanhThuDAO.getTongSanPhamBanRa(ngayBatDau, ngayKetThuc);
+            double tongDoanhThu = doanhThuDAO.getTongDoanhThu(ngayBatDau, ngayKetThuc);
+            updateSummaryLabels(tongSanPham, tongDoanhThu);
+
         } catch (Exception e) {
-            showThongBaoLoi("Lỗi khi lọc hóa đơn theo ngày!", e);
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi hệ thống: " + e.getMessage(),
+                    "Lỗi nghiêm trọng",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
-    private void updateTableData(List<HoaDon> listHD) {
+    // Helper methods to calculate totals from the list
+    private int calculateTotalProductsSold(List<DoanhThuSanPham> danhSach) {
+        return danhSach.stream()
+                .mapToInt(DoanhThuSanPham::getSoLuongBan)
+                .sum();
+    }
+
+    private double calculateTotalRevenue(List<DoanhThuSanPham> danhSach) {
+        return danhSach.stream()
+                .mapToDouble(DoanhThuSanPham::getThanhTien)
+                .sum();
+    }
+
+    private String getSelectedStartDate() {
+        if (jcbNamBatDau.getText().trim().isEmpty()) {
+            return null;
+        }
+
+        int day = Integer.parseInt((String) jcbNgayBatDau.getSelectedItem());
+        int month = Integer.parseInt((String) jcbThangBatDau.getSelectedItem());
+        int year = Integer.parseInt(jcbNamBatDau.getText().trim());
+
+        return DOANHTHUDAO.formatDate(day, month, year);
+    }
+
+    private String getSelectedEndDate() {
+        if (jcbNamKetThuc.getText().trim().isEmpty()) {
+            return null;
+        }
+
+        int day = Integer.parseInt((String) jcbNgayKetThuc.getSelectedItem());
+        int month = Integer.parseInt((String) jcbThangKetThuc.getSelectedItem());
+        int year = Integer.parseInt(jcbNamKetThuc.getText().trim());
+
+        return DOANHTHUDAO.formatDate(day, month, year);
+    }
+
+    private boolean isValidDateRange(String startDate, String endDate) {
+        return startDate.compareTo(endDate) <= 0;
+    }
+
+    private void updateTable(List<DoanhThuSanPham> danhSach) {
         tableModel.setRowCount(0);
-        for (HoaDon hd : listHD) {
-            Object[] row = new Object[]{
-                hd.getId(),
-                hd.getThoiGian(),
-                hd.getIdKhachHang(),
-                hd.getIdNguoiDung(),
-                hd.getTongTienGoc(),
-                hd.getMucGiamGia(),
-                hd.getTongTienSauGiamGia()
+        for (DoanhThuSanPham item : danhSach) {
+            Object[] row = {
+                item.getIdSanPham(),
+                item.getTenSanPham(),
+                currencyFormat.format(item.getGia()),
+                item.getSoLuongBan(),
+                currencyFormat.format(item.getThanhTien())
             };
             tableModel.addRow(row);
         }
+        tableModel.fireTableDataChanged(); // Ensure table updates
     }
 
-    private void showThongBaoLoi(String message, Exception e) {
-        Logger.getLogger(DOANHTHUPanel.class.getName()).log(Level.SEVERE, message, e);
-        JOptionPane.showMessageDialog(this, message + "\nChi tiết: " + e.getMessage(),
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+    private void updateSummaryLabels(int tongSanPham, double tongDoanhThu) {
+        jLabel1.setText(String.valueOf(tongSanPham));
+        jLabel2.setText(currencyFormat.format(tongDoanhThu));
+
+        // Force label refresh
+        jLabel1.repaint();
+        jLabel2.repaint();
     }
 
-    private void filterActionPerformed(ActionEvent evt) {
-        String year1 = jcbNamBatDau.getText().trim();
-        String year2 = jcbNamKetThuc.getText().trim();
-
-        if (year1.isEmpty() || year2.isEmpty()) {
-            loadAllHoaDon();
-            return;
-        }
-
-        try {
-            Integer.valueOf(year1);
-            Integer.valueOf(year2);
-        } catch (NumberFormatException ex) {
-            showThongBaoLoi("Vui lòng nhập đúng định dạng năm (số)", ex);
-            return;
-        }
-
-        String day1 = jcbNgayBatDau.getSelectedItem().toString();
-        String month1 = jcbThangBatDau.getSelectedItem().toString();
-
-        String day2 = jcbNgayKetThuc.getSelectedItem().toString();
-        String month2 = jcbThangKetThuc.getSelectedItem().toString();
-
-        loadHoaDonTheoNgay(day1, month1, year1, day2, month2, year2);
-    }
-
-    private String formatCurrency(Object value) {
-        try {
-            return String.format("%,d VNĐ", ((Number) value).longValue());
-        } catch (Exception e) {
-            return value.toString();
+    public void cleanup() {
+        if (doanhThuDAO != null) {
+            doanhThuDAO.closeConnection();
         }
     }
 
@@ -138,7 +236,6 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
         jcbNamKetThuc = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        FIlter = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
 
@@ -148,13 +245,13 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "ID Hóa Đơn", "Thời gian", "ID Khách Hàng", "ID Người Dùng", "Tổng tiền gốc", "Mức giảm giá", "Tổng tiền"
+                "ID Sản phẩm", "Tên sản phẩm", "Giá", "Số lượng", "Thành tiền"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -193,14 +290,9 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel8.setText("Số đơn:");
+        jLabel8.setText("Tổng sản phẩm bán ra:");
 
-        jLabel9.setText("Tổng tiền:");
-
-        FIlter.setBackground(new java.awt.Color(41, 62, 80));
-        FIlter.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        FIlter.setForeground(new java.awt.Color(255, 255, 255));
-        FIlter.setText("Tìm kiếm");
+        jLabel9.setText("Doanh thu:");
 
         jLabel1.setText("  ");
 
@@ -224,7 +316,7 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
                         .addComponent(jLabel2))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(16, 16, 16)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -240,9 +332,7 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
                                 .addGap(6, 6, 6)
                                 .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(6, 6, 6)
-                                .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(FIlter))
+                                .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 609, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
@@ -256,9 +346,7 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
                             .addComponent(jcbNgayKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel7))
                         .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(FIlter))
+                        .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createSequentialGroup()
                             .addGap(3, 3, 3)
                             .addComponent(jLabel6)))
@@ -299,28 +387,27 @@ public class DOANHTHUPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_EyearActionPerformed
 
     private void jcbThangBatDauActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:        
+
     }
 
     private void jcbNamBatDauActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:        
+
     }
 
     private void jcbThangKetThucActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:        
+
     }
 
     private void jcbNamKetThucActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:        
+
     }
 
     private void FIlterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FIlterActionPerformed
-
+        filterData();
     }//GEN-LAST:event_FIlterActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton FIlter;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel6;

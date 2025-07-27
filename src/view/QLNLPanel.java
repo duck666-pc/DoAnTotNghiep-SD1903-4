@@ -25,7 +25,7 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
 
     @Override
     protected void setFormFromRow(int row) {
-        txtID.setText(getValue(row, 0));
+        // Chỉ hiển thị các trường thông tin, không hiển thị ID
         txtTen.setText(getValue(row, 1));
         txtDonVi.setText(getValue(row, 2));
         txtSoLuong.setText(getValue(row, 3));
@@ -34,8 +34,7 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
 
     @Override
     protected boolean validateForm() {
-        if (txtID.getText().trim().isEmpty()
-                || txtTen.getText().trim().isEmpty()
+        if (txtTen.getText().trim().isEmpty()
                 || txtDonVi.getText().trim().isEmpty()
                 || txtSoLuong.getText().trim().isEmpty()
                 || txtMucCanThem.getText().trim().isEmpty()) {
@@ -43,14 +42,15 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
             return false;
         }
         try {
-            int SoLuong = Integer.parseInt(txtSoLuong.getText().trim());
-            int MucCanThem = Integer.parseInt(txtMucCanThem.getText().trim());
-            if (MucCanThem > SoLuong) {
-                showMessage("Số lượng phải nhiều hơn mức cần thêm, nếu không phải mua thêm nguyên liệu!");
+            int soLuong = Integer.parseInt(txtSoLuong.getText().trim());
+            int mucCanThem = Integer.parseInt(txtMucCanThem.getText().trim());
+
+            if (mucCanThem > soLuong) {
+                showMessage("Số lượng phải nhiều hơn mức cần thêm!");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showMessage("Số lượng và mức cần thêm phải là số!");
+            showMessage("Số lượng và mức cần thêm phải là số nguyên!");
             return false;
         }
         return true;
@@ -58,18 +58,16 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
 
     @Override
     protected NguyenVatLieu getEntityFromForm() {
-        return new NguyenVatLieu(
-                txtID.getText().trim(),
-                txtTen.getText().trim(),
-                txtDonVi.getText().trim(),
-                Integer.parseInt(txtSoLuong.getText().trim()),
-                Integer.parseInt(txtMucCanThem.getText().trim())
-        );
+        NguyenVatLieu nvl = new NguyenVatLieu();
+        nvl.setTen(txtTen.getText().trim());
+        nvl.setDonVi(txtDonVi.getText().trim());
+        nvl.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
+        nvl.setMucCanDatThem(Integer.parseInt(txtMucCanThem.getText().trim()));
+        return nvl;
     }
 
     @Override
     protected void clearForm() {
-        txtID.setText("");
         txtTen.setText("");
         txtDonVi.setText("");
         txtSoLuong.setText("");
@@ -85,6 +83,11 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
     @Override
     protected String getEntityId(NguyenVatLieu entity) {
         return entity.getId();
+    }
+
+    @Override
+    protected String getEntityName(NguyenVatLieu entity) {
+        return entity.getTen(); // Trả về tên nguyên liệu để tìm kiếm
     }
 
     @Override
@@ -113,16 +116,31 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
         return qlnl.edit(entity, oldId);
     }
 
+    @Override
+    protected String getIdPrefix() {
+        return "NL"; // Tiền tố ID nguyên liệu
+    }
+
+    @Override
+    protected void setEntityId(NguyenVatLieu entity, String id) {
+        entity.setId(id);
+    }
+
+    @Override
+    protected void updateEntityId(NguyenVatLieu entity, String newId) throws Exception {
+        String oldId = entity.getId();
+        entity.setId(newId);
+        qlnl.edit(entity, oldId);
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         txtTen = new javax.swing.JTextField();
-        txtID = new javax.swing.JTextField();
         txtDonVi = new javax.swing.JTextField();
         txtSoLuong = new javax.swing.JTextField();
         txtMucCanThem = new javax.swing.JTextField();
@@ -136,57 +154,38 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
         jbtLamMoi = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setText("ID:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(94, 19, -1, -1));
 
         jLabel2.setText("Tên:");
-        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(85, 60, -1, -1));
 
         jLabel3.setText("Mức cần đặt thêm:");
-        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 180, -1, -1));
 
         jLabel5.setText("Số lượng có sẵn:");
-        add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(21, 140, -1, -1));
 
         jLabel6.setText("Đơn vị:");
-        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(71, 100, -1, -1));
 
         txtTen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTenActionPerformed(evt);
             }
         });
-        add(txtTen, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 57, 175, -1));
-
-        txtID.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDActionPerformed(evt);
-            }
-        });
-        add(txtID, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 16, 175, -1));
 
         txtDonVi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDonViActionPerformed(evt);
             }
         });
-        add(txtDonVi, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 97, 175, -1));
 
         txtSoLuong.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtSoLuongActionPerformed(evt);
             }
         });
-        add(txtSoLuong, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 137, 175, -1));
 
         txtMucCanThem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtMucCanThemActionPerformed(evt);
             }
         });
-        add(txtMucCanThem, new org.netbeans.lib.awtextra.AbsoluteConstraints(126, 177, 175, -1));
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -207,8 +206,6 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
         jTable.setSelectionForeground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setViewportView(jTable);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(325, 57, 556, 270));
-
         jbtThem.setBackground(new java.awt.Color(41, 62, 80));
         jbtThem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtThem.setForeground(new java.awt.Color(255, 255, 255));
@@ -218,7 +215,6 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
                 jbtThemActionPerformed(evt);
             }
         });
-        add(jbtThem, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 217, 293, -1));
 
         jbtSua.setBackground(new java.awt.Color(41, 62, 80));
         jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -229,7 +225,6 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
                 jbtSuaActionPerformed(evt);
             }
         });
-        add(jbtSua, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 246, 293, -1));
 
         jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
         jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -240,25 +235,22 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
                 jbtXoaActionPerformed(evt);
             }
         });
-        add(jbtXoa, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 275, 293, -1));
 
         txtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTimKiemActionPerformed(evt);
             }
         });
-        add(txtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(325, 16, 410, -1));
 
         jbtTimKiem.setBackground(new java.awt.Color(41, 62, 80));
         jbtTimKiem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtTimKiem.setForeground(new java.awt.Color(255, 255, 255));
-        jbtTimKiem.setText("Tìm kiếm bằng ID");
+        jbtTimKiem.setText("Tìm kiếm");
         jbtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtTimKiemActionPerformed(evt);
             }
         });
-        add(jbtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(753, 16, -1, -1));
 
         jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
         jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -269,7 +261,93 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
                 jbtLamMoiActionPerformed(evt);
             }
         });
-        add(jbtLamMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 304, 293, -1));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(77, 77, 77)
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(63, 63, 63)
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtDonVi, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(13, 13, 13)
+                        .addComponent(jLabel5)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtSoLuong, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtMucCanThem, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jbtThem, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtSua, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtLamMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(txtTimKiem)
+                        .addGap(18, 18, 18)
+                        .addComponent(jbtTimKiem))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)))
+                .addGap(14, 14, 14))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel2))
+                            .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel6))
+                            .addComponent(txtDonVi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel5))
+                            .addComponent(txtSoLuong, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel3))
+                            .addComponent(txtMucCanThem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jbtThem)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtSua)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtXoa)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtLamMoi))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jbtTimKiem))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(32, Short.MAX_VALUE))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
@@ -317,7 +395,6 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -330,7 +407,6 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
     private javax.swing.JButton jbtTimKiem;
     private javax.swing.JButton jbtXoa;
     private javax.swing.JTextField txtDonVi;
-    private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtMucCanThem;
     private javax.swing.JTextField txtSoLuong;
     private javax.swing.JTextField txtTen;

@@ -11,11 +11,28 @@ import java.time.LocalDate;
  * @author Admin
  */
 public class BHDAO1 {
+    
+    // Method to get database connection - should be centralized
+    private Connection getConnection() throws ClassNotFoundException, SQLException {
+        MyConnection DBconnect = new MyConnection();
+        return DBconnect.DBConnect();
+    }
+    
+    // Method to close resources safely
+    private void closeResources(Connection conn, PreparedStatement stmt, ResultSet rs) {
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public ResultSet getHD(){
-        MyConnection DBconnect = new MyConnection();
         try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "Select * from HoaDon";
+            Connection conn = getConnection();
+            String sql = "SELECT * FROM HoaDon ORDER BY ThoiGian DESC";
             PreparedStatement stmt = conn.prepareStatement(sql);
             return stmt.executeQuery();
         }
@@ -24,11 +41,11 @@ public class BHDAO1 {
             return null;
         }
     }
+    
     public ResultSet getSP(){
-        MyConnection DBconnect = new MyConnection();
         try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "select ID,Ten,Gia from SanPham";
+            Connection conn = getConnection();
+            String sql = "SELECT ID, Ten, Gia FROM SanPham ORDER BY Ten";
             PreparedStatement stmt = conn.prepareStatement(sql);
             return stmt.executeQuery();
         }
@@ -37,13 +54,16 @@ public class BHDAO1 {
             return null;
         }
     }
+    
+    // Fixed the complex aggregation query
     public ResultSet getCTHD(String ID){
-        MyConnection DBconnect = new MyConnection();
         try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "select MAX(ID),MAX(SanPhamID),SUM(SoSanPhamThanhToan) as soluong,GiaBanMoiSanPham,(SUM(SoSanPhamThanhToan)*GiaBanMoiSanPham) as ThanhTien from ChiTietHoaDon " +
-                         "where HoaDonID = ? " +
-                         "GROUP BY HoaDonID,GiaBanMoiSanPham";
+            Connection conn = getConnection();
+            String sql = "SELECT c.ID, c.SanPhamID, c.SoSanPhamThanhToan, c.GiaBanMoiSanPham, " +
+                        "(c.SoSanPhamThanhToan * c.GiaBanMoiSanPham) as ThanhTien " +
+                        "FROM ChiTietHoaDon c " +
+                        "WHERE c.HoaDonID = ? " +
+                        "ORDER BY c.ID";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, ID);
             return stmt.executeQuery();
@@ -53,83 +73,163 @@ public class BHDAO1 {
             return null;
         }
     }
-    public boolean addCTHD(String ID, int soLuong, String idHoaDon, String idSanPham, double donGia){
-        MyConnection DBconnect = new MyConnection();
-        try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMoiSanPham)"
-                    + " VALUES (?,?,?,?,?)";
+    
+    // Check if product already exists in invoice before adding
+    private boolean isProductInInvoice(String idHoaDon, String idSanPham) {
+        try {
+            Connection conn = getConnection();
+            String sql = "SELECT COUNT(*) FROM ChiTietHoaDon WHERE HoaDonID = ? AND SanPhamID = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, idHoaDon);
+            stmt.setString(2, idSanPham);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            closeResources(conn, stmt, rs);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public boolean addCTHD(String ID, int soLuong, String idHoaDon, String idSanPham, double donGia){
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        
+        try{
+            // Check if product already exists in this invoice
+            if (isProductInInvoice(idHoaDon, idSanPham)) {
+                // Update existing record instead of adding new one
+                return updateExistingCTHD(idHoaDon, idSanPham, soLuong);
+            }
+            
+            conn = getConnection();
+            String sql = "INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMoiSanPham) " +
+                        "VALUES (?,?,?,?,?)";
+            stmt = conn.prepareStatement(sql);
             stmt.setString(1, ID);
             stmt.setInt(2, soLuong);
             stmt.setString(3, idHoaDon);
             stmt.setString(4, idSanPham);
             stmt.setDouble(5, donGia);
+            
             return stmt.executeUpdate() > 0;
         }
         catch(ClassNotFoundException | SQLException e){
             e.printStackTrace();
             return false;
+        }
+        finally {
+            closeResources(conn, stmt, null);
         }
     }
     
-    public boolean deleteCTHD(String IDHD, String ID){
-        MyConnection DBconnect = new MyConnection();
+    // Helper method to update existing product quantity in invoice
+    private boolean updateExistingCTHD(String idHoaDon, String idSanPham, int additionalQuantity) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        
+        try {
+            conn = getConnection();
+            String sql = "UPDATE ChiTietHoaDon SET SoSanPhamThanhToan = SoSanPhamThanhToan + ? " +
+                        "WHERE HoaDonID = ? AND SanPhamID = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, additionalQuantity);
+            stmt.setString(2, idHoaDon);
+            stmt.setString(3, idSanPham);
+            
+            return stmt.executeUpdate() > 0;
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        finally {
+            closeResources(conn, stmt, null);
+        }
+    }
+    
+    public boolean deleteCTHD(String IDHD, String idSanPham){
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        
         try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "DELETE FROM ChiTietHoaDon where HoaDonID = ? AND SanPhamID = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+            conn = getConnection();
+            String sql = "DELETE FROM ChiTietHoaDon WHERE HoaDonID = ? AND SanPhamID = ?";
+            stmt = conn.prepareStatement(sql);
             stmt.setString(1, IDHD);
-            stmt.setString(2, ID);
+            stmt.setString(2, idSanPham);
             return stmt.executeUpdate() > 0;
         }
         catch(ClassNotFoundException | SQLException e){
             e.printStackTrace();
             return false;
         }
+        finally {
+            closeResources(conn, stmt, null);
+        }
     }
-    public boolean updateCTHD(double ThanhTien,String ID){
-        MyConnection DBconnect = new MyConnection();
+    
+    // Fixed method name and logic for updating invoice total
+    public boolean updateHoaDonTotal(double thanhTien, String idHoaDon){
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        
         try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "UPDATE HoaDon"
-                    + " SET TongTienGoc = ? where ID = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setDouble(1, ThanhTien);
-            stmt.setString(2, ID);
+            conn = getConnection();
+            String sql = "UPDATE HoaDon SET TongTienGoc = ?, TongTienSauGiamGia = (? - MucGiamGia) " +
+                        "WHERE ID = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setDouble(1, thanhTien);
+            stmt.setDouble(2, thanhTien);
+            stmt.setString(3, idHoaDon);
             return stmt.executeUpdate() > 0;
         }
         catch(ClassNotFoundException | SQLException e){
             e.printStackTrace();
             return false;
         }
+        finally {
+            closeResources(conn, stmt, null);
+        }
     }
-    public boolean updateCTHD1(String ID, int soLuong, String idSanPham, double donGia, String idhd){
-        MyConnection DBconnect = new MyConnection();
+    
+    // Fixed the update method for ChiTietHoaDon
+    public boolean updateCTHD1(String newID, int soLuong, String idSanPham, double donGia, String originalCTHDId){
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        
         try{
-            Connection conn = DBconnect.DBConnect();
-            String sql = "UPDATE ChiTietHoaDon"
-                    + " SET ID = ?, SoSanPhamThanhToan = ?, SanPhamID = ?, GiaBanMoiSanPham = ? where ID = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, ID);
+            conn = getConnection();
+            String sql = "UPDATE ChiTietHoaDon SET ID = ?, SoSanPhamThanhToan = ?, " +
+                        "SanPhamID = ?, GiaBanMoiSanPham = ? WHERE ID = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, newID);
             stmt.setInt(2, soLuong);
             stmt.setString(3, idSanPham);
             stmt.setDouble(4, donGia);
-            stmt.setString(5,idhd);
+            stmt.setString(5, originalCTHDId);
             return stmt.executeUpdate() > 0;
         }
         catch(ClassNotFoundException | SQLException e){
             e.printStackTrace(); 
             return false;
         }
+        finally {
+            closeResources(conn, stmt, null);
+        }
     }
-    public boolean addHD(String id, String thoiGian, String idKhachHang, String idNguoiDung, double tongTienGoc, double mucGiamGia, double tongTienSauGiamGia){
-        MyConnection DBconnect = new MyConnection();
+    
+    public boolean addHD(String id, String thoiGian, String idKhachHang, String idNguoiDung, 
+                        double tongTienGoc, double mucGiamGia, double tongTienSauGiamGia){
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        
         try{
-            Connection conn = DBconnect.DBConnect();
-            String query = "Insert Into  HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, MucGiamGia, TongTienSauGiamGia)"
-                    + " VALUES(?,?,?,?,?,?,?)";
-            PreparedStatement stmt = conn.prepareStatement(query);
+            conn = getConnection();
+            String query = "INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, " +
+                          "TongTienGoc, MucGiamGia, TongTienSauGiamGia) VALUES(?,?,?,?,?,?,?)";
+            stmt = conn.prepareStatement(query);
             stmt.setString(1, id);
             stmt.setDate(2, Date.valueOf(thoiGian));
             stmt.setString(3, idKhachHang);
@@ -143,47 +243,148 @@ public class BHDAO1 {
             e.printStackTrace();
             return false;
         }
+        finally {
+            closeResources(conn, stmt, null);
+        }
     }
-    public boolean updateHD(String id, String thoiGian, String idKhachHang, String idNguoiDung, double tongTienGoc, double mucGiamGia, double tongTienSauGiamGia, String IDHD){
-        MyConnection DBconnect = new MyConnection();
+    
+    // Fixed the update method with proper transaction handling
+    public boolean updateHD(String id, String thoiGian, String idKhachHang, String idNguoiDung, 
+                           double tongTienGoc, double mucGiamGia, double tongTienSauGiamGia, String originalID){
+        Connection conn = null;
+        PreparedStatement stmt1 = null;
+        PreparedStatement stmt2 = null;
+        
         try{
-            Connection conn = DBconnect.DBConnect();
-            String query = "Update HoaDon "
-                         + "set ID = ?, ThoiGian = ?, KhachHangID = ?, NguoiDungID = ?, TongTienGoc = ?, MucGiamGia = ?, TongTienSauGiamGia = ? where ID = ? "
-                         + "Update ChiTietHoaDon "
-                         + "Set HoaDonId = ? where HoaDonId = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, id);
-            stmt.setDate(2, Date.valueOf(thoiGian));
-            stmt.setString(3, idKhachHang);
-            stmt.setString(4, idNguoiDung);
-            stmt.setDouble(5, tongTienGoc);
-            stmt.setDouble(6, mucGiamGia);
-            stmt.setDouble(7, tongTienSauGiamGia);
-            stmt.setString(8, IDHD);
-            stmt.setString(9, id);
-            stmt.setString(10, IDHD);
-            return stmt.executeUpdate() >= 0;
+            conn = getConnection();
+            conn.setAutoCommit(false); // Start transaction
+            
+            // Update HoaDon
+            String query1 = "UPDATE HoaDon SET ID = ?, ThoiGian = ?, KhachHangID = ?, " +
+                           "NguoiDungID = ?, TongTienGoc = ?, MucGiamGia = ?, TongTienSauGiamGia = ? " +
+                           "WHERE ID = ?";
+            stmt1 = conn.prepareStatement(query1);
+            stmt1.setString(1, id);
+            stmt1.setDate(2, Date.valueOf(thoiGian));
+            stmt1.setString(3, idKhachHang);
+            stmt1.setString(4, idNguoiDung);
+            stmt1.setDouble(5, tongTienGoc);
+            stmt1.setDouble(6, mucGiamGia);
+            stmt1.setDouble(7, tongTienSauGiamGia);
+            stmt1.setString(8, originalID);
+            
+            int result1 = stmt1.executeUpdate();
+            
+            // Update ChiTietHoaDon if ID changed
+            if (!id.equals(originalID)) {
+                String query2 = "UPDATE ChiTietHoaDon SET HoaDonID = ? WHERE HoaDonID = ?";
+                stmt2 = conn.prepareStatement(query2);
+                stmt2.setString(1, id);
+                stmt2.setString(2, originalID);
+                stmt2.executeUpdate();
+            }
+            
+            conn.commit(); // Commit transaction
+            return result1 > 0;
         }
         catch(ClassNotFoundException | SQLException e){
+            try {
+                if (conn != null) conn.rollback(); // Rollback on error
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
             return false;
         }
+        finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true); // Reset auto-commit
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            closeResources(conn, stmt2, null);
+            try {
+                if (stmt1 != null) stmt1.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
-    public boolean deleteHD(String IDHD){
-        MyConnection DBconnect = new MyConnection();
+    
+    // Fixed the delete method with proper transaction handling
+    public boolean deleteHD(String idHoaDon){
+        Connection conn = null;
+        PreparedStatement stmt1 = null;
+        PreparedStatement stmt2 = null;
+        
         try{
-            Connection conn = DBconnect.DBConnect();
-            String query = "Delete from ChiTietHoaDon where HoaDonId = ?"
-                         + "Delete from HoaDon where ID = ? ";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, IDHD);
-            stmt.setString(2, IDHD);
-            return stmt.executeUpdate() >= 0;
+            conn = getConnection();
+            conn.setAutoCommit(false); // Start transaction
+            
+            // Delete ChiTietHoaDon first (foreign key constraint)
+            String query1 = "DELETE FROM ChiTietHoaDon WHERE HoaDonID = ?";
+            stmt1 = conn.prepareStatement(query1);
+            stmt1.setString(1, idHoaDon);
+            stmt1.executeUpdate();
+            
+            // Delete HoaDon
+            String query2 = "DELETE FROM HoaDon WHERE ID = ?";
+            stmt2 = conn.prepareStatement(query2);
+            stmt2.setString(1, idHoaDon);
+            int result = stmt2.executeUpdate();
+            
+            conn.commit(); // Commit transaction
+            return result > 0;
         }
         catch(ClassNotFoundException | SQLException e){
+            try {
+                if (conn != null) conn.rollback(); // Rollback on error
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
             return false;
         }
+        finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true); // Reset auto-commit
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            closeResources(conn, stmt2, null);
+            try {
+                if (stmt1 != null) stmt1.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    // Utility method to calculate total for an invoice
+    public double calculateInvoiceTotal(String idHoaDon) {
+        try {
+            Connection conn = getConnection();
+            String sql = "SELECT SUM(SoSanPhamThanhToan * GiaBanMoiSanPham) as Total " +
+                        "FROM ChiTietHoaDon WHERE HoaDonID = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, idHoaDon);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                double total = rs.getDouble("Total");
+                closeResources(conn, stmt, rs);
+                return total;
+            }
+            closeResources(conn, stmt, rs);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+    
+    // Backward compatibility methods - delegate to new method names
+    @Deprecated
+    public boolean updateCTHD(double thanhTien, String ID) {
+        return updateHoaDonTotal(thanhTien, ID);
     }
 }

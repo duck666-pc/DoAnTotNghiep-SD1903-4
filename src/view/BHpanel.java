@@ -6,7 +6,6 @@ package view;
 
 import Model.HoaDon;
 import controller.BHDAO1;
-import java.awt.HeadlessException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,8 +14,9 @@ import javax.swing.table.DefaultTableModel;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import java.io.FileNotFoundException;
-
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  *
@@ -24,86 +24,274 @@ import java.io.FileOutputStream;
  */
 public final class BHpanel extends javax.swing.JPanel {
 
-    public BHDAO1 BHdao = new BHDAO1();
-    DefaultTableModel modelhd = new DefaultTableModel();
-    DefaultTableModel modelcthd = new DefaultTableModel();
-    DefaultTableModel modelsp = new DefaultTableModel();
-    int currentRowHD = -1;
-    int currentRowSP = -1;
-    int currentRowCTHD = -1;
-    ArrayList<HoaDon> hdList = new ArrayList<>();
-    
+    private final BHDAO1 BHdao;
+    private final DefaultTableModel modelhd;
+    private final DefaultTableModel modelcthd;
+    private final DefaultTableModel modelsp;
+    private int currentRowHD = -1;
+    private int currentRowSP = -1;
+    private int currentRowCTHD = -1;
+    private final ArrayList<HoaDon> hdList;
+
     /**
      * Creates new form BHpanel
      */
     public BHpanel() {
+        this.BHdao = new BHDAO1();
+        this.hdList = new ArrayList<>();
+
         initComponents();
-        modelhd = (DefaultTableModel) tblhd.getModel();
-        modelcthd = (DefaultTableModel) tblcthd.getModel();
-        modelsp = (DefaultTableModel) tblsp.getModel();
+
+        this.modelhd = (DefaultTableModel) tblhd.getModel();
+        this.modelcthd = (DefaultTableModel) tblcthd.getModel();
+        this.modelsp = (DefaultTableModel) tblsp.getModel();
+
         displayHD();
         displaySP();
     }
 
+    /**
+     * Displays all invoices in the table
+     */
     public void displayHD() {
         modelhd.setRowCount(0);
-        hdList.removeAll(hdList);
-        try {
-            ResultSet rs = BHdao.getHD();
-            while (rs.next()) {
-                HoaDon hd = new HoaDon(rs.getString(1), rs.getTimestamp(2), rs.getString(3), rs.getString(4), rs.getBigDecimal(5), rs.getBigDecimal(6), rs.getBigDecimal(7));
-                modelhd.addRow(new Object[]{
-                    rs.getString(1),
-                    rs.getTimestamp(2),
-                    rs.getString(3),
-                    rs.getString(4)
-                });
-                hdList.add(hd);
+        hdList.clear();
+
+        try (ResultSet rs = BHdao.getHD()) {
+            if (rs != null) {
+                while (rs.next()) {
+                    HoaDon hd = new HoaDon(
+                            rs.getString(1),
+                            rs.getTimestamp(2),
+                            rs.getString(3),
+                            rs.getString(4),
+                            rs.getBigDecimal(5),
+                            rs.getBigDecimal(6),
+                            rs.getBigDecimal(7)
+                    );
+
+                    modelhd.addRow(new Object[]{
+                        rs.getString(1),
+                        rs.getTimestamp(2),
+                        rs.getString(3),
+                        rs.getString(4)
+                    });
+
+                    hdList.add(hd);
+                }
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Có lỗi trong lúc tải", "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            showErrorMessage("Có lỗi trong lúc tải danh sách hóa đơn: " + e.getMessage());
         }
     }
 
+    /**
+     * Displays all products in the table
+     */
     public void displaySP() {
         modelsp.setRowCount(0);
-        try {
-            ResultSet rs = BHdao.getSP();
-            while (rs.next()) {
-                modelsp.addRow(new Object[]{
-                    rs.getString(1),
-                    rs.getString(2),
-                    rs.getDouble(3)
-                });
+
+        try (ResultSet rs = BHdao.getSP()) {
+            if (rs != null) {
+                while (rs.next()) {
+                    modelsp.addRow(new Object[]{
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getDouble(3)
+                    });
+                }
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Có lỗi trong lúc tải", "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            showErrorMessage("Có lỗi trong lúc tải danh sách sản phẩm: " + e.getMessage());
         }
     }
 
+    /**
+     * Displays invoice details for a specific invoice
+     *
+     * @param ID Invoice ID
+     */
     public void displayCTHD(String ID) {
+        if (ID == null || ID.trim().isEmpty()) {
+            return;
+        }
+
         modelcthd.setRowCount(0);
-        int tongtien = 0;
-        try {
-            ResultSet rs = BHdao.getCTHD(ID);
-            while (rs.next()) {
-                modelcthd.addRow(new Object[]{
-                    rs.getString(1),
-                    rs.getString(2),
-                    rs.getDouble(3),
-                    rs.getDouble(4),
-                    rs.getDouble(5)
-                });
-                tongtien += (rs.getDouble(3) * rs.getDouble(4));
+        BigDecimal tongtien = BigDecimal.ZERO;
+
+        try (ResultSet rs = BHdao.getCTHD(ID)) {
+            if (rs != null) {
+                while (rs.next()) {
+                    double soLuong = rs.getDouble(3);
+                    double donGia = rs.getDouble(4);
+                    double thanhTien = soLuong * donGia;
+
+                    modelcthd.addRow(new Object[]{
+                        rs.getString(1),
+                        rs.getString(2),
+                        soLuong,
+                        donGia,
+                        thanhTien
+                    });
+
+                    tongtien = tongtien.add(BigDecimal.valueOf(thanhTien));
+                }
             }
-            txtTongtien.setText(String.valueOf(tongtien));
+
+            txtTongtien.setText(tongtien.setScale(2, RoundingMode.HALF_UP).toString());
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Có lỗi trong lúc tải", "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            showErrorMessage("Có lỗi trong lúc tải chi tiết hóa đơn: " + e.getMessage());
         }
     }
+
+    /**
+     * Validates input fields for invoice creation/update
+     *
+     * @return true if all fields are valid
+     */
+    private boolean validateInvoiceFields() {
+        String id = txtidhd.getText().trim();
+        String tgian = txttgian.getText().trim();
+        String idkh = txtidkh.getText().trim();
+        String idnv = txtidnv.getText().trim();
+        String mgg = txtmgg.getText().trim();
+
+        if (id.isEmpty()) {
+            showErrorMessage("ID hóa đơn không được để trống");
+            txtidhd.requestFocus();
+            return false;
+        }
+
+        if (tgian.isEmpty()) {
+            showErrorMessage("Thời gian không được để trống");
+            txttgian.requestFocus();
+            return false;
+        }
+
+        if (idkh.isEmpty()) {
+            showErrorMessage("ID khách hàng không được để trống");
+            txtidkh.requestFocus();
+            return false;
+        }
+
+        if (idnv.isEmpty()) {
+            showErrorMessage("ID nhân viên không được để trống");
+            txtidnv.requestFocus();
+            return false;
+        }
+
+        if (mgg.isEmpty()) {
+            showErrorMessage("Mã giảm giá không được để trống");
+            txtmgg.requestFocus();
+            return false;
+        }
+
+        // Validate discount amount is numeric
+        try {
+            Double.valueOf(mgg);
+        } catch (NumberFormatException e) {
+            showErrorMessage("Mã giảm giá phải là số");
+            txtmgg.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates input fields for invoice detail creation/update
+     *
+     * @return true if all fields are valid
+     */
+    private boolean validateInvoiceDetailFields() {
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn trước");
+            return false;
+        }
+
+        if (currentRowSP == -1) {
+            showErrorMessage("Vui lòng chọn sản phẩm");
+            return false;
+        }
+
+        String idcthd = txtidcthd.getText().trim();
+        String sl = txtsl.getText().trim();
+
+        if (idcthd.isEmpty()) {
+            showErrorMessage("ID chi tiết hóa đơn không được để trống");
+            txtidcthd.requestFocus();
+            return false;
+        }
+
+        if (sl.isEmpty()) {
+            showErrorMessage("Số lượng không được để trống");
+            txtsl.requestFocus();
+            return false;
+        }
+
+        try {
+            int quantity = Integer.parseInt(sl);
+            if (quantity <= 0) {
+                showErrorMessage("Số lượng phải lớn hơn 0");
+                txtsl.requestFocus();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Số lượng phải là số nguyên dương");
+            txtsl.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Shows error message dialog
+     *
+     * @param message Error message to display
+     */
+    private void showErrorMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Shows success message dialog
+     *
+     * @param message Success message to display
+     */
+    private void showSuccessMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Clears all input fields
+     */
+    private void clearFields() {
+        txtidhd.setText("");
+        txttgian.setText("");
+        txtidkh.setText("");
+        txtidnv.setText("");
+        txtmgg.setText("");
+        txtidcthd.setText("");
+        txtsl.setText("");
+        txtTongtien.setText("");
+    }
+
+    /**
+     * Updates the total amount for the current invoice
+     */
+    private void updateInvoiceTotal() {
+        if (currentRowHD >= 0) {
+            String idHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+            double calculatedTotal = BHdao.calculateInvoiceTotal(idHD);
+            boolean success = BHdao.updateHoaDonTotal(calculatedTotal, idHD);
+
+            if (success) {
+                displayHD(); // Refresh the invoice list to show updated totals
+            }
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -483,16 +671,27 @@ public final class BHpanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblcthdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblcthdMouseClicked
-        currentRowCTHD = tblcthd.getSelectedRow();
-        String idct = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 0));
-        double sl = Double.parseDouble(String.valueOf(tblcthd.getValueAt(currentRowCTHD, 2)));
-        String idsp = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 1));
-        txtidcthd.setText(idct);
-        txtsl.setText(String.valueOf(sl));
-        for (int i = 0; i < tblsp.getRowCount(); i++) {
-            if (String.valueOf(tblsp.getValueAt(i, 0)).equals(idsp)) {
-                tblsp.setRowSelectionInterval(i, i);
+        try {
+            currentRowCTHD = tblcthd.getSelectedRow();
+            if (currentRowCTHD >= 0) {
+                String idct = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 0));
+                double sl = Double.parseDouble(String.valueOf(tblcthd.getValueAt(currentRowCTHD, 2)));
+                String idsp = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 1));
+
+                txtidcthd.setText(idct);
+                txtsl.setText(String.valueOf((int) sl));
+
+                // Find and select the corresponding product in the product table
+                for (int i = 0; i < tblsp.getRowCount(); i++) {
+                    if (String.valueOf(tblsp.getValueAt(i, 0)).equals(idsp)) {
+                        tblsp.setRowSelectionInterval(i, i);
+                        currentRowSP = i;
+                        break;
+                    }
+                }
             }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Lỗi khi đọc dữ liệu từ bảng chi tiết hóa đơn");
         }
     }//GEN-LAST:event_tblcthdMouseClicked
 
@@ -501,225 +700,372 @@ public final class BHpanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtidhdActionPerformed
 
     private void btntaoHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntaoHDActionPerformed
-        try{
-            String ID = txtidhd.getText();
-            String tgian = txttgian.getText();
-            String IDKH = txtidkh.getText();
-            String IDND = txtidnv.getText();
-            double tongTien = 0;
-            double magiamgia = Double.parseDouble(txtmgg.getText());
-            double Tongtiensaugiamgia = 0;
-            if(ID.isEmpty() || tgian.isEmpty() || IDKH.isEmpty() || IDND.isEmpty()){
-                JOptionPane.showMessageDialog(this, "Có lỗi trg lúc thêm");
-            }
-            else{
-                boolean rs = BHdao.addHD(ID, tgian, IDKH, IDND, tongTien, magiamgia, Tongtiensaugiamgia);
-                if(rs){
-                    displayHD();
-                    modelcthd.setRowCount(0);
-                    JOptionPane.showMessageDialog(this, "Thêm thành công");
-                }
-            }
+        if (!validateInvoiceFields()) {
+            return;
         }
-        catch(HeadlessException | NumberFormatException e){
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Thêm thất bại");
+
+        try {
+            String ID = txtidhd.getText().trim();
+            String tgian = txttgian.getText().trim();
+            String IDKH = txtidkh.getText().trim();
+            String IDND = txtidnv.getText().trim();
+            double magiamgia = Double.parseDouble(txtmgg.getText().trim());
+
+            boolean success = BHdao.addHD(ID, tgian, IDKH, IDND, 0.0, magiamgia, 0.0);
+
+            if (success) {
+                displayHD();
+                modelcthd.setRowCount(0);
+                clearFields();
+                showSuccessMessage("Tạo hóa đơn thành công");
+            } else {
+                showErrorMessage("Tạo hóa đơn thất bại. Có thể ID đã tồn tại.");
+            }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Mã giảm giá phải là số hợp lệ");
+        } catch (Exception e) {
+            showErrorMessage("Tạo hóa đơn thất bại: " + e.getMessage());
         }
     }//GEN-LAST:event_btntaoHDActionPerformed
 
     private void btnthaydoiHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnthaydoiHDActionPerformed
-        currentRowHD = tblhd.getSelectedRow();
-        try{
-            String ID = txtidhd.getText();
-            String tgian = txttgian.getText();
-            String IDKH = txtidkh.getText();
-            String IDND = txtidnv.getText();
-            double tongTien = 0;
-            double magiamgia = Double.parseDouble(txtmgg.getText());
-            double Tongtiensaugiamgia = 0;
-            String IDcheck = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-            if(ID.isEmpty() || tgian.isEmpty() || IDKH.isEmpty() || IDND.isEmpty() || IDcheck.isEmpty()){
-                JOptionPane.showMessageDialog(this, "Có lỗi trg lúc thay");
-            }
-            else{
-                boolean rs = BHdao.updateHD(ID, tgian, IDKH, IDND, tongTien, magiamgia, Tongtiensaugiamgia, IDcheck);
-                System.out.println(rs);
-                if(rs){
-                    displayHD();
-                    modelcthd.setRowCount(0);
-                    JOptionPane.showMessageDialog(this, "Thay thành công");
-                }
-            }
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn cần sửa");
+            return;
         }
-        catch(HeadlessException | NumberFormatException e){
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Thêm thất bại");
+
+        if (!validateInvoiceFields()) {
+            return;
+        }
+
+        try {
+            String ID = txtidhd.getText().trim();
+            String tgian = txttgian.getText().trim();
+            String IDKH = txtidkh.getText().trim();
+            String IDND = txtidnv.getText().trim();
+            double magiamgia = Double.parseDouble(txtmgg.getText().trim());
+            String IDcheck = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+
+            // Get current totals from the HoaDon object
+            HoaDon currentHD = hdList.get(currentRowHD);
+            double tongTien = currentHD.getTongTienGoc().doubleValue();
+            double tongTienSauGiamGia = tongTien - magiamgia;
+
+            boolean success = BHdao.updateHD(ID, tgian, IDKH, IDND, tongTien, magiamgia, tongTienSauGiamGia, IDcheck);
+
+            if (success) {
+                displayHD();
+                modelcthd.setRowCount(0);
+                clearFields();
+                showSuccessMessage("Sửa hóa đơn thành công");
+            } else {
+                showErrorMessage("Sửa hóa đơn thất bại");
+            }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Mã giảm giá phải là số hợp lệ");
+        } catch (Exception e) {
+            showErrorMessage("Sửa hóa đơn thất bại: " + e.getMessage());
         }
     }//GEN-LAST:event_btnthaydoiHDActionPerformed
 
     private void tblhdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhdMouseClicked
-        currentRowHD = tblhd.getSelectedRow();
-        String ID = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-        String tgian = String.valueOf(tblhd.getValueAt(currentRowHD, 1));
-        String IDKH = String.valueOf(tblhd.getValueAt(currentRowHD, 2));
-        String IDND = String.valueOf(tblhd.getValueAt(currentRowHD, 3));
-        String magiamgia = String.valueOf(hdList.get(currentRowHD).getMucGiamGia());
-        txtidhd.setText(ID);
-        txttgian.setText(tgian);
-        txtidkh.setText(IDKH);
-        txtidnv.setText(IDND);
-        txtmgg.setText(magiamgia);
-        displayCTHD(ID);
+        try {
+            currentRowHD = tblhd.getSelectedRow();
+            if (currentRowHD >= 0 && currentRowHD < hdList.size()) {
+                String ID = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+                String tgian = String.valueOf(tblhd.getValueAt(currentRowHD, 1));
+                String IDKH = String.valueOf(tblhd.getValueAt(currentRowHD, 2));
+                String IDND = String.valueOf(tblhd.getValueAt(currentRowHD, 3));
+                String magiamgia = String.valueOf(hdList.get(currentRowHD).getMucGiamGia());
+
+                txtidhd.setText(ID);
+                txttgian.setText(tgian);
+                txtidkh.setText(IDKH);
+                txtidnv.setText(IDND);
+                txtmgg.setText(magiamgia);
+
+                displayCTHD(ID);
+            }
+        } catch (Exception e) {
+            showErrorMessage("Lỗi khi hiển thị thông tin hóa đơn: " + e.getMessage());
+        }
     }//GEN-LAST:event_tblhdMouseClicked
 
     private void btnxoaHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxoaHDActionPerformed
-        try{
-            String ID = txtidhd.getText();
-            if(ID.isEmpty()){
-                JOptionPane.showMessageDialog(this, "Có lỗi trg lúc xóa");
-            }
-            else{
-                boolean rs = BHdao.deleteHD(ID);
-                if(rs){
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn cần xóa");
+            return;
+        }
+
+        String ID = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn xóa hóa đơn " + ID + "?",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                boolean success = BHdao.deleteHD(ID);
+
+                if (success) {
                     displayHD();
                     modelcthd.setRowCount(0);
-                    JOptionPane.showMessageDialog(this, "Xóa thành công");
+                    clearFields();
+                    currentRowHD = -1;
+                    showSuccessMessage("Xóa hóa đơn thành công");
+                } else {
+                    showErrorMessage("Xóa hóa đơn thất bại");
                 }
+            } catch (Exception e) {
+                showErrorMessage("Xóa hóa đơn thất bại: " + e.getMessage());
             }
-        }
-        catch(HeadlessException e){
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Xóa thất bại");
         }
     }//GEN-LAST:event_btnxoaHDActionPerformed
 
     private void btnthanhtoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnthanhtoanActionPerformed
+        currentRowCTHD = tblcthd.getSelectedRow();
+        currentRowSP = tblsp.getSelectedRow();
         currentRowHD = tblhd.getSelectedRow();
-        try{
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn cần thanh toán");
+            return;
+        }
+
+        if (tblcthd.getRowCount() == 0) {
+            showErrorMessage("Hóa đơn chưa có sản phẩm nào");
+            return;
+        }
+
+        try {
+            String fileName = "HoaDon_" + System.currentTimeMillis() + ".pdf";
             Document doc = new Document();
-            PdfWriter.getInstance(doc, new FileOutputStream("HoaDon.pdf"));
+            PdfWriter.getInstance(doc, new FileOutputStream(fileName));
             doc.open();
 
-            doc.add(new Paragraph("Hóa Đơn Của : " + tblhd.getValueAt(currentRowHD, 2) + "\n"));
-            doc.add(new Paragraph("Thời Gian : " + tblhd.getValueAt(currentRowHD, 1) + "\n"));
+            // Create fonts that support Vietnamese characters - using UTF-8 encoding
+            BaseFont baseFont;
+            Font titleFont;
+            Font normalFont;
+            Font headerFont;
 
+            try {
+                // Try to create font with UTF-8 encoding first
+                baseFont = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.EMBEDDED);
+                titleFont = new Font(baseFont, 18, Font.BOLD);
+                normalFont = new Font(baseFont, 12, Font.NORMAL);
+                headerFont = new Font(baseFont, 12, Font.BOLD);
+            } catch (Exception fontException) {
+                // Fallback to default fonts if UTF-8 fails
+                System.out.println("UTF-8 encoding failed, using default fonts: " + fontException.getMessage());
+                titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
+                normalFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL);
+                headerFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
+            }
+
+            // Add invoice header
+            Paragraph title = new Paragraph("HOA DON BAN HANG", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            doc.add(title);
+            doc.add(new Paragraph("\n"));
+
+            // Add invoice information
+            doc.add(new Paragraph("Khach hang: " + tblhd.getValueAt(currentRowHD, 2), normalFont));
+            doc.add(new Paragraph("Thoi gian: " + tblhd.getValueAt(currentRowHD, 1), normalFont));
+            doc.add(new Paragraph("Nhan vien: " + tblhd.getValueAt(currentRowHD, 3), normalFont));
+            doc.add(new Paragraph("\n"));
+
+            // Create table for invoice details
             PdfPTable table = new PdfPTable(4);
-            table.addCell("Sản Phẩm");
-            table.addCell("Số Lượng");
-            table.addCell("Giá");
-            table.addCell("Thành Tiền");
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{3, 1, 2, 2});
 
-            for(int i = 0; i < tblcthd.getRowCount();i++){
-                table.addCell(tblcthd.getValueAt(i, 1).toString());
-                table.addCell(tblcthd.getValueAt(i, 2).toString());
-                table.addCell(tblcthd.getValueAt(i, 3).toString());
-                table.addCell(tblcthd.getValueAt(i, 4).toString());
+            // Add table headers
+            PdfPCell cell1 = new PdfPCell(new Phrase("San pham", headerFont));
+            PdfPCell cell2 = new PdfPCell(new Phrase("So luong", headerFont));
+            PdfPCell cell3 = new PdfPCell(new Phrase("Don gia", headerFont));
+            PdfPCell cell4 = new PdfPCell(new Phrase("Thanh tien", headerFont));
+
+            cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell4.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+            table.addCell(cell1);
+            table.addCell(cell2);
+            table.addCell(cell3);
+            table.addCell(cell4);
+
+            // Add table data
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            for (int i = 0; i < tblcthd.getRowCount(); i++) {
+                PdfPCell cellData1 = new PdfPCell(new Phrase(tblcthd.getValueAt(i, 1).toString(), normalFont));
+                PdfPCell cellData2 = new PdfPCell(new Phrase(tblcthd.getValueAt(i, 2).toString(), normalFont));
+                PdfPCell cellData3 = new PdfPCell(new Phrase(String.format("%,.0f", Double.valueOf(tblcthd.getValueAt(i, 3).toString())), normalFont));
+
+                double thanhTien = Double.parseDouble(tblcthd.getValueAt(i, 4).toString());
+                PdfPCell cellData4 = new PdfPCell(new Phrase(String.format("%,.0f", thanhTien), normalFont));
+
+                cellData2.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellData3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                cellData4.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+                table.addCell(cellData1);
+                table.addCell(cellData2);
+                table.addCell(cellData3);
+                table.addCell(cellData4);
+
+                totalAmount = totalAmount.add(BigDecimal.valueOf(thanhTien));
             }
 
             doc.add(table);
+            doc.add(new Paragraph("\n"));
+
+            // Add total
+            HoaDon currentInvoice = hdList.get(currentRowHD);
+            doc.add(new Paragraph("Tong tien goc: " + String.format("%,.0f VND", totalAmount.doubleValue()), normalFont));
+            doc.add(new Paragraph("Giam gia: " + String.format("%,.0f VND", currentInvoice.getMucGiamGia().doubleValue()), normalFont));
+            doc.add(new Paragraph("Tong tien sau giam gia: " + String.format("%,.0f VND",
+                    totalAmount.subtract(currentInvoice.getMucGiamGia()).doubleValue()), normalFont));
+
             doc.close();
-            JOptionPane.showMessageDialog(this, "Thanh Toán thành công");
-        }
-        catch(DocumentException | FileNotFoundException e){
+            showSuccessMessage("Thanh toan thanh cong! File PDF da duoc tao: " + fileName);
+
+        } catch (DocumentException | FileNotFoundException e) {
+            showErrorMessage("Tao hoa don PDF that bai: " + e.getMessage());
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Thanh Toán thất bại");
+        } catch (Exception e) {
+            showErrorMessage("Thanh toan that bai: " + e.getMessage());
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnthanhtoanActionPerformed
 
     private void btnaddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnaddActionPerformed
-        currentRowSP = tblsp.getSelectedRow();
-        currentRowHD = tblhd.getSelectedRow();
-        if (currentRowHD != -1 && currentRowSP != -1) {
-            try {
-                String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-                String IDSP = String.valueOf(tblsp.getValueAt(currentRowSP, 0));
-                System.out.println(IDSP);
-                String IdCtHd = String.valueOf(txtidcthd.getText());
-                int soluong = Integer.parseInt(txtsl.getText());
-                double GiaBan = Double.parseDouble(String.valueOf(tblsp.getValueAt(currentRowSP, 2)));
-                if (IdCtHd.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Ko có Id Hóa Đơn", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    boolean result = BHdao.addCTHD(IdCtHd, soluong, IDHD, IDSP, GiaBan);
-                    if (result) {
-                        displayCTHD(IDHD);
-                        double thanhtien = 0;
-                        for (int i = 0; i < tblcthd.getRowCount(); i++) {
-                            thanhtien += Double.parseDouble((String.valueOf(tblcthd.getValueAt(i, 4))));
-                        }
-                        boolean result1 = BHdao.updateCTHD(thanhtien, IDHD);
-                        if (result1) {
-                            JOptionPane.showMessageDialog(this, "Thêm thành công");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Thêm thất bại");
-                    }
-                }
-            } catch (HeadlessException | NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tải về", "Error", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-            }
+        if (!validateInvoiceDetailFields()) {
+            return;
         }
+
+        try {
+            String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+            String IDSP = String.valueOf(tblsp.getValueAt(currentRowSP, 0));
+            String IdCtHd = txtidcthd.getText().trim();
+            int soluong = Integer.parseInt(txtsl.getText().trim());
+            double GiaBan = Double.parseDouble(String.valueOf(tblsp.getValueAt(currentRowSP, 2)));
+
+            boolean success = BHdao.addCTHD(IdCtHd, soluong, IDHD, IDSP, GiaBan);
+
+            if (success) {
+                displayCTHD(IDHD);
+                updateInvoiceTotal();
+
+                // Clear detail fields
+                txtidcthd.setText("");
+                txtsl.setText("");
+
+                showSuccessMessage("Thêm sản phẩm vào hóa đơn thành công");
+            } else {
+                showErrorMessage("Thêm sản phẩm thất bại. Có thể ID chi tiết đã tồn tại.");
+            }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Số lượng phải là số nguyên hợp lệ");
+        } catch (Exception e) {
+            showErrorMessage("Thêm sản phẩm thất bại: " + e.getMessage());
+        }
+
     }//GEN-LAST:event_btnaddActionPerformed
 
     private void btndeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndeleteActionPerformed
-        currentRowHD = tblhd.getSelectedRow();
         currentRowCTHD = tblcthd.getSelectedRow();
+        currentRowSP = tblsp.getSelectedRow();
+        currentRowHD = tblhd.getSelectedRow();
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn");
+            return;
+        }
+
+        if (currentRowCTHD == -1) {
+            showErrorMessage("Vui lòng chọn sản phẩm cần xóa");
+            return;
+        }
+
         try {
-            if (currentRowCTHD != -1) {
-                String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-                String ID = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 1));
-                boolean result = BHdao.deleteCTHD(IDHD, ID);
-                if (result) {
+            String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+            String ID = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 1));
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn xóa sản phẩm này khỏi hóa đơn?",
+                    "Xác nhận xóa",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = BHdao.deleteCTHD(IDHD, ID);
+
+                if (success) {
                     displayCTHD(IDHD);
-                    double thanhtien = 0;
-                    for (int i = 0; i < tblcthd.getRowCount(); i++) {
-                        thanhtien += Double.parseDouble((String.valueOf(tblcthd.getValueAt(i, 4))));
-                    }
-                    boolean result1 = BHdao.updateCTHD(thanhtien, IDHD);
-                    if (result1) {
-                        JOptionPane.showMessageDialog(this, "Xóa thành công");
-                    }
+                    updateInvoiceTotal();
+
+                    // Clear detail fields
+                    txtidcthd.setText("");
+                    txtsl.setText("");
+                    currentRowCTHD = -1;
+
+                    showSuccessMessage("Xóa sản phẩm khỏi hóa đơn thành công");
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thật bại");
+                    showErrorMessage("Xóa sản phẩm thất bại");
                 }
             }
-        } catch (HeadlessException e) {
-            JOptionPane.showMessageDialog(this, "Có lỗi trong lúc xóa");
-            e.printStackTrace();
+        } catch (Exception e) {
+            showErrorMessage("Xóa sản phẩm thất bại: " + e.getMessage());
         }
+
     }//GEN-LAST:event_btndeleteActionPerformed
 
     private void btnupdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnupdateActionPerformed
-        currentRowSP = tblsp.getSelectedRow();
         currentRowCTHD = tblcthd.getSelectedRow();
+        currentRowSP = tblsp.getSelectedRow();
         currentRowHD = tblhd.getSelectedRow();
-        try {
-            if (currentRowCTHD != -1) {
-                String ID = txtidcthd.getText();
-                int sl = Integer.parseInt(txtsl.getText());
-                String idsp = String.valueOf(tblsp.getValueAt(currentRowSP, 0));
-                double gia = Double.parseDouble(String.valueOf(tblsp.getValueAt(currentRowSP, 2)));
-                String IDCTHD = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 0));
-                String IDHD = String.valueOf((tblhd.getValueAt(currentRowHD, 0)));
-                boolean result = BHdao.updateCTHD1(ID, sl, idsp, gia, IDCTHD);
-                if (result) {
-                    displayCTHD(IDHD);
-                    double thanhtien = 0;
-                    for (int i = 0; i < tblcthd.getRowCount(); i++) {
-                        thanhtien += Double.parseDouble((String.valueOf(tblcthd.getValueAt(i, 4))));
-                    }
-                    boolean result1 = BHdao.updateCTHD(thanhtien, IDHD);
-                    if (result1) {
-                        JOptionPane.showMessageDialog(this, "Thêm thành công");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Thêm thất bại");
-                }
-            }
-        } catch (HeadlessException | NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Thêm thất bại");
+        if (currentRowCTHD == -1) {
+            showErrorMessage("Vui lòng chọn chi tiết hóa đơn cần sửa");
+            return;
         }
+
+        if (!validateInvoiceDetailFields()) {
+            return;
+        }
+
+        try {
+            String ID = txtidcthd.getText().trim();
+            int sl = Integer.parseInt(txtsl.getText().trim());
+            String idsp = String.valueOf(tblsp.getValueAt(currentRowSP, 0));
+            double gia = Double.parseDouble(String.valueOf(tblsp.getValueAt(currentRowSP, 2)));
+            String IDCTHD = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 0));
+            String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+
+            System.out.println(idsp + " " + gia);
+            boolean success = BHdao.updateCTHD1(ID, sl, idsp, gia, IDCTHD);
+
+            if (success) {
+                displayCTHD(IDHD);
+                updateInvoiceTotal();
+
+                // Clear detail fields
+                txtidcthd.setText("");
+                txtsl.setText("");
+
+                showSuccessMessage("Cập nhật chi tiết hóa đơn thành công");
+            } else {
+                showErrorMessage("Cập nhật chi tiết hóa đơn thất bại");
+            }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Số lượng phải là số nguyên hợp lệ");
+        } catch (Exception e) {
+            showErrorMessage("Cập nhật chi tiết hóa đơn thất bại: " + e.getMessage());
+        }
+
     }//GEN-LAST:event_btnupdateActionPerformed
 
 

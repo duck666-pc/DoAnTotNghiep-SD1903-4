@@ -5,7 +5,6 @@ import java.util.List;
 import model.SanPham;
 
 public final class QLSPPanel extends BasePanel<SanPham> {
-
     private final QLSPDAO qlsp = new QLSPDAO();
 
     public QLSPPanel() {
@@ -25,7 +24,7 @@ public final class QLSPPanel extends BasePanel<SanPham> {
 
     @Override
     protected void setFormFromRow(int row) {
-        txtID.setText(getValue(row, 0));
+        // Chỉ hiển thị các trường thông tin, không hiển thị ID
         txtTen.setText(getValue(row, 1));
         txtMoTa.setText(getValue(row, 2));
         txtGia.setText(getValue(row, 3));
@@ -34,8 +33,7 @@ public final class QLSPPanel extends BasePanel<SanPham> {
 
     @Override
     protected boolean validateForm() {
-        if (txtID.getText().trim().isEmpty()
-                || txtTen.getText().trim().isEmpty()
+        if (txtTen.getText().trim().isEmpty()
                 || txtGia.getText().trim().isEmpty()
                 || jcbLoaiSanPham.getSelectedItem() == null) {
             showMessage("Vui lòng nhập đầy đủ thông tin!");
@@ -57,7 +55,7 @@ public final class QLSPPanel extends BasePanel<SanPham> {
     @Override
     protected SanPham getEntityFromForm() {
         SanPham sp = new SanPham();
-        sp.setId(txtID.getText().trim());
+        // ID sẽ được tự động sinh khi thêm mới, không cần nhập
         sp.setTen(txtTen.getText().trim());
         sp.setMoTa(txtMoTa.getText().trim());
         sp.setGia(Float.parseFloat(txtGia.getText().trim()));
@@ -67,7 +65,6 @@ public final class QLSPPanel extends BasePanel<SanPham> {
 
     @Override
     protected void clearForm() {
-        txtID.setText("");
         txtTen.setText("");
         txtMoTa.setText("");
         txtGia.setText("");
@@ -83,6 +80,11 @@ public final class QLSPPanel extends BasePanel<SanPham> {
     @Override
     protected String getEntityId(SanPham entity) {
         return entity.getId();
+    }
+
+    @Override
+    protected String getEntityName(SanPham entity) {
+        return entity.getTen();
     }
 
     @Override
@@ -104,16 +106,31 @@ public final class QLSPPanel extends BasePanel<SanPham> {
     protected int updateEntity(SanPham entity, String oldId) throws Exception {
         return qlsp.edit(entity, oldId);
     }
+
+    @Override
+    protected String getIdPrefix() {
+        return "SP";
+    }
+
+    @Override
+    protected void setEntityId(SanPham entity, String id) {
+        entity.setId(id);
+    }
+
+    @Override
+    protected void updateEntityId(SanPham entity, String newId) throws Exception {
+        String oldId = entity.getId();
+        entity.setId(newId);
+        qlsp.edit(entity, oldId);
+    }
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         txtTen = new javax.swing.JTextField();
-        txtID = new javax.swing.JTextField();
         txtMoTa = new javax.swing.JTextField();
         txtGia = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -127,50 +144,32 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         jcbLoaiSanPham = new javax.swing.JComboBox<>();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setText("ID:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(72, 19, -1, -1));
 
         jLabel2.setText("Tên:");
-        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(63, 60, -1, -1));
 
         jLabel3.setText("Loại sản phẩm:");
-        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 180, -1, -1));
 
         jLabel5.setText("Giá:");
-        add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(66, 140, -1, -1));
 
         jLabel6.setText("Mô tả:");
-        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 100, -1, -1));
 
         txtTen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTenActionPerformed(evt);
             }
         });
-        add(txtTen, new org.netbeans.lib.awtextra.AbsoluteConstraints(104, 57, 150, -1));
-
-        txtID.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDActionPerformed(evt);
-            }
-        });
-        add(txtID, new org.netbeans.lib.awtextra.AbsoluteConstraints(104, 16, 150, -1));
 
         txtMoTa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtMoTaActionPerformed(evt);
             }
         });
-        add(txtMoTa, new org.netbeans.lib.awtextra.AbsoluteConstraints(104, 97, 150, -1));
 
         txtGia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtGiaActionPerformed(evt);
             }
         });
-        add(txtGia, new org.netbeans.lib.awtextra.AbsoluteConstraints(104, 137, 150, -1));
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -185,8 +184,6 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         ));
         jScrollPane1.setViewportView(jTable);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 60, 580, 260));
-
         jbtThem.setBackground(new java.awt.Color(41, 62, 80));
         jbtThem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtThem.setForeground(new java.awt.Color(255, 255, 255));
@@ -196,7 +193,6 @@ public final class QLSPPanel extends BasePanel<SanPham> {
                 jbtThemActionPerformed(evt);
             }
         });
-        add(jbtThem, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 212, 248, -1));
 
         jbtSua.setBackground(new java.awt.Color(41, 62, 80));
         jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -207,7 +203,6 @@ public final class QLSPPanel extends BasePanel<SanPham> {
                 jbtSuaActionPerformed(evt);
             }
         });
-        add(jbtSua, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 241, 248, -1));
 
         jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
         jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -218,25 +213,22 @@ public final class QLSPPanel extends BasePanel<SanPham> {
                 jbtXoaActionPerformed(evt);
             }
         });
-        add(jbtXoa, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 270, 248, -1));
 
         txtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTimKiemActionPerformed(evt);
             }
         });
-        add(txtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 20, 440, 20));
 
         jbtTimKiem.setBackground(new java.awt.Color(41, 62, 80));
         jbtTimKiem.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtTimKiem.setForeground(new java.awt.Color(255, 255, 255));
-        jbtTimKiem.setText("Tìm kiếm bằng ID");
+        jbtTimKiem.setText("Tìm kiếm ");
         jbtTimKiem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtTimKiemActionPerformed(evt);
             }
         });
-        add(jbtTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 20, 130, 20));
 
         jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
         jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -247,10 +239,93 @@ public final class QLSPPanel extends BasePanel<SanPham> {
                 jbtLamMoiActionPerformed(evt);
             }
         });
-        add(jbtLamMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 299, 248, -1));
 
         jcbLoaiSanPham.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "001-Đồ uống", "002-Đồ ăn", "003-Tráng miệng", "004-Kem", "005-Đồ ăn nhanh", "006-Salad", "007-Nước ép", "008-Bánh mì", "009-Mì xào", "010-Món chính", "Khác" }));
-        add(jcbLoaiSanPham, new org.netbeans.lib.awtextra.AbsoluteConstraints(104, 177, 150, -1));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtMoTa, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addComponent(jLabel5)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtGia, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(jcbLoaiSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jbtThem, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtSua, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtLamMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(16, 16, 16)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(jbtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel2))
+                            .addComponent(txtTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel6))
+                            .addComponent(txtMoTa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel5))
+                            .addComponent(txtGia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel3))
+                            .addComponent(jcbLoaiSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(13, 13, 13)
+                        .addComponent(jbtThem)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtSua)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtXoa)
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtLamMoi))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jbtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(txtTimKiem))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
@@ -298,7 +373,6 @@ public final class QLSPPanel extends BasePanel<SanPham> {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -312,7 +386,6 @@ public final class QLSPPanel extends BasePanel<SanPham> {
     private javax.swing.JButton jbtXoa;
     private javax.swing.JComboBox<String> jcbLoaiSanPham;
     private javax.swing.JTextField txtGia;
-    private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtMoTa;
     private javax.swing.JTextField txtTen;
     private javax.swing.JTextField txtTimKiem;

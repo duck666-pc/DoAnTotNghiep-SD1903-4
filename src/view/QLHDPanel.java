@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -45,29 +47,65 @@ public class QLHDPanel extends javax.swing.JPanel {
         });
 
         // Add document listeners for real-time filtering
-        addFilterListener(txtIDHoaDon);
-        addFilterListener(txtIDKhachHang);
-        addFilterListener(txtIDNguoiDung);
         addFilterListener(jcbMinTongTien);
         addFilterListener(jcbMaxTongTien);
         addFilterListener(jcbNamBatDau);
         addFilterListener(jcbNamKetThuc);
 
         // Add action listeners for combo boxes
-        jcbNgayBatDau.addActionListener(e -> filterAll());
-        jcbThangBatDau.addActionListener(e -> filterAll());
-        jcbNgayKetThuc.addActionListener(e -> filterAll());
-        jcbThangKetThuc.addActionListener(e -> filterAll());
+        jcbNgayBatDau.addActionListener(e -> {
+            try {
+                filterAll();
+            } catch (SQLException ex) {
+                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        jcbThangBatDau.addActionListener(e -> {
+            try {
+                filterAll();
+            } catch (SQLException ex) {
+                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        jcbNgayKetThuc.addActionListener(e -> {
+            try {
+                filterAll();
+            } catch (SQLException ex) {
+                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        jcbThangKetThuc.addActionListener(e -> {
+            try {
+                filterAll();
+            } catch (SQLException ex) {
+                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void addFilterListener(javax.swing.JTextField field) {
         field.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) { filterAll(); }
+            public void insertUpdate(DocumentEvent e) { try {
+                filterAll();
+                } catch (SQLException ex) {
+                    Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+}
             @Override
-            public void removeUpdate(DocumentEvent e) { filterAll(); }
+            public void removeUpdate(DocumentEvent e) { try {
+                filterAll();
+                } catch (SQLException ex) {
+                    Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+}
             @Override
-            public void changedUpdate(DocumentEvent e) { filterAll(); }
+            public void changedUpdate(DocumentEvent e) { try {
+                filterAll();
+                } catch (SQLException ex) {
+                    Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+}
         });
     }
 
@@ -108,63 +146,42 @@ public class QLHDPanel extends javax.swing.JPanel {
         }
     }
 
-    private void filterAll() {
+    private void filterAll() throws SQLException {
+        // Get time range
+        Timestamp fromTime = getTimestampFromDate(true);
+        Timestamp toTime = getTimestampFromDate(false);
+        // Get amount range
+        BigDecimal minTotal = null;
+        BigDecimal maxTotal = null;
         try {
-            // Get search criteria
-            String keyword = "";
-            if (!txtIDHoaDon.getText().trim().isEmpty()) {
-                keyword = txtIDHoaDon.getText().trim();
-            } else if (!txtIDKhachHang.getText().trim().isEmpty()) {
-                keyword = txtIDKhachHang.getText().trim();
-            } else if (!txtIDNguoiDung.getText().trim().isEmpty()) {
-                keyword = txtIDNguoiDung.getText().trim();
+            if (!jcbMinTongTien.getText().trim().isEmpty()) {
+                minTotal = new BigDecimal(jcbMinTongTien.getText().trim());
             }
-
-            // Get time range
-            Timestamp fromTime = getTimestampFromDate(true);
-            Timestamp toTime = getTimestampFromDate(false);
-
-            // Get amount range
-            BigDecimal minTotal = null;
-            BigDecimal maxTotal = null;
-            
-            try {
-                if (!jcbMinTongTien.getText().trim().isEmpty()) {
-                    minTotal = new BigDecimal(jcbMinTongTien.getText().trim());
-                }
-            } catch (NumberFormatException e) {
-                // Ignore invalid number
+        } catch (NumberFormatException e) {
+            // Ignore invalid number
+        }
+        try {
+            if (!jcbMaxTongTien.getText().trim().isEmpty()) {
+                maxTotal = new BigDecimal(jcbMaxTongTien.getText().trim());
             }
-            
-            try {
-                if (!jcbMaxTongTien.getText().trim().isEmpty()) {
-                    maxTotal = new BigDecimal(jcbMaxTongTien.getText().trim());
-                }
-            } catch (NumberFormatException e) {
-                // Ignore invalid number
-            }
-
-            // Perform search
-            List<HoaDon> searchResults = orderinfo.searchHoaDon(keyword, fromTime, toTime, minTotal, maxTotal);
-            
-            // Update table
-            DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
-            model.setRowCount(0);
-            
-            for (HoaDon hd : searchResults) {
-                model.addRow(new Object[]{
-                    hd.getId(),
-                    hd.getThoiGian(),
-                    hd.getIdKhachHang(),
-                    hd.getIdNguoiDung(),
-                    hd.getTongTienGoc(),
-                    hd.getMucGiamGia(),
-                    hd.getTongTienSauGiamGia()
-                });
-            }
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            // Ignore invalid number
+        }
+        // Perform search
+        List<HoaDon> searchResults = orderinfo.searchHoaDon(fromTime, toTime, minTotal, maxTotal);
+        // Update table
+        DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
+        model.setRowCount(0);
+        for (HoaDon hd : searchResults) {
+            model.addRow(new Object[]{
+                hd.getId(),
+                hd.getThoiGian(),
+                hd.getIdKhachHang(),
+                hd.getIdNguoiDung(),
+                hd.getTongTienGoc(),
+                hd.getMucGiamGia(),
+                hd.getTongTienSauGiamGia()
+            });
         }
     }
 
@@ -212,8 +229,6 @@ public class QLHDPanel extends javax.swing.JPanel {
         jTableCTHD = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableHD = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-        txtIDHoaDon = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jcbNgayBatDau = new javax.swing.JComboBox<>();
         jcbThangBatDau = new javax.swing.JComboBox<>();
@@ -222,11 +237,7 @@ public class QLHDPanel extends javax.swing.JPanel {
         jcbNgayKetThuc = new javax.swing.JComboBox<>();
         jcbThangKetThuc = new javax.swing.JComboBox<>();
         jcbNamKetThuc = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        txtIDKhachHang = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        txtIDNguoiDung = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jcbMaxTongTien = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
@@ -268,14 +279,6 @@ public class QLHDPanel extends javax.swing.JPanel {
             jTableHD.getColumnModel().getColumn(6).setHeaderValue("Tổng tiền");
         }
 
-        jLabel1.setText("ID Hóa Đơn:");
-
-        txtIDHoaDon.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDHoaDonActionPerformed(evt);
-            }
-        });
-
         jLabel6.setText("Từ");
 
         jcbNgayBatDau.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
@@ -310,23 +313,7 @@ public class QLHDPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel2.setText("ID Khách Hàng:");
-
-        txtIDKhachHang.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDKhachHangActionPerformed(evt);
-            }
-        });
-
         jLabel3.setText("Tổng tiền:");
-
-        jLabel4.setText("ID Người Dùng:");
-
-        txtIDNguoiDung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDNguoiDungActionPerformed(evt);
-            }
-        });
 
         jLabel5.setText("Thời gian:");
 
@@ -352,37 +339,17 @@ public class QLHDPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane2)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 609, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtIDHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtIDNguoiDung, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(25, 25, 25)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtIDKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(26, 26, 26)
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jcbMinTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jcbMaxTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbMinTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbMaxTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -400,19 +367,15 @@ public class QLHDPanel extends javax.swing.JPanel {
                         .addGap(6, 6, 6)
                         .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6)
-                        .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(11, Short.MAX_VALUE))
+                        .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 587, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtIDHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtIDKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addGap(15, 15, 15)
+                .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel6)
@@ -427,18 +390,16 @@ public class QLHDPanel extends javax.swing.JPanel {
                         .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtIDNguoiDung, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
                     .addComponent(jLabel8)
                     .addComponent(jcbMinTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9)
                     .addComponent(jLabel3)
                     .addComponent(jcbMaxTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -463,10 +424,6 @@ public class QLHDPanel extends javax.swing.JPanel {
 
     }//GEN-LAST:event_FIlterActionPerformed
 
-    private void txtIDHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIDHoaDonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtIDHoaDonActionPerformed
-
     private void jcbThangBatDauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbThangBatDauActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jcbThangBatDauActionPerformed
@@ -483,14 +440,6 @@ public class QLHDPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jcbNamKetThucActionPerformed
 
-    private void txtIDKhachHangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIDKhachHangActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtIDKhachHangActionPerformed
-
-    private void txtIDNguoiDungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIDNguoiDungActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtIDNguoiDungActionPerformed
-
     private void jcbMaxTongTienActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbMaxTongTienActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jcbMaxTongTienActionPerformed
@@ -501,10 +450,7 @@ public class QLHDPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -522,8 +468,5 @@ public class QLHDPanel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> jcbNgayKetThuc;
     private javax.swing.JComboBox<String> jcbThangBatDau;
     private javax.swing.JComboBox<String> jcbThangKetThuc;
-    private javax.swing.JTextField txtIDHoaDon;
-    private javax.swing.JTextField txtIDKhachHang;
-    private javax.swing.JTextField txtIDNguoiDung;
     // End of variables declaration//GEN-END:variables
 }
