@@ -5,12 +5,9 @@
 package view;
 
 import Controller.DOANHTHUDAO;
-import Controller.DOANHTHUDAO.DoanhThuSanPham;
-import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFileChooser;
@@ -34,6 +31,19 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileOutputStream;
+
+import Controller.DOANHTHUDAO.DoanhThuSanPham;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.text.NumberFormat;
+import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.labels.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 public final class DOANHTHUPanel extends javax.swing.JPanel {
 
@@ -104,11 +114,7 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                         Double.class;
                     default ->
                         String.class;
-                }; // ID
-                // Tên
-                // Giá (for proper numeric sorting)
-                // Số lượng (for proper numeric sorting)
-                // Thành tiền (for proper numeric sorting)
+                };
             }
         };
 
@@ -666,6 +672,83 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         jLabel2.repaint();
     }
 
+    private JFreeChart createBarChart(List<DoanhThuSanPham> data, boolean doanhThu, boolean showLabel, NumberFormat fmt) {
+        DefaultCategoryDataset ds = new DefaultCategoryDataset();
+        for (DoanhThuSanPham p : data) {
+            ds.addValue(doanhThu ? p.getThanhTien() : p.getSoLuongBan(),
+                    doanhThu ? "Doanh Thu" : "Số Lượng", truncate(p.getTenSanPham()));
+        }
+        JFreeChart chart = ChartFactory.createBarChart(
+                doanhThu ? "Doanh Thu Theo Sản Phẩm" : "Số Lượng Bán Theo Sản Phẩm",
+                "Sản Phẩm",
+                doanhThu ? "Doanh Thu (VNĐ)" : "Số Lượng",
+                ds
+        );
+        CategoryPlot plot = chart.getCategoryPlot();
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, new Color(51, 122, 183));
+
+        if (showLabel) {
+            if (doanhThu) {
+                renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator() {
+                    @Override
+                    public String generateLabel(org.jfree.data.category.CategoryDataset dataset, int row, int column) {
+                        Number value = dataset.getValue(row, column);
+                        return fmt.format(value.doubleValue());
+                    }
+                });
+            } else {
+                renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", NumberFormat.getIntegerInstance()));
+            }
+
+            renderer.setDefaultItemLabelsVisible(true);
+        } else {
+            renderer.setDefaultItemLabelsVisible(false);
+        }
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6));
+
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setNumberFormatOverride(doanhThu ? fmt : NumberFormat.getIntegerInstance());
+
+        return chart;
+    }
+
+    private JFreeChart createPieChart(List<DoanhThuSanPham> data, boolean doanhThu, boolean showLabel, NumberFormat fmt) {
+        DefaultPieDataset ds = new DefaultPieDataset();
+        for (DoanhThuSanPham p : data) {
+            ds.setValue(truncate(p.getTenSanPham()), doanhThu ? p.getThanhTien() : p.getSoLuongBan());
+        }
+
+        JFreeChart chart = ChartFactory.createPieChart(
+                doanhThu ? "Tỷ Lệ Doanh Thu Theo Sản Phẩm" : "Tỷ Lệ Số Lượng Bán",
+                ds,
+                true, true, false
+        );
+
+        PiePlot plot = (PiePlot) chart.getPlot();
+        if (showLabel) {
+            PieSectionLabelGenerator gen = doanhThu
+                    ? new StandardPieSectionLabelGenerator("{0}: {1} ({2})", fmt, NumberFormat.getPercentInstance())
+                    : new StandardPieSectionLabelGenerator("{0}: {1} ({2})", NumberFormat.getIntegerInstance(), NumberFormat.getPercentInstance());
+            plot.setLabelGenerator(gen);
+        } else {
+            plot.setLabelGenerator(null);
+        }
+
+        chart.setBackgroundPaint(Color.WHITE);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
+        plot.setShadowPaint(null);
+
+        return chart;
+    }
+
+    private String truncate(String name) {
+        return name.length() > 20 ? name.substring(0, 17) + "..." : name;
+    }
+
     public void cleanup() {
         if (doanhThuDAO != null) {
             doanhThuDAO.closeConnection();
@@ -698,6 +781,7 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         jbtTimKiem = new javax.swing.JButton();
         jbtLamMoi = new javax.swing.JButton();
         jbtBaoCao = new javax.swing.JButton();
+        jbtBieuDo = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -788,6 +872,16 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
             }
         });
 
+        jbtBieuDo.setBackground(new java.awt.Color(41, 62, 80));
+        jbtBieuDo.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jbtBieuDo.setForeground(new java.awt.Color(255, 255, 255));
+        jbtBieuDo.setText("Xem Biểu Đồ");
+        jbtBieuDo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtBieuDoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -817,17 +911,19 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jbtTimKiem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtLamMoi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel9)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel2)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbtBaoCao))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                             .addComponent(jLabel8)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jLabel1)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtBaoCao))
+                            .addComponent(jbtBieuDo))
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 592, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
@@ -858,12 +954,13 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jLabel1)
-                    .addComponent(jbtBaoCao))
-                .addGap(7, 7, 7)
+                    .addComponent(jbtBieuDo))
+                .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jLabel2))
-                .addGap(29, 29, 29))
+                    .addComponent(jLabel2)
+                    .addComponent(jbtBaoCao))
+                .addGap(25, 25, 25))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -915,6 +1012,82 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         exportReport();
     }//GEN-LAST:event_jbtBaoCaoActionPerformed
 
+    private void jbtBieuDoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtBieuDoActionPerformed
+        List<DoanhThuSanPham> data = getCurrentTableData();
+        if (data.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để hiển thị biểu đồ!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Biểu Đồ Doanh Thu", true);
+        JPanel chartPanel = new JPanel(new BorderLayout());
+        JComboBox<String> chartTypeCombo = new JComboBox<>(new String[]{
+            "Biểu Đồ Cột - Doanh Thu", "Biểu Đồ Tròn - Doanh Thu",
+            "Biểu Đồ Cột - Số Lượng", "Biểu Đồ Tròn - Số Lượng"
+        });
+        JCheckBox showLabels = new JCheckBox("Hiển thị giá trị", true);
+        JSpinner topN = new JSpinner(new SpinnerNumberModel(10, 5, Math.max(data.size(), 5), 1));
+
+        Runnable updateChart = () -> {
+            String type = (String) chartTypeCombo.getSelectedItem();
+            int n = (Integer) topN.getValue();
+            boolean show = showLabels.isSelected();
+
+            List<DoanhThuSanPham> top = data.stream()
+                    .sorted((a, b) -> Double.compare(b.getThanhTien(), a.getThanhTien()))
+                    .limit(n)
+                    .toList();
+
+            JFreeChart chart = switch (type) {
+                case "Biểu Đồ Cột - Doanh Thu" ->
+                    createBarChart(top, true, show, currencyFormat);
+                case "Biểu Đồ Tròn - Doanh Thu" ->
+                    createPieChart(top, true, show, currencyFormat);
+                case "Biểu Đồ Cột - Số Lượng" ->
+                    createBarChart(top, false, show, currencyFormat);
+                case "Biểu Đồ Tròn - Số Lượng" ->
+                    createPieChart(top, false, show, currencyFormat);
+                default ->
+                    null;
+            };
+
+            chartPanel.removeAll();
+            chartPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+            chartPanel.revalidate();
+            chartPanel.repaint();
+        };
+
+        chartTypeCombo.addActionListener(e -> updateChart.run());
+        showLabels.addActionListener(e -> updateChart.run());
+        topN.addChangeListener(e -> updateChart.run());
+
+        JPanel control = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        control.add(new JLabel("Loại biểu đồ:"));
+        control.add(chartTypeCombo);
+        control.add(new JLabel("  Top:"));
+        control.add(topN);
+        control.add(new JLabel("sản phẩm "));
+        control.add(showLabels);
+
+        JButton close = new JButton("Đóng");
+        close.addActionListener(e -> dialog.dispose());
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottom.add(close);
+
+        dialog.setLayout(new BorderLayout());
+        dialog.add(control, BorderLayout.NORTH);
+        dialog.add(chartPanel, BorderLayout.CENTER);
+        dialog.add(bottom, BorderLayout.SOUTH);
+
+        updateChart.run();
+
+        dialog.setSize(1000, 700);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }//GEN-LAST:event_jbtBieuDoActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -926,6 +1099,7 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JButton jbtBaoCao;
+    private javax.swing.JButton jbtBieuDo;
     private javax.swing.JButton jbtLamMoi;
     private javax.swing.JButton jbtTimKiem;
     private javax.swing.JTextField jcbNamBatDau;
