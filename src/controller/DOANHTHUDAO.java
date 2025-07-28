@@ -54,25 +54,28 @@ public class DOANHTHUDAO {
         List<DoanhThuSanPham> danhSachDoanhThu = new ArrayList<>();
 
         String sql = """
-        SELECT 
-            sp.ID AS id_san_pham,
-            sp.Ten AS ten_san_pham,
-            sp.Gia AS gia_san_pham,
-            COALESCE(SUM(cthd.SoSanPhamThanhToan), 0) AS tong_so_luong_ban
-        FROM 
-            SanPham sp
-        LEFT JOIN ChiTietHoaDon cthd ON sp.ID = cthd.SanPhamID
-        LEFT JOIN HoaDon hd ON cthd.HoaDonID = hd.ID
-            AND hd.ThoiGian BETWEEN ? AND ?
-        GROUP BY sp.ID, sp.Ten, sp.Gia
-        HAVING COALESCE(SUM(cthd.SoSanPhamThanhToan), 0) > 0
-        ORDER BY tong_so_luong_ban DESC, sp.Ten ASC
-        """;
+    SELECT 
+        sp.ID AS id_san_pham,
+        sp.Ten AS ten_san_pham,
+        sp.Gia AS gia_san_pham,
+        COALESCE(SUM(cthd.SoSanPhamThanhToan), 0) AS tong_so_luong_ban
+    FROM 
+        SanPham sp
+    LEFT JOIN ChiTietHoaDon cthd ON sp.ID = cthd.SanPhamID
+    LEFT JOIN HoaDon hd ON cthd.HoaDonID = hd.ID
+    WHERE hd.ThoiGian BETWEEN ? AND ?
+    GROUP BY sp.ID, sp.Ten, sp.Gia
+    HAVING COALESCE(SUM(cthd.SoSanPhamThanhToan), 0) > 0
+    ORDER BY tong_so_luong_ban DESC, sp.Ten ASC
+    """;
 
         try (Connection connection = conn.DBConnect(); PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, ngayBatDau);
             stmt.setString(2, ngayKetThuc);
+
+            // Debug output
+            System.out.println("DEBUG - Executing query with dates: " + ngayBatDau + " to " + ngayKetThuc);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -83,6 +86,9 @@ public class DOANHTHUDAO {
 
                     DoanhThuSanPham doanhThu = new DoanhThuSanPham(idSanPham, tenSanPham, gia, soLuongBan);
                     danhSachDoanhThu.add(doanhThu);
+
+                    // Debug output
+                    System.out.println("DEBUG - Found product: " + idSanPham + " - " + tenSanPham + " - Qty: " + soLuongBan);
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -90,25 +96,30 @@ public class DOANHTHUDAO {
             e.printStackTrace();
         }
 
+        System.out.println("DEBUG - Total products found: " + danhSachDoanhThu.size());
         return danhSachDoanhThu;
     }
 
     public int getTongSanPhamBanRa(String ngayBatDau, String ngayKetThuc) {
         String sql = """
-            SELECT COALESCE(SUM(cthd.SoSanPhamThanhToan), 0) AS tong_san_pham
-            FROM ChiTietHoaDon cthd
-            JOIN HoaDon hd ON cthd.HoaDonID = hd.ID
-            WHERE hd.ThoiGian BETWEEN ? AND ?
-            """;
+        SELECT COALESCE(SUM(cthd.SoSanPhamThanhToan), 0) AS tong_san_pham
+        FROM ChiTietHoaDon cthd
+        JOIN HoaDon hd ON cthd.HoaDonID = hd.ID
+        WHERE hd.ThoiGian BETWEEN ? AND ?
+        """;
 
         try (Connection connection = conn.DBConnect(); PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, ngayBatDau);
             stmt.setString(2, ngayKetThuc);
 
+            System.out.println("DEBUG - Getting total products for dates: " + ngayBatDau + " to " + ngayKetThuc);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("tong_san_pham");
+                    int total = rs.getInt("tong_san_pham");
+                    System.out.println("DEBUG - Total products from DB: " + total);
+                    return total;
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -121,20 +132,24 @@ public class DOANHTHUDAO {
 
     public double getTongDoanhThu(String ngayBatDau, String ngayKetThuc) {
         String sql = """
-            SELECT COALESCE(SUM(cthd.SoSanPhamThanhToan * cthd.GiaBanMoiSanPham), 0) AS tong_doanh_thu
-            FROM ChiTietHoaDon cthd
-            JOIN HoaDon hd ON cthd.HoaDonID = hd.ID
-            WHERE hd.ThoiGian BETWEEN ? AND ?
-            """;
+        SELECT COALESCE(SUM(cthd.SoSanPhamThanhToan * cthd.GiaBanMoiSanPham), 0) AS tong_doanh_thu
+        FROM ChiTietHoaDon cthd
+        JOIN HoaDon hd ON cthd.HoaDonID = hd.ID
+        WHERE hd.ThoiGian BETWEEN ? AND ?
+        """;
 
         try (Connection connection = conn.DBConnect(); PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, ngayBatDau);
             stmt.setString(2, ngayKetThuc);
 
+            System.out.println("DEBUG - Getting total revenue for dates: " + ngayBatDau + " to " + ngayKetThuc);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getDouble("tong_doanh_thu");
+                    double total = rs.getDouble("tong_doanh_thu");
+                    System.out.println("DEBUG - Total revenue from DB: " + total);
+                    return total;
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
