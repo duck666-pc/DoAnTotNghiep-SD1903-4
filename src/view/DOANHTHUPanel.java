@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.table.TableModel;
 
-// iTextPDF imports
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -74,21 +73,14 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         }
     }
 
-    // Add this new method to setup event listeners
     private void setupEventListeners() {
-        // Add action listeners for combo boxes only - no automatic filtering
         ActionListener dateChangeListener = (ActionEvent e) -> {
-            // Only silently update - no automatic filtering or error messages
-            // Users will click Search button when ready
         };
 
         jcbNgayBatDau.addActionListener(dateChangeListener);
         jcbThangBatDau.addActionListener(dateChangeListener);
         jcbNgayKetThuc.addActionListener(dateChangeListener);
         jcbThangKetThuc.addActionListener(dateChangeListener);
-
-        // No document listeners for year fields to prevent constant validation
-        // Users will use the Search button when they're done entering dates
     }
 
     private void setupTableModel() {
@@ -120,23 +112,19 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
 
         jTable1.setModel(tableModel);
 
-        // Set up table sorter for Excel-like sorting functionality
         tableSorter = new TableRowSorter<>(tableModel);
         jTable1.setRowSorter(tableSorter);
 
-        // Custom comparators for currency formatted columns
         tableSorter.setComparator(2, (Double o1, Double o2) -> Double.compare(o1, o2));
 
         tableSorter.setComparator(4, (Double o1, Double o2) -> Double.compare(o1, o2));
 
-        // Set column widths
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
         jTable1.getColumnModel().getColumn(1).setPreferredWidth(200);
         jTable1.getColumnModel().getColumn(2).setPreferredWidth(100);
         jTable1.getColumnModel().getColumn(3).setPreferredWidth(80);
         jTable1.getColumnModel().getColumn(4).setPreferredWidth(120);
 
-        // Setup table renderers immediately
         updateTableRenderer();
     }
 
@@ -152,11 +140,9 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
 
     private void loadInitialData() {
         try {
-            // Load all products with their total sales data
             List<DoanhThuSanPham> danhSach = doanhThuDAO.getAllProductsWithSales();
             updateTable(danhSach);
 
-            // Calculate and display total statistics for all time
             int tongSanPham = doanhThuDAO.getTongSanPhamBanRaToanBo();
             double tongDoanhThu = doanhThuDAO.getTongDoanhThuToanBo();
             updateSummaryLabels(tongSanPham, tongDoanhThu);
@@ -200,7 +186,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                 return;
             }
 
-            // Validate dates only if we have complete 4-digit years
             if (startYear.length() != 4 || endYear.length() != 4) {
                 JOptionPane.showMessageDialog(this,
                         "Vui lòng nhập năm đầy đủ (4 chữ số)!",
@@ -236,11 +221,9 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                 return;
             }
 
-            // Get filtered data for the date range
             List<DoanhThuSanPham> danhSach = doanhThuDAO.getDoanhThuTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
             updateTable(danhSach);
 
-            // Get totals for the date range from database
             int tongSanPham = doanhThuDAO.getTongSanPhamBanRa(ngayBatDau, ngayKetThuc);
             double tongDoanhThu = doanhThuDAO.getTongDoanhThu(ngayBatDau, ngayKetThuc);
             updateSummaryLabels(tongSanPham, tongDoanhThu);
@@ -254,112 +237,10 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         }
     }
 
-    // Search button functionality - Fixed to properly filter by date range
-    private void performSearch() {
-        try {
-            String startYear = jcbNamBatDau.getText().trim();
-            String endYear = jcbNamKetThuc.getText().trim();
-
-            if (startYear.isEmpty() || endYear.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Vui lòng nhập đầy đủ thông tin ngày tháng!",
-                        "Thiếu thông tin",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Validate year format
-            if (startYear.length() != 4 || endYear.length() != 4) {
-                JOptionPane.showMessageDialog(this,
-                        "Vui lòng nhập năm đầy đủ (4 chữ số)!",
-                        "Lỗi định dạng năm",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            int dayStart, monthStart, yearStart;
-            int dayEnd, monthEnd, yearEnd;
-
-            try {
-                dayStart = Integer.parseInt((String) jcbNgayBatDau.getSelectedItem());
-                monthStart = Integer.parseInt((String) jcbThangBatDau.getSelectedItem());
-                yearStart = Integer.parseInt(startYear);
-
-                dayEnd = Integer.parseInt((String) jcbNgayKetThuc.getSelectedItem());
-                monthEnd = Integer.parseInt((String) jcbThangKetThuc.getSelectedItem());
-                yearEnd = Integer.parseInt(endYear);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this,
-                        "Dữ liệu ngày tháng không hợp lệ!",
-                        "Lỗi định dạng",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Validate dates
-            if (!doanhThuDAO.isValidDate(dayStart, monthStart, yearStart)) {
-                JOptionPane.showMessageDialog(this,
-                        "Ngày bắt đầu không hợp lệ!",
-                        "Lỗi ngày tháng",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            if (!doanhThuDAO.isValidDate(dayEnd, monthEnd, yearEnd)) {
-                JOptionPane.showMessageDialog(this,
-                        "Ngày kết thúc không hợp lệ!",
-                        "Lỗi ngày tháng",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            String ngayBatDau = DOANHTHUDAO.formatDate(dayStart, monthStart, yearStart);
-            String ngayKetThuc = DOANHTHUDAO.formatDate(dayEnd, monthEnd, yearEnd);
-
-            if (!isValidDateRange(ngayBatDau, ngayKetThuc)) {
-                JOptionPane.showMessageDialog(this,
-                        "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!",
-                        "Lỗi ngày tháng",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Get filtered data for the date range - This should now work correctly
-            List<DoanhThuSanPham> danhSach = doanhThuDAO.getDoanhThuTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
-
-            if (danhSach.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Không có dữ liệu trong khoảng thời gian đã chọn!",
-                        "Không có dữ liệu",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
-
-            updateTable(danhSach);
-
-            // Get totals for the date range from database
-            int tongSanPham = doanhThuDAO.getTongSanPhamBanRa(ngayBatDau, ngayKetThuc);
-            double tongDoanhThu = doanhThuDAO.getTongDoanhThu(ngayBatDau, ngayKetThuc);
-            updateSummaryLabels(tongSanPham, tongDoanhThu);
-
-            System.out.println("Debug - Date range: " + ngayBatDau + " to " + ngayKetThuc);
-            System.out.println("Debug - Found " + danhSach.size() + " products");
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Lỗi hệ thống: " + e.getMessage(),
-                    "Lỗi nghiêm trọng",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-
-    // Refresh button functionality
     private void performRefresh() {
         try {
-            // Reset all date fields to default
             initializeDateFields();
 
-            // Load initial data (all products with sales)
             loadInitialData();
 
             JOptionPane.showMessageDialog(this,
@@ -374,18 +255,15 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         }
     }
 
-    // Report export functionality - PDF export
     private void exportReport() {
         try {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn nơi lưu báo cáo");
 
-            // Set default filename with timestamp
             String defaultFileName = "BaoCaoDoanhThu_"
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".pdf";
             fileChooser.setSelectedFile(new java.io.File(defaultFileName));
 
-            // Set file filter for PDF files
             FileNameExtensionFilter filter = new FileNameExtensionFilter("PDF Files (*.pdf)", "pdf");
             fileChooser.setFileFilter(filter);
 
@@ -394,17 +272,14 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 java.io.File fileToSave = fileChooser.getSelectedFile();
 
-                // Ensure file has .pdf extension
                 String filePath = fileToSave.getAbsolutePath();
                 if (!filePath.toLowerCase().endsWith(".pdf")) {
                     filePath += ".pdf";
                     fileToSave = new java.io.File(filePath);
                 }
 
-                // Get current data from table
                 List<DoanhThuSanPham> currentData = getCurrentTableData();
 
-                // Write PDF report
                 writePDFReport(fileToSave, currentData);
 
                 JOptionPane.showMessageDialog(this,
@@ -421,7 +296,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         }
     }
 
-    // Get current data from the table - FIXED to handle Double values correctly
     private List<DoanhThuSanPham> getCurrentTableData() {
         java.util.List<DoanhThuSanPham> data = new java.util.ArrayList<>();
 
@@ -429,7 +303,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
             String id = (String) tableModel.getValueAt(i, 0);
             String ten = (String) tableModel.getValueAt(i, 1);
 
-            // Handle Double values directly - no string parsing needed
             Double giaObj = (Double) tableModel.getValueAt(i, 2);
             double gia = giaObj != null ? giaObj : 0.0;
 
@@ -443,7 +316,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         return data;
     }
 
-    // Write PDF report using iTextPDF
     private void writePDFReport(java.io.File file, List<DoanhThuSanPham> data) throws IOException {
         Document document = new Document(PageSize.A4);
 
@@ -451,25 +323,21 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
             PdfWriter.getInstance(document, new FileOutputStream(file));
             document.open();
 
-            // Create fonts for Vietnamese text
             BaseFont baseFont = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             Font titleFont = new Font(baseFont, 18, Font.BOLD);
             Font headerFont = new Font(baseFont, 12, Font.BOLD);
             Font normalFont = new Font(baseFont, 10);
             Font tableHeaderFont = new Font(baseFont, 10, Font.BOLD);
 
-            // Title
             Paragraph title = new Paragraph("BÁO CÁO DOANH THU SẢN PHẨM", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             title.setSpacingAfter(20);
             document.add(title);
 
-            // Report info
             Paragraph info = new Paragraph("Thời gian tạo báo cáo: "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), normalFont);
             document.add(info);
 
-            // Date range info
             String startYear = jcbNamBatDau.getText().trim();
             String endYear = jcbNamKetThuc.getText().trim();
             if (!startYear.isEmpty() && !endYear.isEmpty()) {
@@ -488,19 +356,16 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                 document.add(dateRange);
             }
 
-            document.add(new Paragraph(" ")); // Empty line
+            document.add(new Paragraph(" "));
 
-            // Create table
             PdfPTable table = new PdfPTable(5);
             table.setWidthPercentage(100);
             table.setSpacingBefore(10f);
             table.setSpacingAfter(10f);
 
-            // Set column widths
             float[] columnWidths = {15f, 35f, 15f, 15f, 20f};
             table.setWidths(columnWidths);
 
-            // Table headers
             String[] headers = {"ID Sản phẩm", "Tên sản phẩm", "Giá", "Số lượng", "Thành tiền"};
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, tableHeaderFont));
@@ -510,32 +375,26 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
                 table.addCell(cell);
             }
 
-            // Table data
             for (DoanhThuSanPham item : data) {
-                // ID
                 PdfPCell idCell = new PdfPCell(new Phrase(item.getIdSanPham(), normalFont));
                 idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 idCell.setPadding(5);
                 table.addCell(idCell);
 
-                // Name
                 PdfPCell nameCell = new PdfPCell(new Phrase(item.getTenSanPham(), normalFont));
                 nameCell.setPadding(5);
                 table.addCell(nameCell);
 
-                // Price
                 PdfPCell priceCell = new PdfPCell(new Phrase(currencyFormat.format(item.getGia()), normalFont));
                 priceCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 priceCell.setPadding(5);
                 table.addCell(priceCell);
 
-                // Quantity
                 PdfPCell qtyCell = new PdfPCell(new Phrase(String.valueOf(item.getSoLuongBan()), normalFont));
                 qtyCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 qtyCell.setPadding(5);
                 table.addCell(qtyCell);
 
-                // Total
                 PdfPCell totalCell = new PdfPCell(new Phrase(currencyFormat.format(item.getThanhTien()), normalFont));
                 totalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 totalCell.setPadding(5);
@@ -544,7 +403,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
 
             document.add(table);
 
-            // Summary
             document.add(new Paragraph(" ")); // Empty line
             Paragraph summaryTitle = new Paragraph("TỔNG KẾT", headerFont);
             summaryTitle.setSpacingBefore(10);
@@ -565,7 +423,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         }
     }
 
-    // Helper methods to calculate totals from the list
     private int calculateTotalProductsSold(List<DoanhThuSanPham> danhSach) {
         return danhSach.stream()
                 .mapToInt(DoanhThuSanPham::getSoLuongBan)
@@ -610,22 +467,20 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         tableModel.setRowCount(0);
         for (DoanhThuSanPham item : danhSach) {
             Object[] row = {
-                item.getIdSanPham(), // String
-                item.getTenSanPham(), // String  
-                item.getGia(), // Double (raw value for sorting)
-                item.getSoLuongBan(), // Integer (raw value for sorting)
-                item.getThanhTien() // Double (raw value for sorting)
+                item.getIdSanPham(),
+                item.getTenSanPham(),
+                item.getGia(),
+                item.getSoLuongBan(),
+                item.getThanhTien()
             };
             tableModel.addRow(row);
         }
         tableModel.fireTableDataChanged();
 
-        // Ensure table renderer is properly applied after data update
         updateTableRenderer();
     }
 
     private void updateTableRenderer() {
-        // Set custom renderer for price columns to display formatted currency
         jTable1.getColumnModel().getColumn(2).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public void setValue(Object value) {
@@ -650,7 +505,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
             }
         });
 
-        // Right-align quantity column
         jTable1.getColumnModel().getColumn(3).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public void setValue(Object value) {
@@ -659,7 +513,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
             }
         });
 
-        // Force table to repaint to show the updated formatting
         jTable1.repaint();
     }
 
@@ -667,7 +520,6 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
         jLabel1.setText(String.valueOf(tongSanPham));
         jLabel2.setText(currencyFormat.format(tongDoanhThu));
 
-        // Force label refresh
         jLabel1.repaint();
         jLabel2.repaint();
     }
@@ -1001,7 +853,98 @@ public final class DOANHTHUPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_FIlterActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-        performSearch();
+        try {
+            String startYear = jcbNamBatDau.getText().trim();
+            String endYear = jcbNamKetThuc.getText().trim();
+
+            if (startYear.isEmpty() || endYear.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng nhập đầy đủ thông tin ngày tháng!",
+                        "Thiếu thông tin",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (startYear.length() != 4 || endYear.length() != 4) {
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng nhập năm đầy đủ (4 chữ số)!",
+                        "Lỗi định dạng năm",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int dayStart, monthStart, yearStart;
+            int dayEnd, monthEnd, yearEnd;
+
+            try {
+                dayStart = Integer.parseInt((String) jcbNgayBatDau.getSelectedItem());
+                monthStart = Integer.parseInt((String) jcbThangBatDau.getSelectedItem());
+                yearStart = Integer.parseInt(startYear);
+
+                dayEnd = Integer.parseInt((String) jcbNgayKetThuc.getSelectedItem());
+                monthEnd = Integer.parseInt((String) jcbThangKetThuc.getSelectedItem());
+                yearEnd = Integer.parseInt(endYear);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Dữ liệu ngày tháng không hợp lệ!",
+                        "Lỗi định dạng",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Validate dates
+            if (!doanhThuDAO.isValidDate(dayStart, monthStart, yearStart)) {
+                JOptionPane.showMessageDialog(this,
+                        "Ngày bắt đầu không hợp lệ!",
+                        "Lỗi ngày tháng",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!doanhThuDAO.isValidDate(dayEnd, monthEnd, yearEnd)) {
+                JOptionPane.showMessageDialog(this,
+                        "Ngày kết thúc không hợp lệ!",
+                        "Lỗi ngày tháng",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String ngayBatDau = DOANHTHUDAO.formatDate(dayStart, monthStart, yearStart);
+            String ngayKetThuc = DOANHTHUDAO.formatDate(dayEnd, monthEnd, yearEnd);
+
+            if (!isValidDateRange(ngayBatDau, ngayKetThuc)) {
+                JOptionPane.showMessageDialog(this,
+                        "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!",
+                        "Lỗi ngày tháng",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            List<DoanhThuSanPham> danhSach = doanhThuDAO.getDoanhThuTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
+
+            if (danhSach.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không có dữ liệu trong khoảng thời gian đã chọn!",
+                        "Không có dữ liệu",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            updateTable(danhSach);
+
+            int tongSanPham = doanhThuDAO.getTongSanPhamBanRa(ngayBatDau, ngayKetThuc);
+            double tongDoanhThu = doanhThuDAO.getTongDoanhThu(ngayBatDau, ngayKetThuc);
+            updateSummaryLabels(tongSanPham, tongDoanhThu);
+
+            System.out.println("Debug - Date range: " + ngayBatDau + " to " + ngayKetThuc);
+            System.out.println("Debug - Found " + danhSach.size() + " products");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi hệ thống: " + e.getMessage(),
+                    "Lỗi nghiêm trọng",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
