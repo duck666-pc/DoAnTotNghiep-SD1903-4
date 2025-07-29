@@ -1,5 +1,8 @@
 ﻿CREATE DATABASE DoAnTotNghiep;
+GO
+
 USE DoAnTotNghiep;
+GO
 
 -- 1. Tạo bảng Hạng khách hàng
 CREATE TABLE HangKhachHang (
@@ -64,15 +67,13 @@ CREATE TABLE ChiTietKhuyenMai (
 CREATE TABLE KhuyenMai (
     ID NVARCHAR(10) PRIMARY KEY,
     ChiTietKhuyenMaiID NVARCHAR(10),
-    KhachHangID NVARCHAR(10),
     Ten NVARCHAR(100),
     MoTa NVARCHAR(255),
     SoLuong INT,
     ThoiGianApDung DATE,
+	ThoiGianKetThuc DATE,
     CONSTRAINT FKKhuyenMaiChiTietKhuyenMai FOREIGN KEY (ChiTietKhuyenMaiID)
         REFERENCES ChiTietKhuyenMai(ID),
-    CONSTRAINT FKKhuyenMaiKhachHang FOREIGN KEY (KhachHangID)
-        REFERENCES KhachHang(ID)
 );
 
 -- 8. Tạo bảng Hóa đơn
@@ -84,6 +85,7 @@ CREATE TABLE HoaDon (
     TongTienGoc DECIMAL(12,2),
     MucGiamGia DECIMAL(10,2),
     TongTienSauGiamGia DECIMAL(12,2),
+	TrangThai NVARCHAR(50),
     CONSTRAINT FKHoaDonKhachHang FOREIGN KEY (KhachHangID)
         REFERENCES KhachHang(ID),
     CONSTRAINT FKHoaDonNguoiDung FOREIGN KEY (NguoiDungID)
@@ -145,6 +147,7 @@ INSERT INTO HangKhachHang (ID, Ten, MucGiamGia) VALUES
 (N'HC005', N'Kim cương', 10.00);
 
 INSERT INTO KhachHang (ID, Ten, DienThoai, DiaChi, HangKhachHangID) VALUES
+(N'KH000', N'Khách vãng lai', NULL, NULL, NULL),
 (N'KH001', N'Nguyễn Văn An', N'0987654321', N'Hà Nội', N'HC005'),
 (N'KH002', N'Trần Thị Bình', N'0912345678', N'Hồ Chí Minh', N'HC001'),
 (N'KH003', N'Lê Văn Cường', N'0909876543', N'Đà Nẵng', N'HC003'),
@@ -158,12 +161,12 @@ INSERT INTO KhachHang (ID, Ten, DienThoai, DiaChi, HangKhachHangID) VALUES
 
 INSERT INTO NguoiDung (ID, MatKhau, TenDayDu, NgaySinh, GioiTinh, Email, ChucVu) VALUES
 (N'ND001', N'pass123', N'Nguyễn Thanh Tùng', '1985-05-10', N'Nam', N'tungnt@example.com', N'Nhân viên'),
-(N'ND002', N'abc123', N'Trần Thị Hương', '1990-08-20', N'Nữ', N'huongtt@example.com', N'Quản lý'),
-(N'ND003', N'qwerty', N'Lê Văn Minh', '1982-03-15', N'Nam', N'minhlv@example.com', N'Quản lý'),
+(N'ND002', N'abc123', N'Trần Thị Hương', '1990-08-20', N'Nữ', N'huongtt@example.com', N'Nhân viên'),
+(N'ND003', N'qwerty', N'Lê Văn Minh', '1982-03-15', N'Nam', N'minhlv@example.com', N'Nhân viên'),
 (N'ND004', N'123456', N'Phạm Quốc Dũng', '1979-12-01', N'Nam', N'dungpq@example.com', N'Nhân viên'),
 (N'ND005', N'password', N'Đỗ Thị Yến', '1995-07-07', N'Nữ', N'yendt@example.com', N'Nhân viên'),
 (N'ND006', N'nguyenvan', N'Hoàng Văn Lâm', '1988-11-11', N'Nam', N'lamhv@example.com', N'Nhân viên'),
-(N'ND007', N'truong123', N'Vũ Ngọc Hà', '1992-06-30', N'Nữ', N'hava@example.com', N'Quản lý'),
+(N'ND007', N'truong123', N'Vũ Ngọc Hà', '1992-06-30', N'Nữ', N'hava@example.com', N'Nhân viên'),
 (N'ND008', N'hatuyet', N'Đặng Văn Đức', '1980-09-09', N'Nam', N'ducdv@example.com', N'Nhân viên'),
 (N'ND009', N'lanhoe', N'Bùi Thị Lan', '1986-02-25', N'Nữ', N'lanbt@example.com', N'Nhân viên'),
 (N'ND010', N'anhc123', N'Ngô Quốc Huy', '1994-04-18', N'Nam', N'huyqn@example.com', N'Quản lý');
@@ -204,29 +207,29 @@ INSERT INTO ChiTietKhuyenMai (ID, HinhThucGiam, SoTienGiamGia, SanPhamID, MucGia
 (N'CTKM009', N'Phần trăm', 0.00, N'SP009', 18.00, N'Không'),
 (N'CTKM010', N'Theo tiền', 14000.00, N'SP010', 0.00, N'Phiếu mua hàng');
 
-INSERT INTO KhuyenMai (ID, ChiTietKhuyenMaiID, KhachHangID, Ten, MoTa, SoLuong, ThoiGianApDung) VALUES
-(N'KM001', N'CTKM001', N'KH001', N'Khuyến mãi 1', N'Mô tả khuyến mãi thứ 1', 100, '2025-01-01'),
-(N'KM002', N'CTKM002', N'KH002', N'Khuyến mãi 2', N'Mô tả khuyến mãi thứ 2', 110, '2025-01-02'),
-(N'KM003', N'CTKM003', N'KH003', N'Khuyến mãi 3', N'Mô tả khuyến mãi thứ 3', 120, '2025-01-03'),
-(N'KM004', N'CTKM004', N'KH004', N'Khuyến mãi 4', N'Mô tả khuyến mãi thứ 4', 130, '2025-01-04'),
-(N'KM005', N'CTKM005', N'KH005', N'Khuyến mãi 5', N'Mô tả khuyến mãi thứ 5', 140, '2025-01-05'),
-(N'KM006', N'CTKM006', N'KH006', N'Khuyến mãi 6', N'Mô tả khuyến mãi thứ 6', 150, '2025-01-06'),
-(N'KM007', N'CTKM007', N'KH007', N'Khuyến mãi 7', N'Mô tả khuyến mãi thứ 7', 160, '2025-01-07'),
-(N'KM008', N'CTKM008', N'KH008', N'Khuyến mãi 8', N'Mô tả khuyến mãi thứ 8', 170, '2025-01-08'),
-(N'KM009', N'CTKM009', N'KH009', N'Khuyến mãi 9', N'Mô tả khuyến mãi thứ 9', 180, '2025-01-09'),
-(N'KM010', N'CTKM010', N'KH010', N'Khuyến mãi 10', N'Mô tả khuyến mãi thứ 10', 190, '2025-01-10');
+INSERT INTO KhuyenMai (ID, ChiTietKhuyenMaiID, Ten, MoTa, SoLuong, ThoiGianApDung, ThoiGianKetThuc) VALUES
+(N'KM001', N'CTKM001', N'Khuyến mãi 1', N'Mô tả khuyến mãi thứ 1', 100, '2025-01-01', '2025-12-01'),
+(N'KM002', N'CTKM002', N'Khuyến mãi 2', N'Mô tả khuyến mãi thứ 2', 110, '2025-01-02', '2025-12-01'),
+(N'KM003', N'CTKM003', N'Khuyến mãi 3', N'Mô tả khuyến mãi thứ 3', 120, '2025-01-03', '2025-12-01'),
+(N'KM004', N'CTKM004', N'Khuyến mãi 4', N'Mô tả khuyến mãi thứ 4', 130, '2025-01-04', '2025-12-01'),
+(N'KM005', N'CTKM005', N'Khuyến mãi 5', N'Mô tả khuyến mãi thứ 5', 140, '2025-01-05', '2025-12-01'),
+(N'KM006', N'CTKM006', N'Khuyến mãi 6', N'Mô tả khuyến mãi thứ 6', 150, '2025-01-06', '2025-12-01'),
+(N'KM007', N'CTKM007', N'Khuyến mãi 7', N'Mô tả khuyến mãi thứ 7', 160, '2025-01-07', '2025-12-01'),
+(N'KM008', N'CTKM008', N'Khuyến mãi 8', N'Mô tả khuyến mãi thứ 8', 170, '2025-01-08', '2025-12-01'),
+(N'KM009', N'CTKM009', N'Khuyến mãi 9', N'Mô tả khuyến mãi thứ 9', 180, '2025-01-09', '2025-12-01'),
+(N'KM010', N'CTKM010', N'Khuyến mãi 10', N'Mô tả khuyến mãi thứ 10', 190, '2025-01-10', '2025-12-01');
 
-INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, MucGiamGia, TongTienSauGiamGia) VALUES
-(N'HD001', '2025-07-01', N'KH001', N'ND002', 300000.00, 20000.00, 280000.00),
-(N'HD002', '2025-07-02', N'KH002', N'ND003', 250000.00, 15000.00, 235000.00),
-(N'HD003', '2025-07-03', N'KH003', N'ND004', 150000.00, 20000.00, 130000.00),
-(N'HD004', '2025-07-04', N'KH004', N'ND005', 100000.00, 20000.00,  80000.00),
-(N'HD005', '2025-07-05', N'KH005', N'ND006', 150000.00,  5000.00, 145000.00),
-(N'HD006', '2025-07-06', N'KH006', N'ND007', 150000.00, 20000.00, 130000.00),
-(N'HD007', '2025-07-07', N'KH007', N'ND008', 150000.00,  5000.00, 145000.00),
-(N'HD008', '2025-07-08', N'KH008', N'ND009', 300000.00,  5000.00, 295000.00),
-(N'HD009', '2025-07-09', N'KH009', N'ND010', 100000.00,  5000.00,  95000.00),
-(N'HD010', '2025-07-10', N'KH010', N'ND001', 250000.00,     0.00, 250000.00);
+INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, MucGiamGia, TongTienSauGiamGia, TrangThai) VALUES
+(N'HD001', '2025-07-01', N'KH001', N'ND002', 300000.00, 20000.00, 280000.00, N'Đã Thanh Toán'),
+(N'HD002', '2025-07-02', N'KH002', N'ND003', 250000.00, 15000.00, 235000.00, N'Đã Thanh Toán'),
+(N'HD003', '2025-07-03', N'KH003', N'ND004', 150000.00, 20000.00, 130000.00, N'Đã Thanh Toán'),
+(N'HD004', '2025-07-04', N'KH004', N'ND005', 100000.00, 20000.00,  80000.00, N'Đã Thanh Toán'),
+(N'HD005', '2025-07-05', N'KH005', N'ND006', 150000.00,  5000.00, 145000.00, N'Đã Thanh Toán'),
+(N'HD006', '2025-07-06', N'KH006', N'ND007', 150000.00, 20000.00, 130000.00, N'Đã Thanh Toán'),
+(N'HD007', '2025-07-07', N'KH007', N'ND008', 150000.00,  5000.00, 145000.00, N'Đã Thanh Toán'),
+(N'HD008', '2025-07-08', N'KH008', N'ND009', 300000.00,  5000.00, 295000.00, N'Đã Thanh Toán'),
+(N'HD009', '2025-07-09', N'KH009', N'ND010', 100000.00,  5000.00,  95000.00, N'Chưa Thanh Toán'),
+(N'HD010', '2025-07-10', N'KH010', N'ND001', 250000.00,     0.00, 250000.00, N'Đã Hủy');
 
 INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMoiSanPham) VALUES
 (N'CT001', 2, N'HD001', N'SP001', 20000.00),

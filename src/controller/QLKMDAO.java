@@ -35,7 +35,6 @@ public class QLKMDAO {
             KhuyenMai km = new KhuyenMai();
             km.setId(rs.getString("ID"));
             km.setChiTietid(rs.getString("CHITIETID"));
-            km.setKhachHangid(rs.getString("KHACHHANGID"));
             km.setTen(rs.getString("TEN"));
             km.setMoTa(rs.getString("MOTA"));
             km.setSoLuong(rs.getInt("SOLUONG"));
@@ -53,12 +52,11 @@ public class QLKMDAO {
         protected void setInsertParameters(PreparedStatement ps, KhuyenMai km) throws SQLException {
             ps.setString(1, km.getId());
             ps.setString(2, km.getChiTietid());
-            ps.setString(3, km.getKhachHangid());
-            ps.setString(4, km.getTen());
-            ps.setString(5, km.getMoTa());
-            ps.setInt(6, km.getSoLuong());
-            ps.setDate(7, (Date) km.getThoiGianApDung());
-            ps.setDate(8, (Date) km.getThoiGianKetThuc());
+            ps.setString(3, km.getTen());
+            ps.setString(4, km.getMoTa());
+            ps.setInt(5, km.getSoLuong());
+            ps.setDate(6, (Date) km.getThoiGianApDung());
+            ps.setDate(7, (Date) km.getThoiGianKetThuc());
         }
 
         @Override
@@ -66,7 +64,6 @@ public class QLKMDAO {
             return "UPDATE KHUYENMAI SET "
                     + "ID = ?, "
                     + "CHITIETID = ?, "
-                    + "KHACHHANGID = ?, "
                     + "TEN = ?, "
                     + "MOTA = ?, "
                     + "SOLUONG = ?, "
@@ -79,12 +76,11 @@ public class QLKMDAO {
         protected void setUpdateParameters(PreparedStatement ps, KhuyenMai km) throws SQLException {
             ps.setString(1, km.getId());
             ps.setString(2, km.getChiTietid());
-            ps.setString(3, km.getKhachHangid());
-            ps.setString(4, km.getTen());
-            ps.setString(5, km.getMoTa());
-            ps.setInt(6, km.getSoLuong());
-            ps.setDate(7, (Date) km.getThoiGianApDung());
-            ps.setDate(8, (Date) km.getThoiGianKetThuc());
+            ps.setString(3, km.getTen());
+            ps.setString(4, km.getMoTa());
+            ps.setInt(5, km.getSoLuong());
+            ps.setDate(6, (Date) km.getThoiGianApDung());
+            ps.setDate(7, (Date) km.getThoiGianKetThuc());
         }
 
         @Override
@@ -213,7 +209,6 @@ public class QLKMDAO {
         return new Object[]{
             km.getId(),
             km.getChiTietid(),
-            km.getKhachHangid(),
             km.getTen(),
             km.getMoTa(),
             km.getSoLuong(),

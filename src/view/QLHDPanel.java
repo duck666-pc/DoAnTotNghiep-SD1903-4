@@ -30,12 +30,21 @@ public class QLHDPanel extends javax.swing.JPanel {
     public QLHDPanel() {
         initComponents();
         orderinfo = new QLHDDAO();
+        setupStatusComboBox();
         addEventListeners();
-        loadAllHoaDon(); // Load initial data
+        loadAllHoaDon(); 
+    }
+
+    private void setupStatusComboBox() {
+        jcbTrangThai.removeAllItems();
+        jcbTrangThai.addItem("Tất cả");
+        jcbTrangThai.addItem("Đã thanh toán");
+        jcbTrangThai.addItem("Chưa thanh toán");
+        jcbTrangThai.addItem("Đã hủy");
+        jcbTrangThai.setSelectedIndex(0); 
     }
 
     private void addEventListeners() {
-        // Click bảng HD -> Hiện chi tiết hóa đơn
         jTableHD.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = jTableHD.getSelectedRow();
@@ -46,13 +55,11 @@ public class QLHDPanel extends javax.swing.JPanel {
             }
         });
 
-        // Add document listeners for real-time filtering
         addFilterListener(jcbMinTongTien);
         addFilterListener(jcbMaxTongTien);
         addFilterListener(jcbNamBatDau);
         addFilterListener(jcbNamKetThuc);
 
-        // Add action listeners for combo boxes
         jcbNgayBatDau.addActionListener(e -> {
             try {
                 filterAll();
@@ -81,31 +88,42 @@ public class QLHDPanel extends javax.swing.JPanel {
                 Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
+
+        jcbTrangThai.addActionListener(e -> {
+            try {
+                filterAll();
+            } catch (SQLException ex) {
+                Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void addFilterListener(javax.swing.JTextField field) {
         field.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) { try {
-                filterAll();
+            public void insertUpdate(DocumentEvent e) { 
+                try {
+                    filterAll();
                 } catch (SQLException ex) {
                     Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-}
+            }
             @Override
-            public void removeUpdate(DocumentEvent e) { try {
-                filterAll();
+            public void removeUpdate(DocumentEvent e) { 
+                try {
+                    filterAll();
                 } catch (SQLException ex) {
                     Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-}
+            }
             @Override
-            public void changedUpdate(DocumentEvent e) { try {
-                filterAll();
+            public void changedUpdate(DocumentEvent e) { 
+                try {
+                    filterAll();
                 } catch (SQLException ex) {
                     Logger.getLogger(QLHDPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-}
+            }
         });
     }
 
@@ -123,7 +141,8 @@ public class QLHDPanel extends javax.swing.JPanel {
                     hd.getIdNguoiDung(),
                     hd.getTongTienGoc(),
                     hd.getMucGiamGia(),
-                    hd.getTongTienSauGiamGia()
+                    hd.getTongTienSauGiamGia(),
+                    hd.getTrangThai()
                 });
             }
         } catch (Exception e) {
@@ -147,10 +166,9 @@ public class QLHDPanel extends javax.swing.JPanel {
     }
 
     private void filterAll() throws SQLException {
-        // Get time range
         Timestamp fromTime = getTimestampFromDate(true);
         Timestamp toTime = getTimestampFromDate(false);
-        // Get amount range
+
         BigDecimal minTotal = null;
         BigDecimal maxTotal = null;
         try {
@@ -158,18 +176,18 @@ public class QLHDPanel extends javax.swing.JPanel {
                 minTotal = new BigDecimal(jcbMinTongTien.getText().trim());
             }
         } catch (NumberFormatException e) {
-            // Ignore invalid number
         }
         try {
             if (!jcbMaxTongTien.getText().trim().isEmpty()) {
                 maxTotal = new BigDecimal(jcbMaxTongTien.getText().trim());
             }
         } catch (NumberFormatException e) {
-            // Ignore invalid number
         }
-        // Perform search
-        List<HoaDon> searchResults = orderinfo.searchHoaDon(fromTime, toTime, minTotal, maxTotal);
-        // Update table
+
+        String selectedStatus = jcbTrangThai.getSelectedItem().toString();
+        
+        List<HoaDon> searchResults = orderinfo.searchHoaDon(fromTime, toTime, minTotal, maxTotal, selectedStatus);
+        
         DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
         model.setRowCount(0);
         for (HoaDon hd : searchResults) {
@@ -180,9 +198,13 @@ public class QLHDPanel extends javax.swing.JPanel {
                 hd.getIdNguoiDung(),
                 hd.getTongTienGoc(),
                 hd.getMucGiamGia(),
-                hd.getTongTienSauGiamGia()
+                hd.getTongTienSauGiamGia(),
+                hd.getTrangThai()
             });
         }
+
+        DefaultTableModel detailModel = (DefaultTableModel) jTableCTHD.getModel();
+        detailModel.setRowCount(0);
     }
 
     private Timestamp getTimestampFromDate(boolean isFromDate) {
@@ -209,7 +231,12 @@ public class QLHDPanel extends javax.swing.JPanel {
             
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date date = sdf.parse(dateString);
-            return new Timestamp(date.getTime());
+            
+            if (isFromDate) {
+                return new Timestamp(date.getTime());
+            } else {
+                return new Timestamp(date.getTime() + 24 * 60 * 60 * 1000 - 1);
+            }
             
         } catch (ParseException | NumberFormatException e) {
             return null;
@@ -243,6 +270,8 @@ public class QLHDPanel extends javax.swing.JPanel {
         jLabel8 = new javax.swing.JLabel();
         jcbMinTongTien = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jcbTrangThai = new javax.swing.JComboBox<>();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -333,43 +362,52 @@ public class QLHDPanel extends javax.swing.JPanel {
 
         jLabel9.setText("đến");
 
+        jLabel10.setText("Trạng Thái:");
+
+        jcbTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Đã thanh toán", "Chưa thanh toán", "Đã hủy" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel8)
+                        .addComponent(jLabel10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbMinTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbMaxTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbNgayBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(6, 6, 6)
-                        .addComponent(jcbThangBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(6, 6, 6)
-                        .addComponent(jcbNamBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbNgayKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(6, 6, 6)
-                        .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(6, 6, 6)
-                        .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 587, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2))
+                        .addComponent(jcbTrangThai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel3)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel8)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jcbMinTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel9)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jcbMaxTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel5)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel6)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jcbNgayBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(6, 6, 6)
+                            .addComponent(jcbThangBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(6, 6, 6)
+                            .addComponent(jcbNamBatDau, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel7)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jcbNgayKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(6, 6, 6)
+                            .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(6, 6, 6)
+                            .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 587, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2)))
                 .addContainerGap(33, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -388,7 +426,7 @@ public class QLHDPanel extends javax.swing.JPanel {
                         .addComponent(jcbNgayKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jcbThangKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jcbNamKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jcbMinTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -396,10 +434,14 @@ public class QLHDPanel extends javax.swing.JPanel {
                     .addComponent(jLabel3)
                     .addComponent(jcbMaxTongTien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(jcbTrangThai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -450,6 +492,7 @@ public class QLHDPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -468,5 +511,6 @@ public class QLHDPanel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> jcbNgayKetThuc;
     private javax.swing.JComboBox<String> jcbThangBatDau;
     private javax.swing.JComboBox<String> jcbThangKetThuc;
+    private javax.swing.JComboBox<String> jcbTrangThai;
     // End of variables declaration//GEN-END:variables
 }

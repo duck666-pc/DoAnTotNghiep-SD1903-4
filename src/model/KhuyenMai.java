@@ -15,8 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class KhuyenMai {
     private String id;
-    private String chiTietid;   
-    private String khachHangid;  
+    private String chiTietid; 
     private String ten; 
     private String moTa;
     private int soLuong;
@@ -28,7 +27,6 @@ public class KhuyenMai {
         return "KhuyenMai{" 
                 + "id=" + id 
                 + ", chiTietid=" + chiTietid 
-                + ", khachHangid=" + khachHangid 
                 + ", ten=" + ten 
                 + ", moTa=" + moTa 
                 + ", soLuong=" + soLuong 

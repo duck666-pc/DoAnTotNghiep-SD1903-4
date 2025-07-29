@@ -35,12 +35,13 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
         hd.setTongTienGoc(rs.getBigDecimal("TongTienGoc"));
         hd.setMucGiamGia(rs.getBigDecimal("MucGiamGia"));
         hd.setTongTienSauGiamGia(rs.getBigDecimal("TongTienSauGiamGia"));
+        hd.setTrangThai(rs.getString("TrangThai"));
         return hd;
     }
 
     @Override
     protected String getInsertQuery() {
-        return "INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, MucGiamGia, TongTienSauGiamGia) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        return "INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, MucGiamGia, TongTienSauGiamGia, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -52,11 +53,12 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
         ps.setBigDecimal(5, hd.getTongTienGoc());
         ps.setBigDecimal(6, hd.getMucGiamGia());
         ps.setBigDecimal(7, hd.getTongTienSauGiamGia());
+        ps.setString(8, hd.getTrangThai());
     }
 
     @Override
     protected String getUpdateQuery() {
-        return "UPDATE HoaDon SET ID = ?, ThoiGian = ?, KhachHangID = ?, NguoiDungID = ?, TongTienGoc = ?, MucGiamGia = ?, TongTienSauGiamGia = ? WHERE ID = ?";
+        return "UPDATE HoaDon SET ID = ?, ThoiGian = ?, KhachHangID = ?, NguoiDungID = ?, TongTienGoc = ?, MucGiamGia = ?, TongTienSauGiamGia = ?, TrangThai = ? WHERE ID = ?";
     }
 
     @Override
@@ -68,11 +70,13 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
         ps.setBigDecimal(5, hd.getTongTienGoc());
         ps.setBigDecimal(6, hd.getMucGiamGia());
         ps.setBigDecimal(7, hd.getTongTienSauGiamGia());
+        ps.setString(8, hd.getTrangThai());
+        ps.setString(9, hd.getId()); // WHERE clause parameter
     }
 
     @Override
     protected int getUpdateWhereIndex() {
-        return 8;
+        return 9;
     }
 
     public Object[] getRowArray(HoaDon hd) {
@@ -83,35 +87,36 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
             hd.getIdNguoiDung(),
             hd.getTongTienGoc(),
             hd.getMucGiamGia(),
-            hd.getTongTienSauGiamGia()
+            hd.getTongTienSauGiamGia(),
+            hd.getTrangThai()
         };
     }
 
     public List<HoaDon> search(Timestamp fromTime, Timestamp toTime,
-            BigDecimal minTotal, BigDecimal maxTotal) throws SQLException {
+            BigDecimal minTotal, BigDecimal maxTotal, String trangThai) throws SQLException {
         List<HoaDon> resultList = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM " + getTableName() + " WHERE 1=1");
 
-        // Điều kiện tìm kiếm theo khoảng thời gian
         if (fromTime != null) {
             sql.append(" AND ThoiGian >= ?");
         }
         if (toTime != null) {
             sql.append(" AND ThoiGian <= ?");
         }
-
-        // Điều kiện tìm kiếm theo khoảng tổng tiền
         if (minTotal != null) {
             sql.append(" AND TongTienSauGiamGia >= ?");
         }
         if (maxTotal != null) {
             sql.append(" AND TongTienSauGiamGia <= ?");
         }
+        if (trangThai != null && !trangThai.trim().isEmpty() && !trangThai.equals("Tất cả")) {
+            sql.append(" AND TrangThai = ?");
+        }
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int paramIndex = 1;
 
-            // Thiết lập tham số cho thời gian
+            // Set time parameters
             if (fromTime != null) {
                 ps.setTimestamp(paramIndex++, fromTime);
             }
@@ -119,7 +124,7 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
                 ps.setTimestamp(paramIndex++, toTime);
             }
 
-            // Thiết lập tham số cho tổng tiền
+            // Set amount parameters
             if (minTotal != null) {
                 ps.setBigDecimal(paramIndex++, minTotal);
             }
@@ -127,6 +132,27 @@ class HoaDonDAO extends BaseDAO<HoaDon> {
                 ps.setBigDecimal(paramIndex++, maxTotal);
             }
 
+            // Set status parameter
+            if (trangThai != null && !trangThai.trim().isEmpty() && !trangThai.equals("Tất cả")) {
+                ps.setString(paramIndex++, trangThai);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultList.add(mapResultSetToObject(rs));
+                }
+            }
+        }
+        return resultList;
+    }
+
+    // Method to get invoices by status only
+    public List<HoaDon> getByStatus(String trangThai) throws SQLException {
+        List<HoaDon> resultList = new ArrayList<>();
+        String sql = "SELECT * FROM " + getTableName() + " WHERE TrangThai = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, trangThai);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     resultList.add(mapResultSetToObject(rs));
@@ -299,9 +325,21 @@ public class QLHDDAO {
         return chiTietHoaDonDAO.getRowArray(cthd);
     }
 
+    // Updated search method with status parameter
+    public List<HoaDon> searchHoaDon(Timestamp fromTime, Timestamp toTime,
+            BigDecimal minTotal, BigDecimal maxTotal, String trangThai) throws SQLException {
+        return hoaDonDAO.search(fromTime, toTime, minTotal, maxTotal, trangThai);
+    }
+
+    // Overloaded method for backward compatibility
     public List<HoaDon> searchHoaDon(Timestamp fromTime, Timestamp toTime,
             BigDecimal minTotal, BigDecimal maxTotal) throws SQLException {
-        return hoaDonDAO.search(fromTime, toTime, minTotal, maxTotal);
+        return hoaDonDAO.search(fromTime, toTime, minTotal, maxTotal, null);
+    }
+
+    // Method to get invoices by status
+    public List<HoaDon> getHoaDonByStatus(String trangThai) throws SQLException {
+        return hoaDonDAO.getByStatus(trangThai);
     }
 
     public List<ChiTietHoaDon> getCTHDByHoaDonID(String hoaDonID) {

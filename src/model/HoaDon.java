@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HoaDon {
+
     private String id;
     private Timestamp thoiGian;
     private String idKhachHang;
@@ -17,17 +18,19 @@ public class HoaDon {
     private BigDecimal tongTienGoc;
     private BigDecimal mucGiamGia;
     private BigDecimal tongTienSauGiamGia;
+    private String trangThai;
 
     @Override
     public String toString() {
-        return "HoaDon(){" +
-                "id=" + id +
-                ", thoiGian='" + thoiGian + '\'' +
-                ", idKhachHang=" + idKhachHang +
-                ", idNguoiDung=" + idNguoiDung +  
-                ", tongTienGoc=" + tongTienGoc +  
-                ", mucGiamGia=" + mucGiamGia +                  
-                ", tongTienSauGiamGia=" + tongTienSauGiamGia + '\'' +
-                '}';
+        return "HoaDon{"
+                + "id=" + id
+                + ", thoiGian='" + thoiGian + '\''
+                + ", idKhachHang=" + idKhachHang
+                + ", idNguoiDung=" + idNguoiDung
+                + ", tongTienGoc=" + tongTienGoc
+                + ", mucGiamGia=" + mucGiamGia
+                + ", tongTienSauGiamGia=" + tongTienSauGiamGia
+                + ", trangThai='" + trangThai + '\''
+                + '}';
     }
 }
