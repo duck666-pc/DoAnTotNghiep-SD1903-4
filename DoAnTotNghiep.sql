@@ -268,16 +268,16 @@ INSERT INTO NguyenVatLieuSanPham (ID, SanPhamID, NguyenVatLieuID, SoLuongCan) VA
 (N'NVS010', N'SP010', N'NVL010', 67);
 
 INSERT INTO GiaoDichTaiKho (ID, NguyenVatLieuID, ThoiGian, LoaiGiaoDich, SoLuongNhapXuat, GhiChu) VALUES
-(N'GD001', N'NVL001', '2025-06-01 09:00:00', N'Nhập', 10, N'Nhập hàng'),
-(N'GD002', N'NVL002', '2025-06-02 09:00:00', N'Xuất', 15, N'Nhập hàng'),
-(N'GD003', N'NVL003', '2025-06-03 09:00:00', N'Nhập', 30, N'Nhập hàng'),
-(N'GD004', N'NVL004', '2025-06-04 09:00:00', N'Xuất', 25, N'Nhập hàng'),
-(N'GD005', N'NVL005', '2025-06-05 09:00:00', N'Nhập', 50, N'Nhập hàng'),
-(N'GD006', N'NVL006', '2025-06-06 09:00:00', N'Xuất', 35, N'Nhập hàng'),
-(N'GD007', N'NVL007', '2025-06-07 09:00:00', N'Nhập', 70, N'Nhập hàng'),
-(N'GD008', N'NVL008', '2025-06-08 09:00:00', N'Xuất', 45, N'Nhập hàng'),
-(N'GD009', N'NVL009', '2025-06-09 09:00:00', N'Nhập', 90, N'Nhập hàng'),
-(N'GD010', N'NVL010', '2025-06-10 09:00:00', N'Xuất', 55, N'Nhập hàng');
+(N'GD001', N'NVL001', '2025-06-01', N'Nhập', 10, N'Nhập hàng'),
+(N'GD002', N'NVL002', '2025-06-02', N'Xuất', 15, N'Nhập hàng'),
+(N'GD003', N'NVL003', '2025-06-03', N'Nhập', 30, N'Nhập hàng'),
+(N'GD004', N'NVL004', '2025-06-04', N'Xuất', 25, N'Nhập hàng'),
+(N'GD005', N'NVL005', '2025-06-05', N'Nhập', 50, N'Nhập hàng'),
+(N'GD006', N'NVL006', '2025-06-06', N'Xuất', 35, N'Nhập hàng'),
+(N'GD007', N'NVL007', '2025-06-07', N'Nhập', 70, N'Nhập hàng'),
+(N'GD008', N'NVL008', '2025-06-08', N'Xuất', 45, N'Nhập hàng'),
+(N'GD009', N'NVL009', '2025-06-09', N'Nhập', 90, N'Nhập hàng'),
+(N'GD010', N'NVL010', '2025-06-10', N'Xuất', 55, N'Nhập hàng');
 
 --Muốn xóa database thì chạy khối này
 USE master;

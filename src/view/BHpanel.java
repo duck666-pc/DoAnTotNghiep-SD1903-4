@@ -695,10 +695,6 @@ public final class BHpanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_tblcthdMouseClicked
 
-    private void txtidhdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtidhdActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtidhdActionPerformed
-
     private void btntaoHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntaoHDActionPerformed
         if (!validateInvoiceFields()) {
             return;
@@ -728,46 +724,6 @@ public final class BHpanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btntaoHDActionPerformed
 
-    private void btnthaydoiHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnthaydoiHDActionPerformed
-        if (currentRowHD == -1) {
-            showErrorMessage("Vui lòng chọn hóa đơn cần sửa");
-            return;
-        }
-
-        if (!validateInvoiceFields()) {
-            return;
-        }
-
-        try {
-            String ID = txtidhd.getText().trim();
-            String tgian = txttgian.getText().trim();
-            String IDKH = txtidkh.getText().trim();
-            String IDND = txtidnv.getText().trim();
-            double magiamgia = Double.parseDouble(txtmgg.getText().trim());
-            String IDcheck = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-
-            // Get current totals from the HoaDon object
-            HoaDon currentHD = hdList.get(currentRowHD);
-            double tongTien = currentHD.getTongTienGoc().doubleValue();
-            double tongTienSauGiamGia = tongTien - magiamgia;
-
-            boolean success = BHdao.updateHD(ID, tgian, IDKH, IDND, tongTien, magiamgia, tongTienSauGiamGia, IDcheck);
-
-            if (success) {
-                displayHD();
-                modelcthd.setRowCount(0);
-                clearFields();
-                showSuccessMessage("Sửa hóa đơn thành công");
-            } else {
-                showErrorMessage("Sửa hóa đơn thất bại");
-            }
-        } catch (NumberFormatException e) {
-            showErrorMessage("Mã giảm giá phải là số hợp lệ");
-        } catch (Exception e) {
-            showErrorMessage("Sửa hóa đơn thất bại: " + e.getMessage());
-        }
-    }//GEN-LAST:event_btnthaydoiHDActionPerformed
-
     private void tblhdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhdMouseClicked
         try {
             currentRowHD = tblhd.getSelectedRow();
@@ -790,40 +746,6 @@ public final class BHpanel extends javax.swing.JPanel {
             showErrorMessage("Lỗi khi hiển thị thông tin hóa đơn: " + e.getMessage());
         }
     }//GEN-LAST:event_tblhdMouseClicked
-
-    private void btnxoaHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxoaHDActionPerformed
-        if (currentRowHD == -1) {
-            showErrorMessage("Vui lòng chọn hóa đơn cần xóa");
-            return;
-        }
-
-        String ID = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Bạn có chắc chắn muốn xóa hóa đơn " + ID + "?",
-                "Xác nhận xóa",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                boolean success = BHdao.deleteHD(ID);
-
-                if (success) {
-                    displayHD();
-                    modelcthd.setRowCount(0);
-                    clearFields();
-                    currentRowHD = -1;
-                    showSuccessMessage("Xóa hóa đơn thành công");
-                } else {
-                    showErrorMessage("Xóa hóa đơn thất bại");
-                }
-            } catch (Exception e) {
-                showErrorMessage("Xóa hóa đơn thất bại: " + e.getMessage());
-            }
-        }
-    }//GEN-LAST:event_btnxoaHDActionPerformed
 
     private void btnthanhtoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnthanhtoanActionPerformed
         currentRowCTHD = tblcthd.getSelectedRow();
@@ -942,6 +864,131 @@ public final class BHpanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnthanhtoanActionPerformed
 
+    private void btnxoaHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxoaHDActionPerformed
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn cần xóa");
+            return;
+        }
+
+        String ID = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+
+        int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Bạn có chắc chắn muốn xóa hóa đơn " + ID + "?",
+            "Xác nhận xóa",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                boolean success = BHdao.deleteHD(ID);
+
+                if (success) {
+                    displayHD();
+                    modelcthd.setRowCount(0);
+                    clearFields();
+                    currentRowHD = -1;
+                    showSuccessMessage("Xóa hóa đơn thành công");
+                } else {
+                    showErrorMessage("Xóa hóa đơn thất bại");
+                }
+            } catch (Exception e) {
+                showErrorMessage("Xóa hóa đơn thất bại: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnxoaHDActionPerformed
+
+    private void txtidhdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtidhdActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtidhdActionPerformed
+
+    private void btnthaydoiHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnthaydoiHDActionPerformed
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn cần sửa");
+            return;
+        }
+
+        if (!validateInvoiceFields()) {
+            return;
+        }
+
+        try {
+            String ID = txtidhd.getText().trim();
+            String tgian = txttgian.getText().trim();
+            String IDKH = txtidkh.getText().trim();
+            String IDND = txtidnv.getText().trim();
+            double magiamgia = Double.parseDouble(txtmgg.getText().trim());
+            String IDcheck = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+
+            // Get current totals from the HoaDon object
+            HoaDon currentHD = hdList.get(currentRowHD);
+            double tongTien = currentHD.getTongTienGoc().doubleValue();
+            double tongTienSauGiamGia = tongTien - magiamgia;
+
+            boolean success = BHdao.updateHD(ID, tgian, IDKH, IDND, tongTien, magiamgia, tongTienSauGiamGia, IDcheck);
+
+            if (success) {
+                displayHD();
+                modelcthd.setRowCount(0);
+                clearFields();
+                showSuccessMessage("Sửa hóa đơn thành công");
+            } else {
+                showErrorMessage("Sửa hóa đơn thất bại");
+            }
+        } catch (NumberFormatException e) {
+            showErrorMessage("Mã giảm giá phải là số hợp lệ");
+        } catch (Exception e) {
+            showErrorMessage("Sửa hóa đơn thất bại: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnthaydoiHDActionPerformed
+
+    private void btndeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndeleteActionPerformed
+        currentRowCTHD = tblcthd.getSelectedRow();
+        currentRowSP = tblsp.getSelectedRow();
+        currentRowHD = tblhd.getSelectedRow();
+        if (currentRowHD == -1) {
+            showErrorMessage("Vui lòng chọn hóa đơn");
+            return;
+        }
+
+        if (currentRowCTHD == -1) {
+            showErrorMessage("Vui lòng chọn sản phẩm cần xóa");
+            return;
+        }
+
+        try {
+            String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
+            String ID = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 1));
+
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn xóa sản phẩm này khỏi hóa đơn?",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = BHdao.deleteCTHD(IDHD, ID);
+
+                if (success) {
+                    displayCTHD(IDHD);
+                    updateInvoiceTotal();
+
+                    // Clear detail fields
+                    txtidcthd.setText("");
+                    txtsl.setText("");
+                    currentRowCTHD = -1;
+
+                    showSuccessMessage("Xóa sản phẩm khỏi hóa đơn thành công");
+                } else {
+                    showErrorMessage("Xóa sản phẩm thất bại");
+                }
+            }
+        } catch (Exception e) {
+            showErrorMessage("Xóa sản phẩm thất bại: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btndeleteActionPerformed
+
     private void btnaddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnaddActionPerformed
         if (!validateInvoiceDetailFields()) {
             return;
@@ -973,56 +1020,7 @@ public final class BHpanel extends javax.swing.JPanel {
         } catch (Exception e) {
             showErrorMessage("Thêm sản phẩm thất bại: " + e.getMessage());
         }
-
     }//GEN-LAST:event_btnaddActionPerformed
-
-    private void btndeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndeleteActionPerformed
-        currentRowCTHD = tblcthd.getSelectedRow();
-        currentRowSP = tblsp.getSelectedRow();
-        currentRowHD = tblhd.getSelectedRow();
-        if (currentRowHD == -1) {
-            showErrorMessage("Vui lòng chọn hóa đơn");
-            return;
-        }
-
-        if (currentRowCTHD == -1) {
-            showErrorMessage("Vui lòng chọn sản phẩm cần xóa");
-            return;
-        }
-
-        try {
-            String IDHD = String.valueOf(tblhd.getValueAt(currentRowHD, 0));
-            String ID = String.valueOf(tblcthd.getValueAt(currentRowCTHD, 1));
-
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn xóa sản phẩm này khỏi hóa đơn?",
-                    "Xác nhận xóa",
-                    JOptionPane.YES_NO_OPTION
-            );
-
-            if (confirm == JOptionPane.YES_OPTION) {
-                boolean success = BHdao.deleteCTHD(IDHD, ID);
-
-                if (success) {
-                    displayCTHD(IDHD);
-                    updateInvoiceTotal();
-
-                    // Clear detail fields
-                    txtidcthd.setText("");
-                    txtsl.setText("");
-                    currentRowCTHD = -1;
-
-                    showSuccessMessage("Xóa sản phẩm khỏi hóa đơn thành công");
-                } else {
-                    showErrorMessage("Xóa sản phẩm thất bại");
-                }
-            }
-        } catch (Exception e) {
-            showErrorMessage("Xóa sản phẩm thất bại: " + e.getMessage());
-        }
-
-    }//GEN-LAST:event_btndeleteActionPerformed
 
     private void btnupdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnupdateActionPerformed
         currentRowCTHD = tblcthd.getSelectedRow();
@@ -1065,7 +1063,6 @@ public final class BHpanel extends javax.swing.JPanel {
         } catch (Exception e) {
             showErrorMessage("Cập nhật chi tiết hóa đơn thất bại: " + e.getMessage());
         }
-
     }//GEN-LAST:event_btnupdateActionPerformed
 
 
