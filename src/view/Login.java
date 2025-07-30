@@ -42,7 +42,7 @@ public class Login extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        txtID = new javax.swing.JTextField();
+        txtEmail = new javax.swing.JTextField();
         jbtDangNhap = new javax.swing.JButton();
         txtMatKhau = new javax.swing.JPasswordField();
         jCheckBox = new javax.swing.JCheckBox();
@@ -55,13 +55,13 @@ public class Login extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(41, 120, 185));
         jLabel2.setText("Đăng Nhập");
 
-        jLabel3.setText("ID:");
+        jLabel3.setText("Email:");
 
         jLabel4.setText("Mật khẩu:");
 
-        txtID.addActionListener(new java.awt.event.ActionListener() {
+        txtEmail.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIDActionPerformed(evt);
+                txtEmailActionPerformed(evt);
             }
         });
 
@@ -112,7 +112,7 @@ public class Login extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txtMatKhau)
                                     .addComponent(jCheckBox)
-                                    .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel1)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -138,7 +138,7 @@ public class Login extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
@@ -155,17 +155,17 @@ public class Login extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIDActionPerformed
+    private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtIDActionPerformed
+    }//GEN-LAST:event_txtEmailActionPerformed
 
     private void jbtDangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangNhapActionPerformed
-        String id = txtID.getText().trim();
+        String email = txtEmail.getText().trim();
         String matKhau = new String(txtMatKhau.getPassword()).trim();
 
-        if (id.isEmpty()) {
+        if (email.isEmpty()) {
             showErrorMessage("Vui lòng nhập ID!");
-            txtID.requestFocus();
+            txtEmail.requestFocus();
             return;
         }
         
@@ -176,7 +176,7 @@ public class Login extends javax.swing.JFrame {
         }
 
         try {
-            NhanVien authenticatedUser = authenticateUser(id, matKhau);
+            NhanVien authenticatedUser = authenticateUser(email, matKhau);
             
             if (authenticatedUser != null) {
                 new TrangChu(authenticatedUser).setVisible(true);
@@ -202,10 +202,11 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
     
-    private NhanVien authenticateUser(String id, String matKhau) throws SQLException, ClassNotFoundException {
+    private NhanVien authenticateUser(String email, String matKhau) throws SQLException, ClassNotFoundException {
         for (NhanVien n : qlnv.getAll()) {
-            if (id.equals(n.getId()) && matKhau.equals(n.getMatKhau())) {
+            if (matKhau.equals(n.getMatKhau()) && email.equals(n.getEmail())) {
                 return n;
+            } else {
             }
         }
         return null;
@@ -220,7 +221,7 @@ public class Login extends javax.swing.JFrame {
     
     private void clearFields() {
         txtMatKhau.setText("");
-        txtID.requestFocus();
+        txtEmail.requestFocus();
     }
     
     /**
@@ -263,7 +264,7 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JButton jbtDangNhap;
     private javax.swing.JButton jbtQuenMatKhau;
-    private javax.swing.JTextField txtID;
+    private javax.swing.JTextField txtEmail;
     private javax.swing.JPasswordField txtMatKhau;
     // End of variables declaration//GEN-END:variables
 }
