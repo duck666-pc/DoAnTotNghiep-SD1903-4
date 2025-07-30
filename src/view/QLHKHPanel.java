@@ -114,7 +114,7 @@ public class QLHKHPanel extends BasePanel<HangKhachHang> {
 
     @Override
     protected String getIdPrefix() {
-        return "HC"; // Tiền tố ID hạng khách hàng
+        return "HC";
     }
 
     @Override

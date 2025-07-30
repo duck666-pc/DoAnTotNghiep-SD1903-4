@@ -102,7 +102,7 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
 
     @Override
     protected String getIdPrefix() {
-        return "LSP"; // Tiền tố ID loại sản phẩm
+        return "LSP"; 
     }
 
     @Override

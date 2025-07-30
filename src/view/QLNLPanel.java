@@ -346,7 +346,7 @@ public final class QLNLPanel extends BasePanel<NguyenVatLieu> {
                             .addComponent(jbtTimKiem))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
