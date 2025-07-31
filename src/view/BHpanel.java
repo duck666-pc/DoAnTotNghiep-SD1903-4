@@ -7,7 +7,6 @@ package view;
 import controller.BHDAO1;
 import model.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -16,22 +15,20 @@ import java.util.Locale;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import java.awt.Desktop;
 import java.io.File;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 public final class BHpanel extends javax.swing.JPanel {
 
-    private BHDAO1 bhDAO;
+    private final BHDAO1 bhDAO;
     private List<SanPham> danhSachSanPham;
-    private List<SanPham> sanPhamDaChon;
+    private final List<SanPham> sanPhamDaChon;
     private String currentHoaDonId;
     private KhachHang khachHangHienTai;
-    private NumberFormat currencyFormat;
+    private final NumberFormat currencyFormat;
 
     public BHpanel() {
         initComponents();
@@ -60,52 +57,37 @@ public final class BHpanel extends javax.swing.JPanel {
 
     private void setupEventHandlers() {
         // Customer type selection handler
-        jcbKhachHang.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (jcbKhachHang.getSelectedIndex() == 0) {
-                    // Khách Vãng Lai
-                    txtSDT.setEnabled(false);
-                    txtSDT.setText("");
-                    khachHangHienTai = null;
-                } else {
-                    // Khách Quen
-                    txtSDT.setEnabled(true);
-                }
+        jcbKhachHang.addActionListener((ActionEvent e) -> {
+            if (jcbKhachHang.getSelectedIndex() == 0) {
+                // Khách Vãng Lai
+                txtSDT.setEnabled(false);
+                txtSDT.setText("");
+                khachHangHienTai = null;
+            } else {
+                // Khách Quen
+                txtSDT.setEnabled(true);
             }
         });
 
         // Phone number change handler
-        txtSDT.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                timKhachHangTheoSDT();
-            }
+        txtSDT.addActionListener((ActionEvent e) -> {
+            timKhachHangTheoSDT();
         });
 
         // Status filter handler
-        jcbTrangThai.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadHoaDonByTrangThai();
-            }
+        jcbTrangThai.addActionListener((ActionEvent e) -> {
+            loadHoaDonByTrangThai();
         });
 
         // Payment amount change handler
-        txtSDT1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                tinhTienDu();
-            }
+        txtSDT1.addActionListener((ActionEvent e) -> {
+            tinhTienDu();
         });
 
         // Product table selection handler
-        tblsp.getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                if (e.getColumn() == 0 || e.getColumn() == 2) { // Checkbox or quantity column
-                    capNhatKhuyenMai();
-                }
+        tblsp.getModel().addTableModelListener((TableModelEvent e) -> {
+            if (e.getColumn() == 0 || e.getColumn() == 2) { // Checkbox or quantity column
+                capNhatKhuyenMai();
             }
         });
 
@@ -143,11 +125,9 @@ public final class BHpanel extends javax.swing.JPanel {
         for (HoaDon hd : danhSachHD) {
             KhachHang kh = null;
             if (!hd.getIdKhachHang().equals("KH000")) {
-                // Try to get customer info, but don't break if not found
                 try {
                     kh = bhDAO.findKhachHangBySDT(""); // This method needs the phone number
                 } catch (Exception e) {
-                    // Ignore and continue
                 }
             }
 
@@ -183,7 +163,6 @@ public final class BHpanel extends javax.swing.JPanel {
         model.setRowCount(0);
 
         for (ChiTietHoaDon ct : chiTiets) {
-            // Find product name
             String tenSP = "Không xác định";
             for (SanPham sp : danhSachSanPham) {
                 if (sp.getId().equals(ct.getIdSanPham())) {
@@ -215,7 +194,6 @@ public final class BHpanel extends javax.swing.JPanel {
                         JOptionPane.YES_NO_OPTION);
 
                 if (option == JOptionPane.YES_OPTION) {
-                    // Open customer management panel (placeholder)
                     JOptionPane.showMessageDialog(this,
                             "Chức năng thêm khách hàng sẽ được tích hợp với QLKHPanel");
                 }
@@ -232,7 +210,6 @@ public final class BHpanel extends javax.swing.JPanel {
         DefaultTableModel modelKM = (DefaultTableModel) tblsp1.getModel();
         modelKM.setRowCount(0);
 
-        // Get selected products
         for (int i = 0; i < modelSP.getRowCount(); i++) {
             Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
             if (selected != null && selected) {
@@ -275,7 +252,6 @@ public final class BHpanel extends javax.swing.JPanel {
                     BigDecimal giaSP = BigDecimal.valueOf(sp.getGia());
                     BigDecimal thanhTienSP = giaSP.multiply(BigDecimal.valueOf(soLuong));
 
-                    // Apply promotions
                     List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
                     for (ChiTietKhuyenMai km : khuyenMais) {
                         if (km.getHinhThucGiam().equals("Phần trăm")) {
@@ -288,7 +264,6 @@ public final class BHpanel extends javax.swing.JPanel {
 
                     tongTien = tongTien.add(thanhTienSP);
                 } catch (NumberFormatException e) {
-                    // Skip invalid quantity
                 }
             }
         }
@@ -341,14 +316,12 @@ public final class BHpanel extends javax.swing.JPanel {
 
     private void xuatHoaDonPDF(String hoaDonId) {
         try {
-            // Create PDF
             Document document = new Document();
             String fileName = "HoaDon_" + hoaDonId + ".pdf";
             PdfWriter.getInstance(document, new FileOutputStream(fileName));
 
             document.open();
 
-            // Add content
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
             Font normalFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
@@ -358,7 +331,6 @@ public final class BHpanel extends javax.swing.JPanel {
 
             document.add(new Paragraph(" "));
 
-            // Invoice details
             HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
             if (hoaDon != null) {
                 document.add(new Paragraph("Mã hóa đơn: " + hoaDon.getId(), normalFont));
@@ -367,7 +339,6 @@ public final class BHpanel extends javax.swing.JPanel {
                         + (hoaDon.getIdKhachHang().equals("KH000") ? "Khách Vãng Lai" : "Khách quen"), normalFont));
                 document.add(new Paragraph(" "));
 
-                // Product table
                 PdfPTable table = new PdfPTable(4);
                 table.addCell("Sản phẩm");
                 table.addCell("Số lượng");
@@ -376,7 +347,6 @@ public final class BHpanel extends javax.swing.JPanel {
 
                 List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
                 for (ChiTietHoaDon ct : chiTiets) {
-                    // Find product name
                     String tenSP = "";
                     for (SanPham sp : danhSachSanPham) {
                         if (sp.getId().equals(ct.getIdSanPham())) {
@@ -387,20 +357,18 @@ public final class BHpanel extends javax.swing.JPanel {
 
                     table.addCell(tenSP);
                     table.addCell(String.valueOf(ct.getSoLuong()));
-                    table.addCell(currencyFormat.format(ct.getDonGia()));
+                    table.addCell(currencyFormat.format((long) ct.getDonGia()));
                     table.addCell(currencyFormat.format(ct.getDonGia() * ct.getSoLuong()));
                 }
 
                 document.add(table);
                 document.add(new Paragraph(" "));
 
-                // Total
                 document.add(new Paragraph("Tổng tiền: " + currencyFormat.format(hoaDon.getTongTienSauGiamGia()), normalFont));
             }
 
             document.close();
 
-            // Open PDF
             Desktop.getDesktop().open(new File(fileName));
 
         } catch (Exception e) {
@@ -754,7 +722,6 @@ public final class BHpanel extends javax.swing.JPanel {
             return;
         }
 
-        // Calculate total amount
         BigDecimal tongTienGoc = BigDecimal.ZERO;
         BigDecimal tongGiamGia = BigDecimal.ZERO;
 
@@ -770,7 +737,6 @@ public final class BHpanel extends javax.swing.JPanel {
                     BigDecimal thanhTienGoc = giaSP.multiply(BigDecimal.valueOf(soLuong));
                     tongTienGoc = tongTienGoc.add(thanhTienGoc);
 
-                    // Calculate discount
                     List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
                     for (ChiTietKhuyenMai km : khuyenMais) {
                         if (km.getHinhThucGiam().equals("Phần trăm")) {
@@ -789,18 +755,15 @@ public final class BHpanel extends javax.swing.JPanel {
 
         BigDecimal tongTienSauGiamGia = tongTienGoc.subtract(tongGiamGia);
 
-        // Determine customer ID
-        String khachHangId = "KH000"; // Default to walk-in customer
+        String khachHangId = "KH000";
         if (jcbKhachHang.getSelectedIndex() == 1 && khachHangHienTai != null) {
             khachHangId = khachHangHienTai.getId();
         }
 
-        // Create invoice
         currentHoaDonId = bhDAO.taoHoaDon(khachHangId, "ND001", // Default employee ID
                 tongTienGoc, tongGiamGia, tongTienSauGiamGia, "Chưa Thanh Toán");
 
         if (currentHoaDonId != null) {
-            // Add invoice details
             for (int i = 0; i < modelSP.getRowCount(); i++) {
                 Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
                 if (selected != null && selected) {
@@ -811,7 +774,6 @@ public final class BHpanel extends javax.swing.JPanel {
 
                         bhDAO.themChiTietHoaDon(currentHoaDonId, sp.getId(), soLuong, sp.getGia());
                     } catch (NumberFormatException e) {
-                        // Skip invalid quantities
                     }
                 }
             }
@@ -820,7 +782,6 @@ public final class BHpanel extends javax.swing.JPanel {
             loadHoaDon();
             updateSoDonChoXuLy();
 
-            // Load invoice details
             loadChiTietHoaDon(currentHoaDonId);
         } else {
             JOptionPane.showMessageDialog(this, "Tạo hóa đơn thất bại!");
@@ -836,17 +797,14 @@ public final class BHpanel extends javax.swing.JPanel {
             return;
         }
 
-        // Validate payment
         if (!validatePayment()) {
             JOptionPane.showMessageDialog(this, "Khách hàng chưa thanh toán đủ!");
             return;
         }
 
-        // Update invoice status
         if (bhDAO.capNhatTrangThaiHoaDon(currentHoaDonId, "Đã Thanh Toán")) {
             JOptionPane.showMessageDialog(this, "Xuất hóa đơn thành công!");
 
-            // Generate PDF
             xuatHoaDonPDF(currentHoaDonId);
 
             loadHoaDon();
@@ -892,7 +850,6 @@ public final class BHpanel extends javax.swing.JPanel {
         
         HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
         if (hoaDon != null) {
-            // Clear and add found invoice to table
             DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
             model.setRowCount(0);
             
