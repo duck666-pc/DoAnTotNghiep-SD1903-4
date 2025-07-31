@@ -5,13 +5,14 @@
 package view;
 
 import controller.QLHDDAO;
-import Model.HoaDon;
-import Model.ChiTietHoaDon;
+import model.HoaDon;
+import model.ChiTietHoaDon;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -190,7 +191,8 @@ public class QLHDPanel extends javax.swing.JPanel {
         
         DefaultTableModel model = (DefaultTableModel) jTableHD.getModel();
         model.setRowCount(0);
-        for (HoaDon hd : searchResults) {
+        for (Iterator<HoaDon> it = searchResults.iterator(); it.hasNext();) {
+            HoaDon hd = (HoaDon) it.next();
             model.addRow(new Object[]{
                 hd.getId(),
                 hd.getThoiGian(),

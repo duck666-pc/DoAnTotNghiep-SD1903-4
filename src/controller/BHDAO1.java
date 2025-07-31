@@ -20,8 +20,8 @@ public class BHDAO1 {
         try {
             // Kết nối database
             String url = "jdbc:sqlserver://localhost:1433;databaseName=DoAnTotNghiep;trustServerCertificate=true";
-            String username = "sa"; // Thay đổi theo cấu hình của bạn
-            String password = "123"; // Thay đổi theo cấu hình của bạn
+            String username = "sa"; 
+            String password = "123456789"; 
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -34,7 +34,8 @@ public class BHDAO1 {
         List<SanPham> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM SanPham";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); 
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 SanPham sp = new SanPham();
@@ -47,6 +48,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy danh sách sản phẩm: " + e.getMessage());
         }
 
         return danhSach;
@@ -54,10 +56,14 @@ public class BHDAO1 {
 
     // Tìm khách hàng theo số điện thoại
     public KhachHang findKhachHangBySDT(String sdt) {
+        if (sdt == null || sdt.trim().isEmpty()) {
+            return null;
+        }
+        
         String sql = "SELECT * FROM KhachHang WHERE DienThoai = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, sdt);
+            stmt.setString(1, sdt.trim());
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -71,6 +77,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi tìm khách hàng: " + e.getMessage());
         }
 
         return null;
@@ -79,6 +86,10 @@ public class BHDAO1 {
     // Lấy khuyến mãi theo sản phẩm
     public List<ChiTietKhuyenMai> getKhuyenMaiBySanPham(String sanPhamId) {
         List<ChiTietKhuyenMai> danhSach = new ArrayList<>();
+        if (sanPhamId == null || sanPhamId.trim().isEmpty()) {
+            return danhSach;
+        }
+        
         String sql = "SELECT ctkm.*, km.Ten as TenKM FROM ChiTietKhuyenMai ctkm "
                 + "INNER JOIN KhuyenMai km ON ctkm.ID = km.ChiTietKhuyenMaiID "
                 + "WHERE ctkm.SanPhamID = ? AND km.ThoiGianApDung <= GETDATE() "
@@ -100,6 +111,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy khuyến mãi: " + e.getMessage());
         }
 
         return danhSach;
@@ -108,6 +120,13 @@ public class BHDAO1 {
     // Tạo hóa đơn mới
     public String taoHoaDon(String khachHangId, String nguoiDungId, BigDecimal tongTienGoc,
             BigDecimal mucGiamGia, BigDecimal tongTienSauGiamGia, String trangThai) {
+        
+        // Validate input parameters
+        if (khachHangId == null || nguoiDungId == null || tongTienGoc == null) {
+            JOptionPane.showMessageDialog(null, "Thông tin hóa đơn không hợp lệ!");
+            return null;
+        }
+        
         String hoaDonId = "HD" + System.currentTimeMillis();
         String sql = "INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, "
                 + "MucGiamGia, TongTienSauGiamGia, TrangThai) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?)";
@@ -117,9 +136,9 @@ public class BHDAO1 {
             stmt.setString(2, khachHangId);
             stmt.setString(3, nguoiDungId);
             stmt.setBigDecimal(4, tongTienGoc);
-            stmt.setBigDecimal(5, mucGiamGia);
+            stmt.setBigDecimal(5, mucGiamGia != null ? mucGiamGia : BigDecimal.ZERO);
             stmt.setBigDecimal(6, tongTienSauGiamGia);
-            stmt.setString(7, trangThai);
+            stmt.setString(7, trangThai != null ? trangThai : "Chưa Thanh Toán");
 
             int result = stmt.executeUpdate();
             if (result > 0) {
@@ -127,6 +146,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi tạo hóa đơn: " + e.getMessage());
         }
 
         return null;
@@ -134,6 +154,10 @@ public class BHDAO1 {
 
     // Thêm chi tiết hóa đơn
     public boolean themChiTietHoaDon(String hoaDonId, String sanPhamId, int soLuong, double donGia) {
+        if (hoaDonId == null || sanPhamId == null || soLuong <= 0 || donGia <= 0) {
+            return false;
+        }
+        
         String chiTietId = "CT" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().substring(0, 4);
         String sql = "INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMoiSanPham) "
                 + "VALUES (?, ?, ?, ?, ?)";
@@ -148,6 +172,7 @@ public class BHDAO1 {
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi thêm chi tiết hóa đơn: " + e.getMessage());
         }
 
         return false;
@@ -155,6 +180,10 @@ public class BHDAO1 {
 
     // Cập nhật trạng thái hóa đơn
     public boolean capNhatTrangThaiHoaDon(String hoaDonId, String trangThai) {
+        if (hoaDonId == null || trangThai == null) {
+            return false;
+        }
+        
         String sql = "UPDATE HoaDon SET TrangThai = ? WHERE ID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -164,6 +193,7 @@ public class BHDAO1 {
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật trạng thái hóa đơn: " + e.getMessage());
         }
 
         return false;
@@ -176,7 +206,8 @@ public class BHDAO1 {
                 + "LEFT JOIN KhachHang kh ON hd.KhachHangID = kh.ID "
                 + "ORDER BY hd.ThoiGian DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); 
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 HoaDon hd = new HoaDon();
@@ -192,6 +223,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy danh sách hóa đơn: " + e.getMessage());
         }
 
         return danhSach;
@@ -200,6 +232,10 @@ public class BHDAO1 {
     // Lấy chi tiết hóa đơn theo ID hóa đơn
     public List<ChiTietHoaDon> getChiTietHoaDon(String hoaDonId) {
         List<ChiTietHoaDon> danhSach = new ArrayList<>();
+        if (hoaDonId == null || hoaDonId.trim().isEmpty()) {
+            return danhSach;
+        }
+        
         String sql = "SELECT ct.*, sp.Ten as TenSanPham FROM ChiTietHoaDon ct "
                 + "INNER JOIN SanPham sp ON ct.SanPhamID = sp.ID "
                 + "WHERE ct.HoaDonID = ?";
@@ -219,6 +255,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy chi tiết hóa đơn: " + e.getMessage());
         }
 
         return danhSach;
@@ -228,13 +265,15 @@ public class BHDAO1 {
     public int demSoDonChoXuLy() {
         String sql = "SELECT COUNT(*) as SoDon FROM HoaDon WHERE TrangThai = N'Chưa Thanh Toán'";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); 
+             ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getInt("SoDon");
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi đếm số đơn chờ xử lý: " + e.getMessage());
         }
 
         return 0;
@@ -242,6 +281,10 @@ public class BHDAO1 {
 
     // Tìm hóa đơn theo ID
     public HoaDon findHoaDonById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return null;
+        }
+        
         String sql = "SELECT * FROM HoaDon WHERE ID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -262,6 +305,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi tìm hóa đơn: " + e.getMessage());
         }
 
         return null;
@@ -303,6 +347,7 @@ public class BHDAO1 {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy hóa đơn theo trạng thái: " + e.getMessage());
         }
 
         return danhSach;
