@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HoaDon {
-
     private String id;
     private Timestamp thoiGian;
     private String idKhachHang;

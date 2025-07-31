@@ -16,7 +16,7 @@ public class ChiTietHoaDon {
 
     @Override
     public String toString() {
-        return "ChiTietKhuyenMai{"
+        return "ChiTietHoaDon{"
                 + "id=" + id
                 + ", soLuong=" + soLuong + '\'' 
                 + ", idHoaDon=" + idHoaDon

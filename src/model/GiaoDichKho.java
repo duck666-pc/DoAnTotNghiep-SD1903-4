@@ -27,5 +27,5 @@ public class GiaoDichKho {
                 ", soLuong=" + soLuong +                   
                 ", ghiChu=" + ghiChu + '\'' +
                 '}';
-    }    
+    }   
 }
