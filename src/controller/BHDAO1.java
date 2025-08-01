@@ -20,8 +20,8 @@ public class BHDAO1 {
         try {
             // Kết nối database
             String url = "jdbc:sqlserver://localhost:1433;databaseName=DoAnTotNghiep;trustServerCertificate=true";
-            String username = "sa"; 
-            String password = "123456789"; 
+            String username = "sa";
+            String password = "123456789";
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -34,8 +34,7 @@ public class BHDAO1 {
         List<SanPham> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM SanPham";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); 
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 SanPham sp = new SanPham();
@@ -59,7 +58,7 @@ public class BHDAO1 {
         if (sdt == null || sdt.trim().isEmpty()) {
             return null;
         }
-        
+
         String sql = "SELECT * FROM KhachHang WHERE DienThoai = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -89,7 +88,7 @@ public class BHDAO1 {
         if (sanPhamId == null || sanPhamId.trim().isEmpty()) {
             return danhSach;
         }
-        
+
         String sql = "SELECT ctkm.*, km.Ten as TenKM FROM ChiTietKhuyenMai ctkm "
                 + "INNER JOIN KhuyenMai km ON ctkm.ID = km.ChiTietKhuyenMaiID "
                 + "WHERE ctkm.SanPhamID = ? AND km.ThoiGianApDung <= GETDATE() "
@@ -120,36 +119,74 @@ public class BHDAO1 {
     // Tạo hóa đơn mới
     public String taoHoaDon(String khachHangId, String nguoiDungId, BigDecimal tongTienGoc,
             BigDecimal mucGiamGia, BigDecimal tongTienSauGiamGia, String trangThai) {
-        
-        // Validate input parameters
+
         if (khachHangId == null || nguoiDungId == null || tongTienGoc == null) {
             JOptionPane.showMessageDialog(null, "Thông tin hóa đơn không hợp lệ!");
             return null;
         }
-        
-        String hoaDonId = "HD" + System.currentTimeMillis();
-        String sql = "INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, "
+
+        String hoaDonId = null;
+
+        String getMaxSuffixSql
+                = "SELECT MAX(CAST(RIGHT(ID, 3) AS INT)) AS MaxSuffix "
+                + "FROM HoaDon "
+                + "WHERE ID LIKE 'HD[0-9][0-9][0-9]'";
+
+        String insertSql = "INSERT INTO HoaDon (ID, ThoiGian, KhachHangID, NguoiDungID, TongTienGoc, "
                 + "MucGiamGia, TongTienSauGiamGia, TrangThai) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, hoaDonId);
-            stmt.setString(2, khachHangId);
-            stmt.setString(3, nguoiDungId);
-            stmt.setBigDecimal(4, tongTienGoc);
-            stmt.setBigDecimal(5, mucGiamGia != null ? mucGiamGia : BigDecimal.ZERO);
-            stmt.setBigDecimal(6, tongTienSauGiamGia);
-            stmt.setString(7, trangThai != null ? trangThai : "Chưa Thanh Toán");
+        try {
+            connection.setAutoCommit(false); // bắt đầu transaction
 
-            int result = stmt.executeUpdate();
-            if (result > 0) {
-                return hoaDonId;
+            String lockedMaxSql
+                    = "SELECT MAX(CAST(RIGHT(ID, 3) AS INT)) AS MaxSuffix "
+                    + "FROM HoaDon WITH (UPDLOCK, HOLDLOCK) "
+                    + "WHERE ID LIKE 'HD[0-9][0-9][0-9]'";
+
+            int nextNumber = 1;
+            try (PreparedStatement stmtMax = connection.prepareStatement(lockedMaxSql); ResultSet rs = stmtMax.executeQuery()) {
+                if (rs.next()) {
+                    int maxSuffix = rs.getInt("MaxSuffix");
+                    if (!rs.wasNull()) {
+                        nextNumber = maxSuffix + 1;
+                    }
+                }
             }
+
+            if (nextNumber > 999) {
+                nextNumber = 1;
+            }
+
+            hoaDonId = String.format("HD%03d", nextNumber); // kiểu HD001, HD002, ...
+
+            try (PreparedStatement stmtInsert = connection.prepareStatement(insertSql)) {
+                stmtInsert.setString(1, hoaDonId);
+                stmtInsert.setString(2, khachHangId);
+                stmtInsert.setString(3, nguoiDungId);
+                stmtInsert.setBigDecimal(4, tongTienGoc);
+                stmtInsert.setBigDecimal(5, mucGiamGia);
+                stmtInsert.setBigDecimal(6, tongTienSauGiamGia);
+                stmtInsert.setString(7, trangThai);
+                stmtInsert.executeUpdate();
+            }
+
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                /* log */ }
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Lỗi khi tạo hóa đơn: " + e.getMessage());
+            return null;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                /* ignore */ }
         }
 
-        return null;
+        return hoaDonId;
     }
 
     // Thêm chi tiết hóa đơn
@@ -157,25 +194,64 @@ public class BHDAO1 {
         if (hoaDonId == null || sanPhamId == null || soLuong <= 0 || donGia <= 0) {
             return false;
         }
-        
-        String chiTietId = "CT" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().substring(0, 4);
-        String sql = "INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMoiSanPham) "
+
+        String chiTietId = null;
+
+        String lockedMaxSuffixSql
+                = "SELECT MAX(CAST(RIGHT(ID, 3) AS INT)) AS MaxSuffix "
+                + "FROM ChiTietHoaDon WITH (UPDLOCK, HOLDLOCK) "
+                + "WHERE ID LIKE 'CT[0-9][0-9][0-9]'";
+
+        String insertSql = "INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMoiSanPham) "
                 + "VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, chiTietId);
-            stmt.setInt(2, soLuong);
-            stmt.setString(3, hoaDonId);
-            stmt.setString(4, sanPhamId);
-            stmt.setDouble(5, donGia);
+        try {
+            connection.setAutoCommit(false);
 
-            return stmt.executeUpdate() > 0;
+            // Lấy suffix lớn nhất với khóa để tránh race condition
+            int nextNumber = 1;
+            try (PreparedStatement stmtMax = connection.prepareStatement(lockedMaxSuffixSql); ResultSet rs = stmtMax.executeQuery()) {
+                if (rs.next()) {
+                    int maxSuffix = rs.getInt("MaxSuffix");
+                    if (!rs.wasNull()) {
+                        nextNumber = maxSuffix + 1;
+                    }
+                }
+            }
+
+            if (nextNumber > 999) {
+                // Quyết định overflow: reset về 1 (hoặc điều chỉnh theo yêu cầu)
+                nextNumber = 1;
+            }
+
+            chiTietId = String.format("CT%03d", nextNumber); // CT001, CT002, ...
+
+            // Chèn chi tiết hóa đơn
+            try (PreparedStatement stmt = connection.prepareStatement(insertSql)) {
+                stmt.setString(1, chiTietId);
+                stmt.setInt(2, soLuong);
+                stmt.setString(3, hoaDonId);
+                stmt.setString(4, sanPhamId);
+                stmt.setDouble(5, donGia);
+                stmt.executeUpdate();
+            }
+
+            connection.commit();
+            return true;
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                /* log nếu cần */ }
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Lỗi khi thêm chi tiết hóa đơn: " + e.getMessage());
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                /* ignore */ }
         }
-
-        return false;
     }
 
     // Cập nhật trạng thái hóa đơn
@@ -183,7 +259,7 @@ public class BHDAO1 {
         if (hoaDonId == null || trangThai == null) {
             return false;
         }
-        
+
         String sql = "UPDATE HoaDon SET TrangThai = ? WHERE ID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -206,8 +282,7 @@ public class BHDAO1 {
                 + "LEFT JOIN KhachHang kh ON hd.KhachHangID = kh.ID "
                 + "ORDER BY hd.ThoiGian DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); 
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 HoaDon hd = new HoaDon();
@@ -235,7 +310,7 @@ public class BHDAO1 {
         if (hoaDonId == null || hoaDonId.trim().isEmpty()) {
             return danhSach;
         }
-        
+
         String sql = "SELECT ct.*, sp.Ten as TenSanPham FROM ChiTietHoaDon ct "
                 + "INNER JOIN SanPham sp ON ct.SanPhamID = sp.ID "
                 + "WHERE ct.HoaDonID = ?";
@@ -265,8 +340,7 @@ public class BHDAO1 {
     public int demSoDonChoXuLy() {
         String sql = "SELECT COUNT(*) as SoDon FROM HoaDon WHERE TrangThai = N'Chưa Thanh Toán'";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); 
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getInt("SoDon");
@@ -284,7 +358,7 @@ public class BHDAO1 {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
-        
+
         String sql = "SELECT * FROM HoaDon WHERE ID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

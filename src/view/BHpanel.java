@@ -29,8 +29,11 @@ public final class BHpanel extends javax.swing.JPanel {
     private String currentHoaDonId;
     private KhachHang khachHangHienTai;
     private final NumberFormat currencyFormat;
+    private NhanVien loggedInUser; // Added field for logged-in user
 
-    public BHpanel() {
+    // Modified constructor that accepts NhanVien parameter
+    public BHpanel(NhanVien loggedInUser) {
+        this.loggedInUser = loggedInUser;
         initComponents();
         bhDAO = new BHDAO1();
         danhSachSanPham = new ArrayList<>();
@@ -40,6 +43,16 @@ public final class BHpanel extends javax.swing.JPanel {
         initializeData();
         setupEventHandlers();
         updateSoDonChoXuLy();
+    }
+
+    // Keep the existing parameterless constructor for backward compatibility
+    public BHpanel() {
+        this(null); // Call the new constructor with null
+    }
+
+    // Add getter method to access logged-in user
+    public NhanVien getLoggedInUser() {
+        return loggedInUser;
     }
 
     private void initializeData() {
@@ -77,7 +90,7 @@ public final class BHpanel extends javax.swing.JPanel {
         });
 
         tblsp.getModel().addTableModelListener((TableModelEvent e) -> {
-            if (e.getColumn() == 0 || e.getColumn() == 2) { 
+            if (e.getColumn() == 0 || e.getColumn() == 2) {
                 capNhatKhuyenMai();
             }
         });
@@ -100,9 +113,9 @@ public final class BHpanel extends javax.swing.JPanel {
 
         for (SanPham sp : danhSachSanPham) {
             model.addRow(new Object[]{
-                false, 
+                false,
                 sp.getTen(),
-                "1" 
+                "1"
             });
         }
     }
@@ -327,6 +340,15 @@ public final class BHpanel extends javax.swing.JPanel {
                 document.add(new Paragraph("Thời gian: " + hoaDon.getThoiGian(), normalFont));
                 document.add(new Paragraph("Khách hàng: "
                         + (hoaDon.getIdKhachHang().equals("KH000") ? "Khách Vãng Lai" : "Khách quen"), normalFont));
+
+                // Add employee information to PDF
+                String nhanVienInfo = "Nhân viên: ";
+                if (loggedInUser != null) {
+                    nhanVienInfo += loggedInUser.getTenDayDu() + " (" + loggedInUser.getId() + ")";
+                } else {
+                    nhanVienInfo += "Không xác định";
+                }
+                document.add(new Paragraph(nhanVienInfo, normalFont));
                 document.add(new Paragraph(" "));
 
                 PdfPTable table = new PdfPTable(4);
@@ -750,7 +772,10 @@ public final class BHpanel extends javax.swing.JPanel {
             khachHangId = khachHangHienTai.getId();
         }
 
-        currentHoaDonId = bhDAO.taoHoaDon(khachHangId, "ND001", // Default employee ID
+        // Use the logged-in user's ID instead of hardcoded "ND001"
+        String nhanVienId = (loggedInUser != null) ? loggedInUser.getId() : "ND001";
+
+        currentHoaDonId = bhDAO.taoHoaDon(khachHangId, nhanVienId,
                 tongTienGoc, tongGiamGia, tongTienSauGiamGia, "Chưa Thanh Toán");
 
         if (currentHoaDonId != null) {
@@ -768,7 +793,9 @@ public final class BHpanel extends javax.swing.JPanel {
                 }
             }
 
-            JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! ID: " + currentHoaDonId);
+            String userName = (loggedInUser != null) ? loggedInUser.getTenDayDu() : "Unknown";
+            JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! ID: " + currentHoaDonId
+                    + "\nNhân viên: " + userName);
             loadHoaDon();
             updateSoDonChoXuLy();
 
@@ -776,6 +803,7 @@ public final class BHpanel extends javax.swing.JPanel {
         } else {
             JOptionPane.showMessageDialog(this, "Tạo hóa đơn thất bại!");
         }
+
     }//GEN-LAST:event_btnTaoHDActionPerformed
 
     private void tblhdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhdMouseClicked
