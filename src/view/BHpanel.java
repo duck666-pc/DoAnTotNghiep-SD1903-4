@@ -46,52 +46,42 @@ public final class BHpanel extends javax.swing.JPanel {
         loadSanPham();
         loadHoaDon();
 
-        // Set default customer to "Khách Vãng Lai"
         jcbKhachHang.setSelectedIndex(0);
         txtSDT.setEnabled(false);
 
-        // Clear labels
         jlbThanhTien.setText("0 đ");
         jlbTienDu.setText("0 đ");
     }
 
     private void setupEventHandlers() {
-        // Customer type selection handler
         jcbKhachHang.addActionListener((ActionEvent e) -> {
             if (jcbKhachHang.getSelectedIndex() == 0) {
-                // Khách Vãng Lai
                 txtSDT.setEnabled(false);
                 txtSDT.setText("");
                 khachHangHienTai = null;
             } else {
-                // Khách Quen
                 txtSDT.setEnabled(true);
             }
         });
 
-        // Phone number change handler
         txtSDT.addActionListener((ActionEvent e) -> {
             timKhachHangTheoSDT();
         });
 
-        // Status filter handler
         jcbTrangThai.addActionListener((ActionEvent e) -> {
             loadHoaDonByTrangThai();
         });
 
-        // Payment amount change handler
         txtSDT1.addActionListener((ActionEvent e) -> {
             tinhTienDu();
         });
 
-        // Product table selection handler
         tblsp.getModel().addTableModelListener((TableModelEvent e) -> {
-            if (e.getColumn() == 0 || e.getColumn() == 2) { // Checkbox or quantity column
+            if (e.getColumn() == 0 || e.getColumn() == 2) { 
                 capNhatKhuyenMai();
             }
         });
 
-        // Invoice table selection handler
         tblhd.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = tblhd.getSelectedRow();
@@ -110,9 +100,9 @@ public final class BHpanel extends javax.swing.JPanel {
 
         for (SanPham sp : danhSachSanPham) {
             model.addRow(new Object[]{
-                false, // Checkbox
+                false, 
                 sp.getTen(),
-                "1" // Default quantity
+                "1" 
             });
         }
     }

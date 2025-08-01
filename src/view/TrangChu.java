@@ -13,9 +13,13 @@ import model.NhanVien;
 
 public class TrangChu extends javax.swing.JFrame {
 
+    private NhanVien loggedInUser;
+
     public TrangChu(NhanVien n) {
+        this.loggedInUser = n;
         initComponents();
         setFullScreen();
+        displayUserInfo();
     }
 
     private TrangChu() {
@@ -25,6 +29,20 @@ public class TrangChu extends javax.swing.JFrame {
 
     private void setFullScreen() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+
+    // Method to display logged-in user information
+    private void displayUserInfo() {
+        if (loggedInUser != null) {
+            jLabel1.setText("Xin chào: " + loggedInUser.getTenDayDu());
+        } else {
+            jLabel1.setText("Chưa đăng nhập");
+        }
+    }
+
+    // Getter method to access logged-in user from other panels
+    public NhanVien getLoggedInUser() {
+        return loggedInUser;
     }
 
     private void showPanel(JPanel panel) {
@@ -339,7 +357,7 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtTRANGCHUActionPerformed
 
     private void jbtBANHANGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtBANHANGActionPerformed
-        showPanel(new BHpanel());        
+        showPanel(new BHpanel());
     }//GEN-LAST:event_jbtBANHANGActionPerformed
 
     public static void main(String args[]) {
