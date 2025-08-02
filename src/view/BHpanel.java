@@ -89,6 +89,24 @@ public final class BHpanel extends javax.swing.JPanel {
             tinhTienDu();
         });
 
+        // Add DocumentListener for txtSDT1 to calculate change in real-time
+        txtSDT1.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                tinhTienDu();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                tinhTienDu();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                tinhTienDu();
+            }
+        });
+
         tblsp.getModel().addTableModelListener((TableModelEvent e) -> {
             if (e.getColumn() == 0 || e.getColumn() == 2) {
                 capNhatKhuyenMai();
@@ -107,172 +125,232 @@ public final class BHpanel extends javax.swing.JPanel {
     }
 
     private void loadSanPham() {
-        danhSachSanPham = bhDAO.getAllSanPham();
-        DefaultTableModel model = (DefaultTableModel) tblsp.getModel();
-        model.setRowCount(0);
+        try {
+            danhSachSanPham = bhDAO.getAllSanPham();
+            DefaultTableModel model = (DefaultTableModel) tblsp.getModel();
+            model.setRowCount(0);
 
-        for (SanPham sp : danhSachSanPham) {
-            model.addRow(new Object[]{
-                false,
-                sp.getTen(),
-                "1"
-            });
+            for (SanPham sp : danhSachSanPham) {
+                model.addRow(new Object[]{
+                    false,
+                    sp.getTen(),
+                    "1"
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách sản phẩm: " + e.getMessage());
         }
     }
 
     private void loadHoaDon() {
-        List<HoaDon> danhSachHD = bhDAO.getAllHoaDon();
-        DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
-        model.setRowCount(0);
+        try {
+            List<HoaDon> danhSachHD = bhDAO.getAllHoaDon();
+            DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
+            model.setRowCount(0);
 
-        for (HoaDon hd : danhSachHD) {
-            KhachHang kh = null;
-            if (!hd.getIdKhachHang().equals("KH000")) {
-                try {
-                    kh = bhDAO.findKhachHangBySDT(""); // This method needs the phone number
-                } catch (Exception e) {
+            for (HoaDon hd : danhSachHD) {
+                String tenKH = "Khách Vãng Lai";
+                if (!hd.getIdKhachHang().equals("KH000")) {
+                    try {
+                        // Get customer by ID instead of phone number
+                        KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
+                        if (kh != null) {
+                            tenKH = kh.getTen();
+                        } else {
+                            tenKH = "Khách quen";
+                        }
+                    } catch (Exception e) {
+                        tenKH = "Khách quen";
+                    }
                 }
+
+                model.addRow(new Object[]{
+                    hd.getId(),
+                    hd.getThoiGian(),
+                    tenKH
+                });
             }
-
-            String tenKH = hd.getIdKhachHang().equals("KH000") ? "Khách Vãng Lai"
-                    : (kh != null ? kh.getTen() : "Khách quen");
-
-            model.addRow(new Object[]{
-                hd.getId(),
-                hd.getThoiGian(),
-                tenKH
-            });
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách hóa đơn: " + e.getMessage());
         }
     }
 
     private void loadHoaDonByTrangThai() {
-        String trangThai = (String) jcbTrangThai.getSelectedItem();
-        List<HoaDon> danhSachHD = bhDAO.getHoaDonByTrangThai(trangThai);
-        DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
-        model.setRowCount(0);
+        try {
+            String trangThai = (String) jcbTrangThai.getSelectedItem();
+            List<HoaDon> danhSachHD = bhDAO.getHoaDonByTrangThai(trangThai);
+            DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
+            model.setRowCount(0);
 
-        for (HoaDon hd : danhSachHD) {
-            model.addRow(new Object[]{
-                hd.getId(),
-                hd.getThoiGian(),
-                hd.getIdKhachHang().equals("KH000") ? "Khách Vãng Lai" : "Khách quen"
-            });
+            for (HoaDon hd : danhSachHD) {
+                String tenKH = "Khách Vãng Lai";
+                if (!hd.getIdKhachHang().equals("KH000")) {
+                    try {
+                        KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
+                        if (kh != null) {
+                            tenKH = kh.getTen();
+                        } else {
+                            tenKH = "Khách quen";
+                        }
+                    } catch (Exception e) {
+                        tenKH = "Khách quen";
+                    }
+                }
+
+                model.addRow(new Object[]{
+                    hd.getId(),
+                    hd.getThoiGian(),
+                    tenKH
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi lọc hóa đơn theo trạng thái: " + e.getMessage());
         }
     }
 
     private void loadChiTietHoaDon(String hoaDonId) {
-        List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
-        DefaultTableModel model = (DefaultTableModel) tblcthd.getModel();
-        model.setRowCount(0);
+        try {
+            List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
+            DefaultTableModel model = (DefaultTableModel) tblcthd.getModel();
+            model.setRowCount(0);
 
-        for (ChiTietHoaDon ct : chiTiets) {
-            String tenSP = "Không xác định";
-            for (SanPham sp : danhSachSanPham) {
-                if (sp.getId().equals(ct.getIdSanPham())) {
-                    tenSP = sp.getTen();
-                    break;
+            for (ChiTietHoaDon ct : chiTiets) {
+                String tenSP = "Không xác định";
+                for (SanPham sp : danhSachSanPham) {
+                    if (sp.getId().equals(ct.getIdSanPham())) {
+                        tenSP = sp.getTen();
+                        break;
+                    }
                 }
-            }
 
-            double thanhTien = ct.getDonGia() * ct.getSoLuong();
-            model.addRow(new Object[]{
-                ct.getId(),
-                tenSP,
-                ct.getSoLuong(),
-                currencyFormat.format(ct.getDonGia()),
-                currencyFormat.format(thanhTien)
-            });
+                double thanhTien = ct.getDonGia() * ct.getSoLuong();
+                model.addRow(new Object[]{
+                    ct.getId(),
+                    tenSP,
+                    ct.getSoLuong(),
+                    currencyFormat.format(ct.getDonGia()),
+                    currencyFormat.format(thanhTien)
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết hóa đơn: " + e.getMessage());
         }
     }
 
     private void timKhachHangTheoSDT() {
         String sdt = txtSDT.getText().trim();
         if (!sdt.isEmpty()) {
-            khachHangHienTai = bhDAO.findKhachHangBySDT(sdt);
-            if (khachHangHienTai == null) {
-                int option = JOptionPane.showConfirmDialog(this,
-                        "Không tìm thấy khách hàng với số điện thoại này.\n"
-                        + "Bạn có muốn thêm khách hàng mới không?",
-                        "Thông báo",
-                        JOptionPane.YES_NO_OPTION);
+            try {
+                khachHangHienTai = bhDAO.findKhachHangBySDT(sdt);
+                if (khachHangHienTai == null) {
+                    int option = JOptionPane.showConfirmDialog(this,
+                            "Không tìm thấy khách hàng với số điện thoại này.\n"
+                            + "Bạn có muốn thêm khách hàng mới không?",
+                            "Thông báo",
+                            JOptionPane.YES_NO_OPTION);
 
-                if (option == JOptionPane.YES_OPTION) {
+                    if (option == JOptionPane.YES_OPTION) {
+                        JOptionPane.showMessageDialog(this,
+                                "Chức năng thêm khách hàng sẽ được tích hợp với QLKHPanel");
+                    }
+                } else {
                     JOptionPane.showMessageDialog(this,
-                            "Chức năng thêm khách hàng sẽ được tích hợp với QLKHPanel");
+                            "Tìm thấy khách hàng: " + khachHangHienTai.getTen());
                 }
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Tìm thấy khách hàng: " + khachHangHienTai.getTen());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm khách hàng: " + e.getMessage());
             }
         }
     }
 
     private void capNhatKhuyenMai() {
-        sanPhamDaChon.clear();
-        DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
-        DefaultTableModel modelKM = (DefaultTableModel) tblsp1.getModel();
-        modelKM.setRowCount(0);
+        try {
+            sanPhamDaChon.clear();
+            DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
+            DefaultTableModel modelKM = (DefaultTableModel) tblsp1.getModel();
+            modelKM.setRowCount(0);
 
-        for (int i = 0; i < modelSP.getRowCount(); i++) {
-            Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
-            if (selected != null && selected) {
-                SanPham sp = danhSachSanPham.get(i);
-                sanPhamDaChon.add(sp);
+            for (int i = 0; i < modelSP.getRowCount(); i++) {
+                Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
+                if (selected != null && selected) {
+                    SanPham sp = danhSachSanPham.get(i);
+                    sanPhamDaChon.add(sp);
 
-                // Load promotions for this product
-                List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
-                for (ChiTietKhuyenMai km : khuyenMais) {
-                    modelKM.addRow(new Object[]{
-                        sp.getTen(),
-                        km.getHinhThucGiam(),
-                        km.getHinhThucGiam().equals("Phần trăm")
-                        ? km.getMucGiamGia() + "%"
-                        : currencyFormat.format(km.getSoTienGiamGia()),
-                        km.getHinhThucGiam().equals("Phần trăm")
-                        ? currencyFormat.format(sp.getGia() * km.getMucGiamGia() / 100)
-                        : currencyFormat.format(km.getSoTienGiamGia()),
-                        km.getQuaTang()
-                    });
+                    // Load promotions for this product
+                    List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
+                    for (ChiTietKhuyenMai km : khuyenMais) {
+                        modelKM.addRow(new Object[]{
+                            sp.getTen(),
+                            km.getHinhThucGiam(),
+                            km.getHinhThucGiam().equals("Phần trăm")
+                            ? km.getMucGiamGia() + "%"
+                            : currencyFormat.format(km.getSoTienGiamGia()),
+                            km.getHinhThucGiam().equals("Phần trăm")
+                            ? currencyFormat.format(sp.getGia() * km.getMucGiamGia() / 100)
+                            : currencyFormat.format(km.getSoTienGiamGia()),
+                            km.getQuaTang()
+                        });
+                    }
                 }
             }
-        }
 
-        tinhThanhTien();
+            tinhThanhTien();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật khuyến mãi: " + e.getMessage());
+        }
     }
 
     private void tinhThanhTien() {
-        BigDecimal tongTien = BigDecimal.ZERO;
-        DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
+        try {
+            BigDecimal tongTien = BigDecimal.ZERO;
+            DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
 
-        for (int i = 0; i < modelSP.getRowCount(); i++) {
-            Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
-            if (selected != null && selected) {
-                try {
-                    String soLuongStr = modelSP.getValueAt(i, 2).toString();
-                    int soLuong = Integer.parseInt(soLuongStr);
-                    SanPham sp = danhSachSanPham.get(i);
+            for (int i = 0; i < modelSP.getRowCount(); i++) {
+                Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
+                if (selected != null && selected) {
+                    try {
+                        String soLuongStr = modelSP.getValueAt(i, 2).toString();
+                        int soLuong = Integer.parseInt(soLuongStr);
 
-                    BigDecimal giaSP = BigDecimal.valueOf(sp.getGia());
-                    BigDecimal thanhTienSP = giaSP.multiply(BigDecimal.valueOf(soLuong));
-
-                    List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
-                    for (ChiTietKhuyenMai km : khuyenMais) {
-                        if (km.getHinhThucGiam().equals("Phần trăm")) {
-                            BigDecimal giamGia = thanhTienSP.multiply(BigDecimal.valueOf(km.getMucGiamGia() / 100));
-                            thanhTienSP = thanhTienSP.subtract(giamGia);
-                        } else {
-                            thanhTienSP = thanhTienSP.subtract(BigDecimal.valueOf(km.getSoTienGiamGia()));
+                        if (soLuong <= 0) {
+                            continue; // Skip invalid quantities
                         }
-                    }
 
-                    tongTien = tongTien.add(thanhTienSP);
-                } catch (NumberFormatException e) {
+                        SanPham sp = danhSachSanPham.get(i);
+
+                        BigDecimal giaSP = BigDecimal.valueOf(sp.getGia());
+                        BigDecimal thanhTienSP = giaSP.multiply(BigDecimal.valueOf(soLuong));
+
+                        // Apply promotions
+                        List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
+                        for (ChiTietKhuyenMai km : khuyenMais) {
+                            if (km.getHinhThucGiam().equals("Phần trăm")) {
+                                BigDecimal giamGia = thanhTienSP.multiply(BigDecimal.valueOf(km.getMucGiamGia() / 100));
+                                thanhTienSP = thanhTienSP.subtract(giamGia);
+                            } else {
+                                thanhTienSP = thanhTienSP.subtract(BigDecimal.valueOf(km.getSoTienGiamGia()));
+                            }
+                        }
+
+                        // Ensure non-negative total
+                        if (thanhTienSP.compareTo(BigDecimal.ZERO) < 0) {
+                            thanhTienSP = BigDecimal.ZERO;
+                        }
+
+                        tongTien = tongTien.add(thanhTienSP);
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                        // Skip invalid entries
+                        continue;
+                    }
                 }
             }
-        }
 
-        jlbThanhTien.setText(currencyFormat.format(tongTien));
-        tinhTienDu();
+            jlbThanhTien.setText(currencyFormat.format(tongTien));
+            tinhTienDu();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tính thành tiền: " + e.getMessage());
+            jlbThanhTien.setText("0 đ");
+        }
     }
 
     private void tinhTienDu() {
@@ -285,7 +363,7 @@ public final class BHpanel extends javax.swing.JPanel {
                 double tienKhachTra = Double.parseDouble(tienKhachTraText);
                 double tienDu = tienKhachTra - thanhTien;
 
-                jlbTienDu.setText(currencyFormat.format(tienDu));
+                jlbTienDu.setText(currencyFormat.format(Math.max(0, tienDu)));
             } else {
                 jlbTienDu.setText("0 đ");
             }
@@ -295,8 +373,12 @@ public final class BHpanel extends javax.swing.JPanel {
     }
 
     private void updateSoDonChoXuLy() {
-        int soDon = bhDAO.demSoDonChoXuLy();
-        jlbSoDonChoXuLy.setText(String.valueOf(soDon));
+        try {
+            int soDon = bhDAO.demSoDonChoXuLy();
+            jlbSoDonChoXuLy.setText(String.valueOf(soDon));
+        } catch (Exception e) {
+            jlbSoDonChoXuLy.setText("0");
+        }
     }
 
     private boolean validatePayment() {
@@ -325,10 +407,11 @@ public final class BHpanel extends javax.swing.JPanel {
 
             document.open();
 
+            // Use default fonts to avoid font issues
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
             Font normalFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
-            Paragraph title = new Paragraph("HÓA ĐƠN BÁN HÀNG", titleFont);
+            Paragraph title = new Paragraph("HOA DON BAN HANG", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
@@ -336,30 +419,30 @@ public final class BHpanel extends javax.swing.JPanel {
 
             HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
             if (hoaDon != null) {
-                document.add(new Paragraph("Mã hóa đơn: " + hoaDon.getId(), normalFont));
-                document.add(new Paragraph("Thời gian: " + hoaDon.getThoiGian(), normalFont));
-                document.add(new Paragraph("Khách hàng: "
-                        + (hoaDon.getIdKhachHang().equals("KH000") ? "Khách Vãng Lai" : "Khách quen"), normalFont));
+                document.add(new Paragraph("Ma hoa don: " + hoaDon.getId(), normalFont));
+                document.add(new Paragraph("Thoi gian: " + hoaDon.getThoiGian(), normalFont));
+                document.add(new Paragraph("Khach hang: "
+                        + (hoaDon.getIdKhachHang().equals("KH000") ? "Khach Vang Lai" : "Khach quen"), normalFont));
 
                 // Add employee information to PDF
-                String nhanVienInfo = "Nhân viên: ";
+                String nhanVienInfo = "Nhan vien: ";
                 if (loggedInUser != null) {
                     nhanVienInfo += loggedInUser.getTenDayDu() + " (" + loggedInUser.getId() + ")";
                 } else {
-                    nhanVienInfo += "Không xác định";
+                    nhanVienInfo += "Khong xac dinh";
                 }
                 document.add(new Paragraph(nhanVienInfo, normalFont));
                 document.add(new Paragraph(" "));
 
                 PdfPTable table = new PdfPTable(4);
-                table.addCell("Sản phẩm");
-                table.addCell("Số lượng");
-                table.addCell("Đơn giá");
-                table.addCell("Thành tiền");
+                table.addCell("San pham");
+                table.addCell("So luong");
+                table.addCell("Don gia");
+                table.addCell("Thanh tien");
 
                 List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
                 for (ChiTietHoaDon ct : chiTiets) {
-                    String tenSP = "";
+                    String tenSP = "Khong xac dinh";
                     for (SanPham sp : danhSachSanPham) {
                         if (sp.getId().equals(ct.getIdSanPham())) {
                             tenSP = sp.getTen();
@@ -376,12 +459,16 @@ public final class BHpanel extends javax.swing.JPanel {
                 document.add(table);
                 document.add(new Paragraph(" "));
 
-                document.add(new Paragraph("Tổng tiền: " + currencyFormat.format(hoaDon.getTongTienSauGiamGia()), normalFont));
+                document.add(new Paragraph("Tong tien: " + currencyFormat.format(hoaDon.getTongTienSauGiamGia()), normalFont));
             }
 
             document.close();
 
-            Desktop.getDesktop().open(new File(fileName));
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                Desktop.getDesktop().open(new File(fileName));
+            } else {
+                JOptionPane.showMessageDialog(this, "PDF đã được tạo: " + fileName);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -718,90 +805,115 @@ public final class BHpanel extends javax.swing.JPanel {
     }//GEN-LAST:event_tblcthdMouseClicked
 
     private void btnTaoHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTaoHDActionPerformed
-        DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
-        boolean hasSelectedProduct = false;
+        try {
+            DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
+            boolean hasSelectedProduct = false;
 
-        for (int i = 0; i < modelSP.getRowCount(); i++) {
-            Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
-            if (selected != null && selected) {
-                hasSelectedProduct = true;
-                break;
-            }
-        }
-
-        if (!hasSelectedProduct) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một sản phẩm!");
-            return;
-        }
-
-        BigDecimal tongTienGoc = BigDecimal.ZERO;
-        BigDecimal tongGiamGia = BigDecimal.ZERO;
-
-        for (int i = 0; i < modelSP.getRowCount(); i++) {
-            Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
-            if (selected != null && selected) {
-                try {
-                    String soLuongStr = modelSP.getValueAt(i, 2).toString();
-                    int soLuong = Integer.parseInt(soLuongStr);
-                    SanPham sp = danhSachSanPham.get(i);
-
-                    BigDecimal giaSP = BigDecimal.valueOf(sp.getGia());
-                    BigDecimal thanhTienGoc = giaSP.multiply(BigDecimal.valueOf(soLuong));
-                    tongTienGoc = tongTienGoc.add(thanhTienGoc);
-
-                    List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
-                    for (ChiTietKhuyenMai km : khuyenMais) {
-                        if (km.getHinhThucGiam().equals("Phần trăm")) {
-                            BigDecimal giamGia = thanhTienGoc.multiply(BigDecimal.valueOf(km.getMucGiamGia() / 100));
-                            tongGiamGia = tongGiamGia.add(giamGia);
-                        } else {
-                            tongGiamGia = tongGiamGia.add(BigDecimal.valueOf(km.getSoTienGiamGia()));
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
-                    return;
+            // Check if any product is selected
+            for (int i = 0; i < modelSP.getRowCount(); i++) {
+                Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
+                if (selected != null && selected) {
+                    hasSelectedProduct = true;
+                    break;
                 }
             }
-        }
 
-        BigDecimal tongTienSauGiamGia = tongTienGoc.subtract(tongGiamGia);
+            if (!hasSelectedProduct) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một sản phẩm!");
+                return;
+            }
 
-        String khachHangId = "KH000";
-        if (jcbKhachHang.getSelectedIndex() == 1 && khachHangHienTai != null) {
-            khachHangId = khachHangHienTai.getId();
-        }
+            // Calculate totals
+            BigDecimal tongTienGoc = BigDecimal.ZERO;
+            BigDecimal tongGiamGia = BigDecimal.ZERO;
 
-        // Use the logged-in user's ID instead of hardcoded "ND001"
-        String nhanVienId = (loggedInUser != null) ? loggedInUser.getId() : "ND001";
-
-        currentHoaDonId = bhDAO.taoHoaDon(khachHangId, nhanVienId,
-                tongTienGoc, tongGiamGia, tongTienSauGiamGia, "Chưa Thanh Toán");
-
-        if (currentHoaDonId != null) {
             for (int i = 0; i < modelSP.getRowCount(); i++) {
                 Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
                 if (selected != null && selected) {
                     try {
                         String soLuongStr = modelSP.getValueAt(i, 2).toString();
                         int soLuong = Integer.parseInt(soLuongStr);
+
+                        if (soLuong <= 0) {
+                            JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0!");
+                            return;
+                        }
+
                         SanPham sp = danhSachSanPham.get(i);
 
-                        bhDAO.themChiTietHoaDon(currentHoaDonId, sp.getId(), soLuong, sp.getGia());
+                        BigDecimal giaSP = BigDecimal.valueOf(sp.getGia());
+                        BigDecimal thanhTienGoc = giaSP.multiply(BigDecimal.valueOf(soLuong));
+                        tongTienGoc = tongTienGoc.add(thanhTienGoc);
+
+                        // Apply promotions
+                        List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
+                        for (ChiTietKhuyenMai km : khuyenMais) {
+                            if (km.getHinhThucGiam().equals("Phần trăm")) {
+                                BigDecimal giamGia = thanhTienGoc.multiply(BigDecimal.valueOf(km.getMucGiamGia() / 100));
+                                tongGiamGia = tongGiamGia.add(giamGia);
+                            } else {
+                                tongGiamGia = tongGiamGia.add(BigDecimal.valueOf(km.getSoTienGiamGia()));
+                            }
+                        }
                     } catch (NumberFormatException e) {
+                        JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
+                        return;
+                    } catch (IndexOutOfBoundsException e) {
+                        JOptionPane.showMessageDialog(this, "Lỗi dữ liệu sản phẩm!");
+                        return;
                     }
                 }
             }
 
-            String userName = (loggedInUser != null) ? loggedInUser.getTenDayDu() : "Unknown";
-            JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! ID: " + currentHoaDonId
-                    + "\nNhân viên: " + userName);
-            loadHoaDon();
-            updateSoDonChoXuLy();
+            BigDecimal tongTienSauGiamGia = tongTienGoc.subtract(tongGiamGia);
 
-            loadChiTietHoaDon(currentHoaDonId);
-        } else {
-            JOptionPane.showMessageDialog(this, "Tạo hóa đơn thất bại!");
+            // Determine customer ID
+            String khachHangId = "KH000";
+            if (jcbKhachHang.getSelectedIndex() == 1 && khachHangHienTai != null) {
+                khachHangId = khachHangHienTai.getId();
+            }
+
+            // Use the logged-in user's ID instead of hardcoded "ND001"
+            String nhanVienId = (loggedInUser != null) ? loggedInUser.getId() : "ND001";
+
+            // Create invoice
+            currentHoaDonId = bhDAO.taoHoaDon(khachHangId, nhanVienId,
+                    tongTienGoc, tongGiamGia, tongTienSauGiamGia, "Chưa Thanh Toán");
+
+            if (currentHoaDonId != null) {
+                // Add invoice details
+                for (int i = 0; i < modelSP.getRowCount(); i++) {
+                    Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
+                    if (selected != null && selected) {
+                        try {
+                            String soLuongStr = modelSP.getValueAt(i, 2).toString();
+                            int soLuong = Integer.parseInt(soLuongStr);
+                            SanPham sp = danhSachSanPham.get(i);
+
+                            bhDAO.themChiTietHoaDon(currentHoaDonId, sp.getId(), soLuong, sp.getGia());
+                        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                            // Skip invalid entries
+                            continue;
+                        }
+                    }
+                }
+
+                String userName = (loggedInUser != null) ? loggedInUser.getTenDayDu() : "Unknown";
+                JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! ID: " + currentHoaDonId
+                        + "\nNhân viên: " + userName);
+
+                // Refresh data
+                loadHoaDon();
+                updateSoDonChoXuLy();
+                loadChiTietHoaDon(currentHoaDonId);
+
+                // Reset form
+                resetForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Tạo hóa đơn thất bại!");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tạo hóa đơn: " + e.getMessage());
         }
 
     }//GEN-LAST:event_btnTaoHDActionPerformed
@@ -810,47 +922,58 @@ public final class BHpanel extends javax.swing.JPanel {
     }//GEN-LAST:event_tblhdMouseClicked
 
     private void btnXuatHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXuatHoaDonActionPerformed
-        if (currentHoaDonId == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn!");
-            return;
-        }
+        try {
+            if (currentHoaDonId == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn!");
+                return;
+            }
 
-        if (!validatePayment()) {
-            JOptionPane.showMessageDialog(this, "Khách hàng chưa thanh toán đủ!");
-            return;
-        }
+            if (!validatePayment()) {
+                JOptionPane.showMessageDialog(this, "Khách hàng chưa thanh toán đủ!");
+                return;
+            }
 
-        if (bhDAO.capNhatTrangThaiHoaDon(currentHoaDonId, "Đã Thanh Toán")) {
-            JOptionPane.showMessageDialog(this, "Xuất hóa đơn thành công!");
+            // Update invoice status
+            if (bhDAO.capNhatTrangThaiHoaDon(currentHoaDonId, "Đã Thanh Toán")) {
+                JOptionPane.showMessageDialog(this, "Xuất hóa đơn thành công!");
 
-            xuatHoaDonPDF(currentHoaDonId);
+                // Export PDF
+                xuatHoaDonPDF(currentHoaDonId);
 
-            loadHoaDon();
-            updateSoDonChoXuLy();
-        } else {
-            JOptionPane.showMessageDialog(this, "Xuất hóa đơn thất bại!");
+                // Refresh data
+                loadHoaDon();
+                updateSoDonChoXuLy();
+            } else {
+                JOptionPane.showMessageDialog(this, "Xuất hóa đơn thất bại!");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất hóa đơn: " + e.getMessage());
         }
     }//GEN-LAST:event_btnXuatHoaDonActionPerformed
 
     private void btnHuyHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyHDActionPerformed
-        if (currentHoaDonId == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn!");
-            return;
-        }
-
-        int option = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc chắn muốn hủy hóa đơn này?",
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION);
-
-        if (option == JOptionPane.YES_OPTION) {
-            if (bhDAO.capNhatTrangThaiHoaDon(currentHoaDonId, "Đã Hủy")) {
-                JOptionPane.showMessageDialog(this, "Hủy hóa đơn thành công!");
-                loadHoaDon();
-                updateSoDonChoXuLy();
-            } else {
-                JOptionPane.showMessageDialog(this, "Hủy hóa đơn thất bại!");
+        try {
+            if (currentHoaDonId == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn!");
+                return;
             }
+
+            int option = JOptionPane.showConfirmDialog(this,
+                    "Bạn có chắc chắn muốn hủy hóa đơn này?",
+                    "Xác nhận",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (option == JOptionPane.YES_OPTION) {
+                if (bhDAO.capNhatTrangThaiHoaDon(currentHoaDonId, "Đã Hủy")) {
+                    JOptionPane.showMessageDialog(this, "Hủy hóa đơn thành công!");
+                    loadHoaDon();
+                    updateSoDonChoXuLy();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Hủy hóa đơn thất bại!");
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi hủy hóa đơn: " + e.getMessage());
         }
     }//GEN-LAST:event_btnHuyHDActionPerformed
 
@@ -859,34 +982,69 @@ public final class BHpanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jcbKhachHangActionPerformed
 
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
-        String hoaDonId = txtTimKiem.getText().trim();
-        
-        if (hoaDonId.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập ID hóa đơn!");
-            return;
-        }
-        
-        HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
-        if (hoaDon != null) {
-            DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
-            model.setRowCount(0);
-            
-            String tenKH = hoaDon.getIdKhachHang().equals("KH000") ? "Khách Vãng Lai" : "Khách quen";
-            model.addRow(new Object[]{
-                hoaDon.getId(),
-                hoaDon.getThoiGian(),
-                tenKH
-            });
-            
-            currentHoaDonId = hoaDonId;
-            loadChiTietHoaDon(hoaDonId);
-            
-            JOptionPane.showMessageDialog(this, "Tìm thấy hóa đơn!");
-        } else {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn với ID: " + hoaDonId);
+        try {
+            String hoaDonId = txtTimKiem.getText().trim();
+
+            if (hoaDonId.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập ID hóa đơn!");
+                return;
+            }
+
+            HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
+            if (hoaDon != null) {
+                DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
+                model.setRowCount(0);
+
+                String tenKH = "Khách Vãng Lai";
+                if (!hoaDon.getIdKhachHang().equals("KH000")) {
+                    try {
+                        KhachHang kh = bhDAO.findKhachHangById(hoaDon.getIdKhachHang());
+                        if (kh != null) {
+                            tenKH = kh.getTen();
+                        } else {
+                            tenKH = "Khách quen";
+                        }
+                    } catch (Exception e) {
+                        tenKH = "Khách quen";
+                    }
+                }
+
+                model.addRow(new Object[]{
+                    hoaDon.getId(),
+                    hoaDon.getThoiGian(),
+                    tenKH
+                });
+
+                currentHoaDonId = hoaDonId;
+                loadChiTietHoaDon(hoaDonId);
+
+                JOptionPane.showMessageDialog(this, "Tìm thấy hóa đơn!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn với ID: " + hoaDonId);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm hóa đơn: " + e.getMessage());
         }
     }//GEN-LAST:event_jbtTimKiemActionPerformed
 
+    private void resetForm() {
+        DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
+        for (int i = 0; i < modelSP.getRowCount(); i++) {
+            modelSP.setValueAt(false, i, 0);
+            modelSP.setValueAt("1", i, 2);
+        }
+
+        DefaultTableModel modelKM = (DefaultTableModel) tblsp1.getModel();
+        modelKM.setRowCount(0);
+
+        jcbKhachHang.setSelectedIndex(0);
+        txtSDT.setText("");
+        txtSDT1.setText("");
+        khachHangHienTai = null;
+
+        jlbThanhTien.setText("0 đ");
+        jlbTienDu.setText("0 đ");
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnHuyHD;
