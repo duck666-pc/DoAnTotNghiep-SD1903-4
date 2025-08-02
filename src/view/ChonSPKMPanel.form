@@ -73,9 +73,9 @@
                 <Column editable="true" title="Ch&#x1ecd;n" type="java.lang.Boolean"/>
                 <Column editable="true" title="ID" type="java.lang.Object"/>
                 <Column editable="true" title="T&#xea;n" type="java.lang.Object"/>
-                <Column editable="true" title="&#x110;i&#x1ec7;n Tho&#x1ea1;i" type="java.lang.Object"/>
-                <Column editable="true" title="&#x110;&#x1ecb;a Ch&#x1ec9;" type="java.lang.Object"/>
-                <Column editable="true" title="ID H&#x1ea1;ng Kh&#xe1;ch H&#xe0;ng" type="java.lang.Object"/>
+                <Column editable="true" title="M&#xf4; t&#x1ea3;" type="java.lang.Object"/>
+                <Column editable="true" title="Gi&#xe1;" type="java.lang.Object"/>
+                <Column editable="true" title="Lo&#x1ea1;i S&#x1ea3;n Ph&#x1ea9;m" type="java.lang.Object"/>
               </Table>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">

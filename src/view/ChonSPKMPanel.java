@@ -4,78 +4,8 @@
  */
 package view;
 
-import controller.QLKHDAO;
-import java.sql.SQLException;
-import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-import model.KhachHang;
-import java.util.ArrayList;
+public final class ChonSPKMPanel extends javax.swing.JFrame {
 
-public final class QLKHKHPanel extends javax.swing.JFrame {
-    private DefaultTableModel tableModel;
-    private final QLKHDAO qlkh = new QLKHDAO();
-
-    public QLKHKHPanel() {
-        initComponents();
-        initTable();
-        fillTable();
-    }
-
-    private void initTable() {
-        // Cột đồng nhất tên
-        String[] cols = new String[]{"Chọn", "ID", "Tên", "Điện Thoại", "Địa Chỉ", "ID Hạng Khách Hàng"};
-        tableModel = new DefaultTableModel(null, cols) {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) return Boolean.class;
-                return String.class;
-            }
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 0;
-            }
-        };
-        jTable.setModel(tableModel);
-    }
-
-    private void fillTable() {
-        tableModel.setRowCount(0);
-        try {
-            List<KhachHang> listKH = qlkh.getAll();
-            for (KhachHang kh : listKH) {
-                Object[] row = new Object[]{
-                    false,
-                    kh.getId(),
-                    kh.getTen(),
-                    kh.getDienThoai(),
-                    kh.getDiaChi(),
-                    kh.gethangKhachHangId()
-                };
-                tableModel.addRow(row);
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
-        }
-    }
-
-    // Lấy danh sách khách hàng đã chọn, kiểm tra null/type
-    private List<KhachHang> getSelectedKhachHang() {
-        List<KhachHang> selected = new ArrayList<>();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            Object value = tableModel.getValueAt(i, 0);
-            boolean isSelected = value instanceof Boolean && (Boolean) value;
-            if (isSelected) {
-                String id = String.valueOf(tableModel.getValueAt(i, 1));
-                String ten = String.valueOf(tableModel.getValueAt(i, 2));
-                String dienThoai = String.valueOf(tableModel.getValueAt(i, 3));
-                String diaChi = String.valueOf(tableModel.getValueAt(i, 4));
-                String hangKH = String.valueOf(tableModel.getValueAt(i, 5));
-                selected.add(new KhachHang(id, ten, dienThoai, diaChi, hangKH));
-            }
-        }
-        return selected;
-    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -102,7 +32,7 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
                 {null, null, null, null, null, null}
             },
             new String [] {
-                "Chọn", "ID", "Tên", "Điện Thoại", "Địa Chỉ", "ID Hạng Khách Hàng"
+                "Chọn", "ID", "Tên", "Mô tả", "Giá", "Loại Sản Phẩm"
             }
         ) {
             Class[] types = new Class [] {
@@ -171,29 +101,15 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLuuActionPerformed
-        List<KhachHang> selected = getSelectedKhachHang();
-        if (selected.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một khách hàng!");
-            return;
-        }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Đã chọn ").append(selected.size()).append(" khách hàng:\n");
-        for (KhachHang kh : selected) {
-            sb.append("- ").append(kh.getTen()).append(" (").append(kh.getId()).append(")\n");
-        }
-        JOptionPane.showMessageDialog(this, sb.toString());
     }//GEN-LAST:event_jbtLuuActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            tableModel.setValueAt(false, i, 0);
-        }
+
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
     // TODO add your handling code here:
-    this.dispose();
     }//GEN-LAST:event_ExitActionPerformed
 
     /**
@@ -213,19 +129,20 @@ public final class QLKHKHPanel extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(QLKHKHPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ChonSPKMPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(QLKHKHPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ChonSPKMPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(QLKHKHPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ChonSPKMPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(QLKHKHPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ChonSPKMPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new QLKHKHPanel().setVisible(true);
+            new ChonSPKMPanel().setVisible(true);
         });
     }
 
