@@ -15,7 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BHDAO1 {
-
     private Connection connection;
     private static final Logger LOGGER = Logger.getLogger(BHDAO1.class.getName());
 
@@ -383,16 +382,17 @@ public class BHDAO1 {
         return false;
     }
 
-    // Lấy danh sách hóa đơn
+    // Fixed: Lấy danh sách hóa đơn với sắp xếp đúng
     public List<HoaDon> getAllHoaDon() {
         List<HoaDon> danhSach = new ArrayList<>();
         if (!ensureConnection()) {
             return danhSach;
         }
 
+        // Fixed: Order by numeric part of ID in descending order for newest first
         String sql = "SELECT hd.*, kh.Ten as TenKhachHang FROM HoaDon hd "
                 + "LEFT JOIN KhachHang kh ON hd.KhachHangID = kh.ID "
-                + "ORDER BY hd.ThoiGian DESC";
+                + "ORDER BY CAST(RIGHT(hd.ID, 3) AS INT) DESC";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql); 
              ResultSet rs = stmt.executeQuery()) {
@@ -516,7 +516,7 @@ public class BHDAO1 {
         return null;
     }
 
-    // Lấy danh sách hóa đơn theo trạng thái
+    // Fixed: Lấy danh sách hóa đơn theo trạng thái với sắp xếp đúng
     public List<HoaDon> getHoaDonByTrangThai(String trangThai) {
         List<HoaDon> danhSach = new ArrayList<>();
         if (!ensureConnection()) {
@@ -529,11 +529,11 @@ public class BHDAO1 {
         if ("Tất Cả".equals(trangThai)) {
             sql = "SELECT hd.*, kh.Ten as TenKhachHang FROM HoaDon hd "
                     + "LEFT JOIN KhachHang kh ON hd.KhachHangID = kh.ID "
-                    + "ORDER BY hd.ThoiGian DESC";
+                    + "ORDER BY CAST(RIGHT(hd.ID, 3) AS INT) DESC";
         } else {
             sql = "SELECT hd.*, kh.Ten as TenKhachHang FROM HoaDon hd "
                     + "LEFT JOIN KhachHang kh ON hd.KhachHangID = kh.ID "
-                    + "WHERE hd.TrangThai = ? ORDER BY hd.ThoiGian DESC";
+                    + "WHERE hd.TrangThai = ? ORDER BY CAST(RIGHT(hd.ID, 3) AS INT) DESC";
             hasWhereClause = true;
         }
 

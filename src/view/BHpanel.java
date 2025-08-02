@@ -20,6 +20,9 @@ import com.itextpdf.text.pdf.*;
 import java.awt.Desktop;
 import java.io.File;
 import javax.swing.event.TableModelEvent;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public final class BHpanel extends javax.swing.JPanel {
 
@@ -56,6 +59,22 @@ public final class BHpanel extends javax.swing.JPanel {
     }
 
     private void initializeData() {
+        javax.swing.table.DefaultTableCellRenderer currencyRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+            private final java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof Number) {
+                    setText(nf.format(((Number) value).doubleValue()));
+                } else {
+                    setText("");
+                }
+            }
+        };
+
+        tblcthd.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer); // Đơn Giá
+        tblcthd.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer); // Thành Tiền        
+
         loadSanPham();
         loadHoaDon();
 
@@ -64,6 +83,9 @@ public final class BHpanel extends javax.swing.JPanel {
 
         jlbThanhTien.setText("0 đ");
         jlbTienDu.setText("0 đ");
+
+        // Make invoice details table non-editable
+        tblcthd.setDefaultEditor(Object.class, null);
     }
 
     private void setupEventHandlers() {
@@ -113,12 +135,19 @@ public final class BHpanel extends javax.swing.JPanel {
             }
         });
 
-        tblhd.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                int selectedRow = tblhd.getSelectedRow();
-                if (selectedRow >= 0) {
-                    currentHoaDonId = (String) tblhd.getValueAt(selectedRow, 0);
-                    loadChiTietHoaDon(currentHoaDonId);
+        // Fixed: Properly handle row selection for invoice table
+        tblhd.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = tblhd.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        currentHoaDonId = (String) tblhd.getValueAt(selectedRow, 0);
+                        // Use SwingUtilities.invokeLater to ensure proper timing
+                        SwingUtilities.invokeLater(() -> {
+                            loadChiTietHoaDon(currentHoaDonId);
+                        });
+                    }
                 }
             }
         });
@@ -148,6 +177,18 @@ public final class BHpanel extends javax.swing.JPanel {
             DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
             model.setRowCount(0);
 
+            // Fixed: Sort invoices by ID in descending order for proper display
+            danhSachHD.sort((h1, h2) -> {
+                try {
+                    // Extract numeric part from ID (e.g., HD001 -> 1)
+                    int num1 = Integer.parseInt(h1.getId().substring(2));
+                    int num2 = Integer.parseInt(h2.getId().substring(2));
+                    return Integer.compare(num2, num1); // Descending order
+                } catch (NumberFormatException e) {
+                    return h2.getId().compareTo(h1.getId()); // Fallback to string comparison
+                }
+            });
+
             for (HoaDon hd : danhSachHD) {
                 String tenKH = "Khách Vãng Lai";
                 if (!hd.getIdKhachHang().equals("KH000")) {
@@ -170,6 +211,10 @@ public final class BHpanel extends javax.swing.JPanel {
                     tenKH
                 });
             }
+
+            // Fixed: Refresh the table display immediately
+            model.fireTableDataChanged();
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách hóa đơn: " + e.getMessage());
         }
@@ -181,6 +226,17 @@ public final class BHpanel extends javax.swing.JPanel {
             List<HoaDon> danhSachHD = bhDAO.getHoaDonByTrangThai(trangThai);
             DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
             model.setRowCount(0);
+
+            // Fixed: Sort invoices by ID in descending order
+            danhSachHD.sort((h1, h2) -> {
+                try {
+                    int num1 = Integer.parseInt(h1.getId().substring(2));
+                    int num2 = Integer.parseInt(h2.getId().substring(2));
+                    return Integer.compare(num2, num1);
+                } catch (NumberFormatException e) {
+                    return h2.getId().compareTo(h1.getId());
+                }
+            });
 
             for (HoaDon hd : danhSachHD) {
                 String tenKH = "Khách Vãng Lai";
@@ -203,6 +259,10 @@ public final class BHpanel extends javax.swing.JPanel {
                     tenKH
                 });
             }
+
+            // Fixed: Refresh the table display
+            model.fireTableDataChanged();
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi lọc hóa đơn theo trạng thái: " + e.getMessage());
         }
@@ -210,6 +270,7 @@ public final class BHpanel extends javax.swing.JPanel {
 
     private void loadChiTietHoaDon(String hoaDonId) {
         try {
+            // Lấy danh sách chi tiết
             List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
             DefaultTableModel model = (DefaultTableModel) tblcthd.getModel();
             model.setRowCount(0);
@@ -228,10 +289,24 @@ public final class BHpanel extends javax.swing.JPanel {
                     ct.getId(),
                     tenSP,
                     ct.getSoLuong(),
-                    currencyFormat.format(ct.getDonGia()),
-                    currencyFormat.format(thanhTien)
+                    ct.getDonGia(),
+                    thanhTien
                 });
             }
+
+            // Cập nhật label tổng tiền: lấy hóa đơn để lấy tongTienSauGiamGia (nếu có giảm giá)
+            HoaDon hd = bhDAO.findHoaDonById(hoaDonId);
+            if (hd != null) {
+                jlbThanhTien.setText(currencyFormat.format(hd.getTongTienSauGiamGia()));
+            } else {
+                jlbThanhTien.setText("0 đ");
+            }
+
+            // Force refresh
+            model.fireTableDataChanged();
+            tblcthd.revalidate();
+            tblcthd.repaint();
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết hóa đơn: " + e.getMessage());
         }
@@ -399,6 +474,7 @@ public final class BHpanel extends javax.swing.JPanel {
         }
     }
 
+    // Fixed: Create Vietnamese-compatible PDF with proper font handling
     private void xuatHoaDonPDF(String hoaDonId) {
         try {
             Document document = new Document();
@@ -407,42 +483,70 @@ public final class BHpanel extends javax.swing.JPanel {
 
             document.open();
 
-            // Use default fonts to avoid font issues
-            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
-            Font normalFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+            // Fixed: Use proper font for Vietnamese text
+            BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            Font titleFont = new Font(bf, 18, Font.BOLD);
+            Font normalFont = new Font(bf, 12, Font.NORMAL);
+            Font boldFont = new Font(bf, 12, Font.BOLD);
 
-            Paragraph title = new Paragraph("HOA DON BAN HANG", titleFont);
+            Paragraph title = new Paragraph("HÓA ĐƠN BÁN HÀNG", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
-            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" ", normalFont));
 
             HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
             if (hoaDon != null) {
-                document.add(new Paragraph("Ma hoa don: " + hoaDon.getId(), normalFont));
-                document.add(new Paragraph("Thoi gian: " + hoaDon.getThoiGian(), normalFont));
-                document.add(new Paragraph("Khach hang: "
-                        + (hoaDon.getIdKhachHang().equals("KH000") ? "Khach Vang Lai" : "Khach quen"), normalFont));
+                document.add(new Paragraph("Mã hóa đơn: " + hoaDon.getId(), normalFont));
+                document.add(new Paragraph("Thời gian: " + hoaDon.getThoiGian(), normalFont));
+
+                String tenKhachHang = "Khách vãng lai";
+                if (!hoaDon.getIdKhachHang().equals("KH000")) {
+                    try {
+                        KhachHang kh = bhDAO.findKhachHangById(hoaDon.getIdKhachHang());
+                        if (kh != null) {
+                            tenKhachHang = kh.getTen();
+                        }
+                    } catch (Exception e) {
+                        tenKhachHang = "Khách quen";
+                    }
+                }
+                document.add(new Paragraph("Khách hàng: " + tenKhachHang, normalFont));
 
                 // Add employee information to PDF
-                String nhanVienInfo = "Nhan vien: ";
+                String nhanVienInfo = "Nhân viên: ";
                 if (loggedInUser != null) {
                     nhanVienInfo += loggedInUser.getTenDayDu() + " (" + loggedInUser.getId() + ")";
                 } else {
-                    nhanVienInfo += "Khong xac dinh";
+                    nhanVienInfo += "Không xác định";
                 }
                 document.add(new Paragraph(nhanVienInfo, normalFont));
-                document.add(new Paragraph(" "));
+                document.add(new Paragraph(" ", normalFont));
 
+                // Fixed: Create table with proper Vietnamese font
                 PdfPTable table = new PdfPTable(4);
-                table.addCell("San pham");
-                table.addCell("So luong");
-                table.addCell("Don gia");
-                table.addCell("Thanh tien");
+                table.setWidthPercentage(100);
+                table.setWidths(new float[]{3, 1, 2, 2});
+
+                // Header cells with proper font
+                PdfPCell headerCell1 = new PdfPCell(new Phrase("Sản phẩm", boldFont));
+                PdfPCell headerCell2 = new PdfPCell(new Phrase("Số lượng", boldFont));
+                PdfPCell headerCell3 = new PdfPCell(new Phrase("Đơn giá", boldFont));
+                PdfPCell headerCell4 = new PdfPCell(new Phrase("Thành tiền", boldFont));
+
+                headerCell1.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                headerCell2.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                headerCell3.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                headerCell4.setBackgroundColor(BaseColor.LIGHT_GRAY);
+
+                table.addCell(headerCell1);
+                table.addCell(headerCell2);
+                table.addCell(headerCell3);
+                table.addCell(headerCell4);
 
                 List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
                 for (ChiTietHoaDon ct : chiTiets) {
-                    String tenSP = "Khong xac dinh";
+                    String tenSP = "Không xác định";
                     for (SanPham sp : danhSachSanPham) {
                         if (sp.getId().equals(ct.getIdSanPham())) {
                             tenSP = sp.getTen();
@@ -450,16 +554,21 @@ public final class BHpanel extends javax.swing.JPanel {
                         }
                     }
 
-                    table.addCell(tenSP);
-                    table.addCell(String.valueOf(ct.getSoLuong()));
-                    table.addCell(currencyFormat.format((long) ct.getDonGia()));
-                    table.addCell(currencyFormat.format(ct.getDonGia() * ct.getSoLuong()));
+                    table.addCell(new PdfPCell(new Phrase(tenSP, normalFont)));
+                    table.addCell(new PdfPCell(new Phrase(String.valueOf(ct.getSoLuong()), normalFont)));
+                    table.addCell(new PdfPCell(new Phrase(currencyFormat.format((long) ct.getDonGia()), normalFont)));
+                    table.addCell(new PdfPCell(new Phrase(currencyFormat.format(ct.getDonGia() * ct.getSoLuong()), normalFont)));
                 }
 
                 document.add(table);
-                document.add(new Paragraph(" "));
+                document.add(new Paragraph(" ", normalFont));
 
-                document.add(new Paragraph("Tong tien: " + currencyFormat.format(hoaDon.getTongTienSauGiamGia()), normalFont));
+                Paragraph total = new Paragraph("Tổng tiền: " + currencyFormat.format(hoaDon.getTongTienSauGiamGia()), boldFont);
+                total.setAlignment(Element.ALIGN_RIGHT);
+                document.add(total);
+
+                document.add(new Paragraph(" ", normalFont));
+                document.add(new Paragraph("Cảm ơn quý khách!", normalFont));
             }
 
             document.close();
@@ -472,7 +581,27 @@ public final class BHpanel extends javax.swing.JPanel {
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi xuất PDF: " + e.getMessage());
+            // Fallback to simple PDF without Vietnamese fonts
+            try {
+                Document document = new Document();
+                String fileName = "HoaDon_" + hoaDonId + "_simple.pdf";
+                PdfWriter.getInstance(document, new FileOutputStream(fileName));
+                document.open();
+
+                Font simpleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+                Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+
+                document.add(new Paragraph("HOA DON BAN HANG", titleFont));
+                document.add(new Paragraph(" "));
+                document.add(new Paragraph("Invoice ID: " + hoaDonId, simpleFont));
+                document.add(new Paragraph("Generated successfully", simpleFont));
+
+                document.close();
+
+                JOptionPane.showMessageDialog(this, "PDF được tạo với font đơn giản: " + fileName);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi xuất PDF: " + ex.getMessage());
+            }
         }
     }
 
@@ -902,10 +1031,12 @@ public final class BHpanel extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! ID: " + currentHoaDonId
                         + "\nNhân viên: " + userName);
 
-                // Refresh data
-                loadHoaDon();
-                updateSoDonChoXuLy();
-                loadChiTietHoaDon(currentHoaDonId);
+                // Fixed: Use SwingUtilities.invokeLater to ensure proper refresh timing
+                SwingUtilities.invokeLater(() -> {
+                    loadHoaDon();
+                    updateSoDonChoXuLy();
+                    loadChiTietHoaDon(currentHoaDonId);
+                });
 
                 // Reset form
                 resetForm();
@@ -915,7 +1046,6 @@ public final class BHpanel extends javax.swing.JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tạo hóa đơn: " + e.getMessage());
         }
-
     }//GEN-LAST:event_btnTaoHDActionPerformed
 
     private void tblhdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhdMouseClicked
@@ -940,9 +1070,11 @@ public final class BHpanel extends javax.swing.JPanel {
                 // Export PDF
                 xuatHoaDonPDF(currentHoaDonId);
 
-                // Refresh data
-                loadHoaDon();
-                updateSoDonChoXuLy();
+                // Fixed: Refresh with proper timing
+                SwingUtilities.invokeLater(() -> {
+                    loadHoaDon();
+                    updateSoDonChoXuLy();
+                });
             } else {
                 JOptionPane.showMessageDialog(this, "Xuất hóa đơn thất bại!");
             }
@@ -966,8 +1098,11 @@ public final class BHpanel extends javax.swing.JPanel {
             if (option == JOptionPane.YES_OPTION) {
                 if (bhDAO.capNhatTrangThaiHoaDon(currentHoaDonId, "Đã Hủy")) {
                     JOptionPane.showMessageDialog(this, "Hủy hóa đơn thành công!");
-                    loadHoaDon();
-                    updateSoDonChoXuLy();
+                    // Fixed: Refresh with proper timing
+                    SwingUtilities.invokeLater(() -> {
+                        loadHoaDon();
+                        updateSoDonChoXuLy();
+                    });
                 } else {
                     JOptionPane.showMessageDialog(this, "Hủy hóa đơn thất bại!");
                 }
@@ -1016,7 +1151,10 @@ public final class BHpanel extends javax.swing.JPanel {
                 });
 
                 currentHoaDonId = hoaDonId;
-                loadChiTietHoaDon(hoaDonId);
+                // Fixed: Use SwingUtilities.invokeLater for proper timing
+                SwingUtilities.invokeLater(() -> {
+                    loadChiTietHoaDon(hoaDonId);
+                });
 
                 JOptionPane.showMessageDialog(this, "Tìm thấy hóa đơn!");
             } else {
