@@ -4,9 +4,119 @@
  */
 package view;
 
+import controller.ChonSPKMDAO;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.SanPham;
+
 public final class ChonSPKMPanel extends javax.swing.JFrame {
 
-    
+    private ChonSPKMDAO sanPhamDAO;
+    private QLKMPanel parentPanel;
+
+    public ChonSPKMPanel() {
+        initComponents();
+        this.sanPhamDAO = new ChonSPKMDAO();
+        setLocationRelativeTo(null); // Center the window
+        setTitle("Chọn Sản Phẩm Khuyến Mãi");
+        loadProductData();
+    }
+
+    public void setParentPanel(QLKMPanel parentPanel) {
+        this.parentPanel = parentPanel;
+    }
+
+    private void loadProductData() {
+        try {
+            List<SanPham> products = sanPhamDAO.getAllSP();
+            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+            model.setRowCount(0);
+
+            for (SanPham sp : products) {
+                Object[] row = {
+                    false, // Checkbox column
+                    sp.getId(),
+                    sp.getTen(),
+                    sp.getMoTa(),
+                    sp.getGia(),
+                    sp.getLoaiSanPham()
+                };
+                model.addRow(row);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu sản phẩm: " + e.getMessage());
+        }
+    }
+
+    private void saveSelectedProducts() {
+        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+        List<String> selectedProductIds = new ArrayList<>();
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) model.getValueAt(i, 0);
+            if (isSelected != null && isSelected) {
+                String productId = (String) model.getValueAt(i, 1);
+                selectedProductIds.add(productId);
+            }
+        }
+
+        if (selectedProductIds.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một sản phẩm!");
+            return;
+        }
+
+        if (selectedProductIds.size() > 1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chỉ chọn một sản phẩm cho mỗi khuyến mãi!");
+            return;
+        }
+
+        // Send selected product to parent panel
+        if (parentPanel != null) {
+            parentPanel.setSelectedProduct(selectedProductIds.get(0));
+            this.dispose(); // Close the selection window
+        }
+    }
+
+    private void refreshData() {
+        loadProductData();
+        // Uncheck all checkboxes
+        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            model.setValueAt(false, i, 0);
+        }
+    }
+
+    private void searchProducts(String keyword) {
+        try {
+            List<SanPham> allProducts = sanPhamDAO.getAllSP();
+            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+            model.setRowCount(0);
+
+            for (SanPham sp : allProducts) {
+                if (sp.getTen().toLowerCase().contains(keyword.toLowerCase())
+                        || sp.getMoTa().toLowerCase().contains(keyword.toLowerCase())
+                        || sp.getId().toLowerCase().contains(keyword.toLowerCase())
+                        || sp.getLoaiSanPham().toLowerCase().contains(keyword.toLowerCase())) {
+
+                    Object[] row = {
+                        false, // Checkbox column
+                        sp.getId(),
+                        sp.getTen(),
+                        sp.getMoTa(),
+                        sp.getGia(),
+                        sp.getLoaiSanPham()
+                    };
+                    model.addRow(row);
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm sản phẩm: " + e.getMessage());
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -101,15 +211,15 @@ public final class ChonSPKMPanel extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLuuActionPerformed
-
+        saveSelectedProducts();
     }//GEN-LAST:event_jbtLuuActionPerformed
 
     private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-
+        refreshData();
     }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
-    // TODO add your handling code here:
+        this.dispose();
     }//GEN-LAST:event_ExitActionPerformed
 
     /**
