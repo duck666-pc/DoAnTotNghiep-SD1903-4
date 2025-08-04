@@ -7,6 +7,7 @@ package controller;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import model.HangKhachHang;
 
 /**
@@ -50,7 +51,7 @@ public class QLHKHDAO extends BaseDAO<HangKhachHang> {
         return "UPDATE HANGKHACHHANG SET "
                 + "ID = ?, "
                 + "TEN = ?, "
-                + "MUCGIAMGIA = ?, "
+                + "MUCGIAMGIA = ? "
                 + "WHERE ID = ?";
     }
 
@@ -59,7 +60,6 @@ public class QLHKHDAO extends BaseDAO<HangKhachHang> {
         ps.setString(1, hkh.getId());
         ps.setString(2, hkh.getTen());
         ps.setFloat(3, hkh.getMucGiamGia());
-
     }
 
     @Override
@@ -73,5 +73,16 @@ public class QLHKHDAO extends BaseDAO<HangKhachHang> {
             hkh.getTen(),
             hkh.getMucGiamGia()
         };
-    }    
+    }
+
+    // Thêm phương thức này để lấy danh sách hạng KH cho combobox
+    public String[] getCustomerRankComboBoxItems() throws Exception {
+        List<HangKhachHang> list = getAll();
+        String[] items = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            HangKhachHang hkh = list.get(i);
+            items[i] = hkh.getId() + " - " + hkh.getTen();
+        }
+        return items;
+    }  
 }

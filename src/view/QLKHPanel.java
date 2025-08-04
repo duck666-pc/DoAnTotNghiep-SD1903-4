@@ -1,21 +1,36 @@
 package view;
 
+import controller.QLHKHDAO;
 import controller.QLKHDAO;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import model.KhachHang;
 
 public final class QLKHPanel extends BasePanel<KhachHang> {
 
     private final QLKHDAO qlkh = new QLKHDAO();
+    private final QLHKHDAO qlhkh = new QLHKHDAO();
 
     public QLKHPanel() {
         initComponents();
         this.baseJTable = jTable;
         this.baseTxtTimKiem = txtTimKiem;
+        updateCustomerRankComboBox();
         super.initTable();
         super.fillTable();
         super.addTableSelectionListener();
         super.enableAutoFilter();
+    }
+
+    // Hàm cập nhật combobox lấy dữ liệu từ DB
+    private void updateCustomerRankComboBox() {
+        try {
+            String[] items = qlhkh.getCustomerRankComboBoxItems();
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(items);
+            jcbHangKhachHang.setModel(model);
+        } catch (Exception e) {
+            showMessage("Lỗi khi cập nhật danh sách hạng khách hàng: " + e.getMessage());
+        }
     }
 
     @Override
@@ -25,16 +40,24 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
 
     @Override
     protected void setFormFromRow(int row) {
-        // Chỉ hiển thị các trường thông tin, không hiển thị ID
         txtTen.setText(getValue(row, 1));
         txtDienThoai.setText(getValue(row, 2));
         txtDiaChi.setText(getValue(row, 3));
-        jcbHangKhachHang.setSelectedItem(getValue(row, 4));
+        String rankId = getValue(row, 4);
+        if (rankId != null) {
+            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jcbHangKhachHang.getModel();
+            for (int i = 0; i < model.getSize(); i++) {
+                String item = model.getElementAt(i);
+                if (item.startsWith(rankId)) { // item có dạng "HC001 - Đồng"
+                    jcbHangKhachHang.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
     protected boolean validateForm() {
-        // Không kiểm tra ID
         if (txtTen.getText().trim().isEmpty()
                 || txtDienThoai.getText().trim().isEmpty()
                 || txtDiaChi.getText().trim().isEmpty()
@@ -45,18 +68,21 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
         if (!txtDienThoai.getText().trim().matches("\\d+")) {
             showMessage("Số điện thoại phải là số!");
             return false;
-        }       
+        }
         return true;
     }
 
     @Override
     protected KhachHang getEntityFromForm() {
         KhachHang kh = new KhachHang();
-        // ID sẽ được tự động sinh khi thêm mới
         kh.setTen(txtTen.getText().trim());
         kh.setDienThoai(txtDienThoai.getText().trim());
         kh.setDiaChi(txtDiaChi.getText().trim());
-        kh.sethangKhachHangId((String) jcbHangKhachHang.getSelectedItem());
+        String selectedItem = (String) jcbHangKhachHang.getSelectedItem();
+        if (selectedItem != null && selectedItem.length() >= 5) {
+            String rankId = selectedItem.substring(0, 5).trim(); // VD: "HC001"
+            kh.sethangKhachHangId(rankId);
+        }
         return kh;
     }
 
@@ -81,16 +107,16 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
 
     @Override
     protected String getEntityName(KhachHang entity) {
-        return entity.getTen(); // Trả về tên khách hàng để tìm kiếm
+        return entity.getTen();
     }
 
     @Override
     protected void addEntityToTable(KhachHang entity) {
         tableModel.addRow(new Object[]{
-            entity.getId(), 
-            entity.getTen(), 
-            entity.getDienThoai(), 
-            entity.getDiaChi(), 
+            entity.getId(),
+            entity.getTen(),
+            entity.getDienThoai(),
+            entity.getDiaChi(),
             entity.gethangKhachHangId()
         });
     }
@@ -112,7 +138,7 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
 
     @Override
     protected String getIdPrefix() {
-        return "KH"; // Tiền tố ID khách hàng
+        return "KH";
     }
 
     @Override
@@ -124,7 +150,7 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
     protected void updateEntityId(KhachHang entity, String newId) throws Exception {
         String oldId = entity.getId();
         entity.setId(newId);
-        qlkh.edit(entity, oldId); // Cập nhật ID trong database
+        qlkh.edit(entity, oldId);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -297,7 +323,7 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
                         .addComponent(txtTimKiem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jbtTimKiem)))
                 .addGap(17, 17, 17)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -325,7 +351,7 @@ public final class QLKHPanel extends BasePanel<KhachHang> {
                         .addGap(6, 6, 6)
                         .addComponent(jbtLamMoi))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
