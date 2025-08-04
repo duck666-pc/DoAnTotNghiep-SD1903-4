@@ -6,7 +6,6 @@ package view;
 
 import controller.BHDAO1;
 import model.*;
-import java.awt.event.ActionEvent;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -19,10 +18,7 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import java.awt.Desktop;
 import java.io.File;
-import javax.swing.event.TableModelEvent;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 public final class BHpanel extends javax.swing.JPanel {
 
@@ -32,9 +28,8 @@ public final class BHpanel extends javax.swing.JPanel {
     private String currentHoaDonId;
     private KhachHang khachHangHienTai;
     private final NumberFormat currencyFormat;
-    private NhanVien loggedInUser; // Added field for logged-in user
+    private NhanVien loggedInUser;
 
-    // Modified constructor that accepts NhanVien parameter
     public BHpanel(NhanVien loggedInUser) {
         this.loggedInUser = loggedInUser;
         initComponents();
@@ -42,18 +37,15 @@ public final class BHpanel extends javax.swing.JPanel {
         danhSachSanPham = new ArrayList<>();
         sanPhamDaChon = new ArrayList<>();
         currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-
         initializeData();
         setupEventHandlers();
         updateSoDonChoXuLy();
     }
 
-    // Keep the existing parameterless constructor for backward compatibility
     public BHpanel() {
-        this(null); // Call the new constructor with null
+        this(null);
     }
 
-    // Add getter method to access logged-in user
     public NhanVien getLoggedInUser() {
         return loggedInUser;
     }
@@ -64,54 +56,33 @@ public final class BHpanel extends javax.swing.JPanel {
 
             @Override
             public void setValue(Object value) {
-                if (value instanceof Number) {
-                    setText(nf.format(((Number) value).doubleValue()));
-                } else {
-                    setText("");
-                }
+                setText(value instanceof Number ? nf.format(((Number) value).doubleValue()) : "");
             }
         };
-
-        tblcthd.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer); // Đơn Giá
-        tblcthd.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer); // Thành Tiền        
+        tblcthd.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
+        tblcthd.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer);
 
         loadSanPham();
         loadHoaDon();
 
         jcbKhachHang.setSelectedIndex(0);
         txtSDT.setEnabled(false);
-
         jlbThanhTien.setText("0 đ");
         jlbTienDu.setText("0 đ");
-
-        // Make invoice details table non-editable
         tblcthd.setDefaultEditor(Object.class, null);
     }
 
     private void setupEventHandlers() {
-        jcbKhachHang.addActionListener((ActionEvent e) -> {
+        jcbKhachHang.addActionListener(e -> {
+            txtSDT.setEnabled(jcbKhachHang.getSelectedIndex() != 0);
             if (jcbKhachHang.getSelectedIndex() == 0) {
-                txtSDT.setEnabled(false);
                 txtSDT.setText("");
                 khachHangHienTai = null;
-            } else {
-                txtSDT.setEnabled(true);
             }
         });
-
-        txtSDT.addActionListener((ActionEvent e) -> {
-            timKhachHangTheoSDT();
-        });
-
-        jcbTrangThai.addActionListener((ActionEvent e) -> {
-            loadHoaDonByTrangThai();
-        });
-
-        txtSDT1.addActionListener((ActionEvent e) -> {
-            tinhTienDu();
-        });
-
-        // Add DocumentListener for txtSDT1 to calculate change in real-time
+        txtSDT.addActionListener(e -> timKhachHangTheoSDT());
+        jcbTrangThai.addActionListener(e -> loadHoaDonByTrangThai());
+        txtSDT1.addActionListener(e -> tinhTienDu());
         txtSDT1.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             @Override
             public void insertUpdate(javax.swing.event.DocumentEvent e) {
@@ -128,317 +99,158 @@ public final class BHpanel extends javax.swing.JPanel {
                 tinhTienDu();
             }
         });
-
-        tblsp.getModel().addTableModelListener((TableModelEvent e) -> {
+        tblsp.getModel().addTableModelListener(e -> {
             if (e.getColumn() == 0 || e.getColumn() == 2) {
                 capNhatKhuyenMai();
             }
         });
-
-        // Fixed: Properly handle row selection for invoice table
-        tblhd.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int selectedRow = tblhd.getSelectedRow();
-                    if (selectedRow >= 0) {
-                        currentHoaDonId = (String) tblhd.getValueAt(selectedRow, 0);
-                        // Use SwingUtilities.invokeLater to ensure proper timing
-                        SwingUtilities.invokeLater(() -> {
-                            loadChiTietHoaDon(currentHoaDonId);
-                        });
-                    }
+        tblhd.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = tblhd.getSelectedRow();
+                if (row >= 0) {
+                    currentHoaDonId = (String) tblhd.getValueAt(row, 0);
+                    SwingUtilities.invokeLater(() -> loadChiTietHoaDon(currentHoaDonId));
                 }
             }
         });
     }
 
     private void loadSanPham() {
-        try {
-            danhSachSanPham = bhDAO.getAllSanPham();
-            DefaultTableModel model = (DefaultTableModel) tblsp.getModel();
-            model.setRowCount(0);
-
-            for (SanPham sp : danhSachSanPham) {
-                model.addRow(new Object[]{
-                    false,
-                    sp.getTen(),
-                    "1"
-                });
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách sản phẩm: " + e.getMessage());
+        danhSachSanPham = bhDAO.getAllSanPham();
+        DefaultTableModel model = (DefaultTableModel) tblsp.getModel();
+        model.setRowCount(0);
+        for (SanPham sp : danhSachSanPham) {
+            model.addRow(new Object[]{false, sp.getTen(), "1"});
         }
     }
 
     private void loadHoaDon() {
-        try {
-            List<HoaDon> danhSachHD = bhDAO.getAllHoaDon();
-            DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
-            model.setRowCount(0);
-
-            // Fixed: Sort invoices by ID in descending order for proper display
-            danhSachHD.sort((h1, h2) -> {
-                try {
-                    // Extract numeric part from ID (e.g., HD001 -> 1)
-                    int num1 = Integer.parseInt(h1.getId().substring(2));
-                    int num2 = Integer.parseInt(h2.getId().substring(2));
-                    return Integer.compare(num2, num1); // Descending order
-                } catch (NumberFormatException e) {
-                    return h2.getId().compareTo(h1.getId()); // Fallback to string comparison
-                }
-            });
-
-            for (HoaDon hd : danhSachHD) {
-                String tenKH = "Khách Vãng Lai";
-                if (!hd.getIdKhachHang().equals("KH000")) {
-                    try {
-                        // Get customer by ID instead of phone number
-                        KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
-                        if (kh != null) {
-                            tenKH = kh.getTen();
-                        } else {
-                            tenKH = "Khách quen";
-                        }
-                    } catch (Exception e) {
-                        tenKH = "Khách quen";
-                    }
-                }
-
-                model.addRow(new Object[]{
-                    hd.getId(),
-                    hd.getThoiGian(),
-                    tenKH
-                });
+        List<HoaDon> danhSachHD = bhDAO.getAllHoaDon();
+        DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
+        model.setRowCount(0);
+        for (HoaDon hd : danhSachHD) {
+            String tenKH = "Khách Vãng Lai";
+            if (!"KH000".equals(hd.getIdKhachHang())) {
+                KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
+                tenKH = kh != null ? kh.getTen() : "Khách quen";
             }
-
-            // Fixed: Refresh the table display immediately
-            model.fireTableDataChanged();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách hóa đơn: " + e.getMessage());
+            model.addRow(new Object[]{hd.getId(), hd.getThoiGian(), tenKH});
         }
+        model.fireTableDataChanged();
     }
 
     private void loadHoaDonByTrangThai() {
-        try {
-            String trangThai = (String) jcbTrangThai.getSelectedItem();
-            List<HoaDon> danhSachHD = bhDAO.getHoaDonByTrangThai(trangThai);
-            DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
-            model.setRowCount(0);
-
-            // Fixed: Sort invoices by ID in descending order
-            danhSachHD.sort((h1, h2) -> {
-                try {
-                    int num1 = Integer.parseInt(h1.getId().substring(2));
-                    int num2 = Integer.parseInt(h2.getId().substring(2));
-                    return Integer.compare(num2, num1);
-                } catch (NumberFormatException e) {
-                    return h2.getId().compareTo(h1.getId());
-                }
-            });
-
-            for (HoaDon hd : danhSachHD) {
-                String tenKH = "Khách Vãng Lai";
-                if (!hd.getIdKhachHang().equals("KH000")) {
-                    try {
-                        KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
-                        if (kh != null) {
-                            tenKH = kh.getTen();
-                        } else {
-                            tenKH = "Khách quen";
-                        }
-                    } catch (Exception e) {
-                        tenKH = "Khách quen";
-                    }
-                }
-
-                model.addRow(new Object[]{
-                    hd.getId(),
-                    hd.getThoiGian(),
-                    tenKH
-                });
+        String trangThai = (String) jcbTrangThai.getSelectedItem();
+        List<HoaDon> danhSachHD = bhDAO.getHoaDonByTrangThai(trangThai);
+        DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
+        model.setRowCount(0);
+        for (HoaDon hd : danhSachHD) {
+            String tenKH = "Khách Vãng Lai";
+            if (!"KH000".equals(hd.getIdKhachHang())) {
+                KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
+                tenKH = kh != null ? kh.getTen() : "Khách quen";
             }
-
-            // Fixed: Refresh the table display
-            model.fireTableDataChanged();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lọc hóa đơn theo trạng thái: " + e.getMessage());
+            model.addRow(new Object[]{hd.getId(), hd.getThoiGian(), tenKH});
         }
+        model.fireTableDataChanged();
     }
 
     private void loadChiTietHoaDon(String hoaDonId) {
-        try {
-            // Lấy danh sách chi tiết
-            List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
-            DefaultTableModel model = (DefaultTableModel) tblcthd.getModel();
-            model.setRowCount(0);
-
-            for (ChiTietHoaDon ct : chiTiets) {
-                String tenSP = "Không xác định";
-                for (SanPham sp : danhSachSanPham) {
-                    if (sp.getId().equals(ct.getIdSanPham())) {
-                        tenSP = sp.getTen();
-                        break;
-                    }
-                }
-
-                double thanhTien = ct.getDonGia() * ct.getSoLuong();
-                model.addRow(new Object[]{
-                    ct.getId(),
-                    tenSP,
-                    ct.getSoLuong(),
-                    ct.getDonGia(),
-                    thanhTien
-                });
-            }
-
-            // Cập nhật label tổng tiền: lấy hóa đơn để lấy tongTienSauGiamGia (nếu có giảm giá)
-            HoaDon hd = bhDAO.findHoaDonById(hoaDonId);
-            if (hd != null) {
-                jlbThanhTien.setText(currencyFormat.format(hd.getTongTienSauGiamGia()));
-            } else {
-                jlbThanhTien.setText("0 đ");
-            }
-
-            // Force refresh
-            model.fireTableDataChanged();
-            tblcthd.revalidate();
-            tblcthd.repaint();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết hóa đơn: " + e.getMessage());
+        List<ChiTietHoaDon> chiTiets = bhDAO.getChiTietHoaDon(hoaDonId);
+        DefaultTableModel model = (DefaultTableModel) tblcthd.getModel();
+        model.setRowCount(0);
+        for (ChiTietHoaDon ct : chiTiets) {
+            String tenSP = danhSachSanPham.stream()
+                    .filter(sp -> sp.getId().equals(ct.getIdSanPham()))
+                    .map(SanPham::getTen).findFirst().orElse("Không xác định");
+            double thanhTien = ct.getDonGia() * ct.getSoLuong();
+            model.addRow(new Object[]{ct.getId(), tenSP, ct.getSoLuong(), ct.getDonGia(), thanhTien});
         }
+        HoaDon hd = bhDAO.findHoaDonById(hoaDonId);
+        jlbThanhTien.setText(hd != null ? currencyFormat.format(hd.getTongTienSauGiamGia()) : "0 đ");
+        model.fireTableDataChanged();
+        tblcthd.revalidate();
+        tblcthd.repaint();
     }
 
     private void timKhachHangTheoSDT() {
         String sdt = txtSDT.getText().trim();
         if (!sdt.isEmpty()) {
-            try {
-                khachHangHienTai = bhDAO.findKhachHangBySDT(sdt);
-                if (khachHangHienTai == null) {
-                    int option = JOptionPane.showConfirmDialog(this,
-                            "Không tìm thấy khách hàng với số điện thoại này.\n"
-                            + "Bạn có muốn thêm khách hàng mới không?",
-                            "Thông báo",
-                            JOptionPane.YES_NO_OPTION);
-
-                    if (option == JOptionPane.YES_OPTION) {
-                        JOptionPane.showMessageDialog(this,
-                                "Chức năng thêm khách hàng sẽ được tích hợp với QLKHPanel");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Tìm thấy khách hàng: " + khachHangHienTai.getTen());
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm khách hàng: " + e.getMessage());
+            khachHangHienTai = bhDAO.findKhachHangBySDT(sdt);
+            if (khachHangHienTai == null) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng với số điện thoại này.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Tìm thấy khách hàng: " + khachHangHienTai.getTen());
             }
         }
     }
 
     private void capNhatKhuyenMai() {
-        try {
-            sanPhamDaChon.clear();
-            DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
-            DefaultTableModel modelKM = (DefaultTableModel) tblsp1.getModel();
-            modelKM.setRowCount(0);
-
-            for (int i = 0; i < modelSP.getRowCount(); i++) {
-                Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
-                if (selected != null && selected) {
-                    SanPham sp = danhSachSanPham.get(i);
-                    sanPhamDaChon.add(sp);
-
-                    // Load promotions for this product
-                    List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
-                    for (ChiTietKhuyenMai km : khuyenMais) {
-                        modelKM.addRow(new Object[]{
-                            sp.getTen(),
-                            km.getHinhThucGiam(),
-                            km.getHinhThucGiam().equals("Phần trăm")
-                            ? km.getMucGiamGia() + "%"
-                            : currencyFormat.format(km.getSoTienGiamGia()),
-                            km.getHinhThucGiam().equals("Phần trăm")
-                            ? currencyFormat.format(sp.getGia() * km.getMucGiamGia() / 100)
-                            : currencyFormat.format(km.getSoTienGiamGia()),
-                            km.getQuaTang()
-                        });
-                    }
+        sanPhamDaChon.clear();
+        DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
+        DefaultTableModel modelKM = (DefaultTableModel) tblsp1.getModel();
+        modelKM.setRowCount(0);
+        for (int i = 0; i < modelSP.getRowCount(); i++) {
+            Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
+            if (selected != null && selected) {
+                SanPham sp = danhSachSanPham.get(i);
+                sanPhamDaChon.add(sp);
+                List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
+                for (ChiTietKhuyenMai km : khuyenMais) {
+                    modelKM.addRow(new Object[]{
+                        sp.getTen(),
+                        km.getHinhThucGiam(),
+                        "Phần trăm".equals(km.getHinhThucGiam()) ? km.getMucGiamGia() + "%" : currencyFormat.format(km.getSoTienGiamGia()),
+                        "Phần trăm".equals(km.getHinhThucGiam()) ? currencyFormat.format(sp.getGia() * km.getMucGiamGia() / 100) : currencyFormat.format(km.getSoTienGiamGia()),
+                        km.getQuaTang()
+                    });
                 }
             }
-
-            tinhThanhTien();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật khuyến mãi: " + e.getMessage());
         }
+        tinhThanhTien();
     }
 
     private void tinhThanhTien() {
-        try {
-            BigDecimal tongTien = BigDecimal.ZERO;
-            DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
-
-            for (int i = 0; i < modelSP.getRowCount(); i++) {
-                Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
-                if (selected != null && selected) {
-                    try {
-                        String soLuongStr = modelSP.getValueAt(i, 2).toString();
-                        int soLuong = Integer.parseInt(soLuongStr);
-
-                        if (soLuong <= 0) {
-                            continue; // Skip invalid quantities
-                        }
-
-                        SanPham sp = danhSachSanPham.get(i);
-
-                        BigDecimal giaSP = BigDecimal.valueOf(sp.getGia());
-                        BigDecimal thanhTienSP = giaSP.multiply(BigDecimal.valueOf(soLuong));
-
-                        // Apply promotions
-                        List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
-                        for (ChiTietKhuyenMai km : khuyenMais) {
-                            if (km.getHinhThucGiam().equals("Phần trăm")) {
-                                BigDecimal giamGia = thanhTienSP.multiply(BigDecimal.valueOf(km.getMucGiamGia() / 100));
-                                thanhTienSP = thanhTienSP.subtract(giamGia);
-                            } else {
-                                thanhTienSP = thanhTienSP.subtract(BigDecimal.valueOf(km.getSoTienGiamGia()));
-                            }
-                        }
-
-                        // Ensure non-negative total
-                        if (thanhTienSP.compareTo(BigDecimal.ZERO) < 0) {
-                            thanhTienSP = BigDecimal.ZERO;
-                        }
-
-                        tongTien = tongTien.add(thanhTienSP);
-                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                        // Skip invalid entries
+        BigDecimal tongTien = BigDecimal.ZERO;
+        DefaultTableModel modelSP = (DefaultTableModel) tblsp.getModel();
+        for (int i = 0; i < modelSP.getRowCount(); i++) {
+            Boolean selected = (Boolean) modelSP.getValueAt(i, 0);
+            if (selected != null && selected) {
+                try {
+                    int soLuong = Integer.parseInt(modelSP.getValueAt(i, 2).toString());
+                    if (soLuong <= 0) {
                         continue;
                     }
+                    SanPham sp = danhSachSanPham.get(i);
+                    BigDecimal thanhTien = BigDecimal.valueOf(sp.getGia()).multiply(BigDecimal.valueOf(soLuong));
+                    List<ChiTietKhuyenMai> khuyenMais = bhDAO.getKhuyenMaiBySanPham(sp.getId());
+                    for (ChiTietKhuyenMai km : khuyenMais) {
+                        if ("Phần trăm".equals(km.getHinhThucGiam())) {
+                            thanhTien = thanhTien.subtract(thanhTien.multiply(BigDecimal.valueOf(km.getMucGiamGia() / 100)));
+                        } else {
+                            thanhTien = thanhTien.subtract(BigDecimal.valueOf(km.getSoTienGiamGia()));
+                        }
+                    }
+                    if (thanhTien.compareTo(BigDecimal.ZERO) < 0) {
+                        thanhTien = BigDecimal.ZERO;
+                    }
+                    tongTien = tongTien.add(thanhTien);
+                } catch (Exception e) {
                 }
             }
-
-            jlbThanhTien.setText(currencyFormat.format(tongTien));
-            tinhTienDu();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tính thành tiền: " + e.getMessage());
-            jlbThanhTien.setText("0 đ");
         }
+        jlbThanhTien.setText(currencyFormat.format(tongTien));
+        tinhTienDu();
     }
 
     private void tinhTienDu() {
         try {
             String thanhTienText = jlbThanhTien.getText().replaceAll("[^0-9]", "");
             String tienKhachTraText = txtSDT1.getText().trim().replaceAll("[^0-9]", "");
-
             if (!thanhTienText.isEmpty() && !tienKhachTraText.isEmpty()) {
                 double thanhTien = Double.parseDouble(thanhTienText);
                 double tienKhachTra = Double.parseDouble(tienKhachTraText);
-                double tienDu = tienKhachTra - thanhTien;
-
-                jlbTienDu.setText(currencyFormat.format(Math.max(0, tienDu)));
+                jlbTienDu.setText(currencyFormat.format(Math.max(0, tienKhachTra - thanhTien)));
             } else {
                 jlbTienDu.setText("0 đ");
             }
@@ -448,26 +260,19 @@ public final class BHpanel extends javax.swing.JPanel {
     }
 
     private void updateSoDonChoXuLy() {
-        try {
-            int soDon = bhDAO.demSoDonChoXuLy();
-            jlbSoDonChoXuLy.setText(String.valueOf(soDon));
-        } catch (Exception e) {
-            jlbSoDonChoXuLy.setText("0");
-        }
+        int soDon = bhDAO.demSoDonChoXuLy();
+        jlbSoDonChoXuLy.setText(String.valueOf(soDon));
     }
 
     private boolean validatePayment() {
         try {
             String thanhTienText = jlbThanhTien.getText().replaceAll("[^0-9]", "");
             String tienKhachTraText = txtSDT1.getText().trim().replaceAll("[^0-9]", "");
-
             if (thanhTienText.isEmpty() || tienKhachTraText.isEmpty()) {
                 return false;
             }
-
             double thanhTien = Double.parseDouble(thanhTienText);
             double tienKhachTra = Double.parseDouble(tienKhachTraText);
-
             return tienKhachTra >= thanhTien;
         } catch (NumberFormatException e) {
             return false;
