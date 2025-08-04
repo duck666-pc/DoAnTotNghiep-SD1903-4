@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import model.LoaiSanPham;
+
 /**
  *
  * @author minhd
@@ -76,30 +77,29 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
     }
 
     /**
-     * Generates the next ID based on the highest existing ID
-     * Format: XXX-ProductTypeName where XXX is sequential number
+     * Generates the next ID based on the highest existing ID Format:
+     * XXX-ProductTypeName where XXX is sequential number
+     *
      * @param productTypeName
-     * @return 
-     * @throws java.lang.Exception
+     * @return
+     * @throws java.sql.SQLException
      */
-    public String generateNextId(String productTypeName) throws Exception {
-        String sql = "SELECT ID FROM LOAISANPHAM ORDER BY ID DESC LIMIT 1";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            int nextNumber = 1; // Default starting number
-            
+    public String generateNextId(String productTypeName) throws SQLException {
+        String sql = "SELECT TOP 1 ID FROM LOAISANPHAM ORDER BY ID DESC";
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+
+            int nextNumber = 1;
+
             if (rs.next()) {
                 String lastId = rs.getString("ID");
-                // Extract the numeric part (first 3 digits)
                 if (lastId != null && lastId.length() >= 3) {
                     try {
                         // Find the first dash or take first 3 characters
                         int dashIndex = lastId.indexOf('-');
-                        String numericPart = dashIndex > 0 ? 
-                            lastId.substring(0, dashIndex) : 
-                            lastId.substring(0, Math.min(3, lastId.length()));
-                        
+                        String numericPart = dashIndex > 0
+                                ? lastId.substring(0, dashIndex)
+                                : lastId.substring(0, Math.min(3, lastId.length()));
+
                         nextNumber = Integer.parseInt(numericPart) + 1;
                     } catch (NumberFormatException e) {
                         // If parsing fails, start from 1
@@ -107,7 +107,7 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
                     }
                 }
             }
-            
+
             // Format: 001-ProductTypeName, 002-ProductTypeName, etc.
             return String.format("%03d-%s", nextNumber, productTypeName);
         }
@@ -115,33 +115,36 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
 
     /**
      * Gets all product types formatted for combobox (ID-Name format)
-     * @return 
+     *
+     * @return
      * @throws java.lang.Exception
      */
     public String[] getProductTypeComboBoxItems() throws Exception {
         java.util.List<LoaiSanPham> list = getAll();
         String[] items = new String[list.size()];
-        
+
         for (int i = 0; i < list.size(); i++) {
             LoaiSanPham lsp = list.get(i);
             items[i] = lsp.getId() + "-" + lsp.getTen();
         }
-        
+
         return items;
     }
 
     /**
      * Override add method to auto-generate ID
+     *
      * @param entity
-     * @return 
-     * @throws java.lang.Exception
+     * @return
+     * @throws java.sql.SQLException
+     * @throws java.lang.ClassNotFoundException
      */
     @Override
-    public int add(LoaiSanPham entity) throws Exception {
+    public int add(LoaiSanPham entity) throws SQLException, ClassNotFoundException {
         // Generate ID automatically
         String generatedId = generateNextId(entity.getTen());
         entity.setId(generatedId);
-        
+
         return super.add(entity);
     }
 }
