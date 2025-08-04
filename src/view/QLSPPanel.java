@@ -32,7 +32,7 @@ public final class QLSPPanel extends BasePanel<SanPham> {
      */
     public void updateProductTypeComboBox() {
         try {
-            String[] items = qllsp.getProductTypeComboBoxItems();
+            String[] items = qllsp.getProductTypeComboBoxItems(); 
             DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(items);
             jcbLoaiSanPham.setModel(model);
         } catch (Exception e) {
@@ -47,24 +47,16 @@ public final class QLSPPanel extends BasePanel<SanPham> {
 
     @Override
     protected void setFormFromRow(int row) {
-        // Chỉ hiển thị các trường thông tin, không hiển thị ID
         txtTen.setText(getValue(row, 1));
         txtMoTa.setText(getValue(row, 2));
         txtGia.setText(getValue(row, 3));
 
-        // Set the selected item in combobox based on the product type ID
-        String productTypeInfo = getValue(row, 4); // Có thể là "001-Đồ uống-Nóng" format
-        if (productTypeInfo != null) {
-            // Extract ID from the product type info (chỉ lấy 3 ký tự đầu)
-            String productTypeId = productTypeInfo.length() >= 3
-                    ? productTypeInfo.substring(0, 3) : productTypeInfo;
-
-            // Find and select the matching item in combobox
+        String productTypeId = getValue(row, 4);
+        if (productTypeId != null) {
             DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jcbLoaiSanPham.getModel();
             for (int i = 0; i < model.getSize(); i++) {
                 String item = model.getElementAt(i);
-                // Kiểm tra nếu item bắt đầu với productTypeId + "-"
-                if (item.length() >= 4 && item.substring(0, 3).equals(productTypeId)) {
+                if (item.equals(productTypeId)) { // So sánh trực tiếp ID
                     jcbLoaiSanPham.setSelectedIndex(i);
                     break;
                 }
@@ -96,17 +88,13 @@ public final class QLSPPanel extends BasePanel<SanPham> {
     @Override
     protected SanPham getEntityFromForm() {
         SanPham sp = new SanPham();
-        // ID sẽ được tự động sinh khi thêm mới, không cần nhập
         sp.setTen(txtTen.getText().trim());
         sp.setMoTa(txtMoTa.getText().trim());
         sp.setGia(Float.parseFloat(txtGia.getText().trim()));
 
-        // Extract product type ID from selected combobox item
-        String selectedItem = (String) jcbLoaiSanPham.getSelectedItem();
-        if (selectedItem != null) {
-            // Lấy 3 ký tự đầu làm ID (format: 001, 002, etc.)
-            String productTypeId = selectedItem.length() >= 3
-                    ? selectedItem.substring(0, 3) : selectedItem;
+        // Lấy trực tiếp ID từ ComboBox
+        String productTypeId = (String) jcbLoaiSanPham.getSelectedItem();
+        if (productTypeId != null) {
             sp.setLoaiSanPham(productTypeId);
         }
 

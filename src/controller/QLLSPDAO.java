@@ -122,12 +122,10 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
     public String[] getProductTypeComboBoxItems() throws Exception {
         java.util.List<LoaiSanPham> list = getAll();
         String[] items = new String[list.size()];
-
         for (int i = 0; i < list.size(); i++) {
             LoaiSanPham lsp = list.get(i);
-            items[i] = lsp.getId() + "-" + lsp.getTen();
+            items[i] = lsp.getId();
         }
-
         return items;
     }
 
