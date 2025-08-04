@@ -7,8 +7,8 @@ package controller;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import model.LoaiSanPham;
-
 /**
  *
  * @author minhd
@@ -60,7 +60,6 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
         ps.setString(1, lsp.getId());
         ps.setString(2, lsp.getTen());
         ps.setString(3, lsp.getMoTa());
-
     }
 
     @Override
@@ -74,5 +73,75 @@ public class QLLSPDAO extends BaseDAO<LoaiSanPham> {
             lsp.getTen(),
             lsp.getMoTa()
         };
+    }
+
+    /**
+     * Generates the next ID based on the highest existing ID
+     * Format: XXX-ProductTypeName where XXX is sequential number
+     * @param productTypeName
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public String generateNextId(String productTypeName) throws Exception {
+        String sql = "SELECT ID FROM LOAISANPHAM ORDER BY ID DESC LIMIT 1";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            int nextNumber = 1; // Default starting number
+            
+            if (rs.next()) {
+                String lastId = rs.getString("ID");
+                // Extract the numeric part (first 3 digits)
+                if (lastId != null && lastId.length() >= 3) {
+                    try {
+                        // Find the first dash or take first 3 characters
+                        int dashIndex = lastId.indexOf('-');
+                        String numericPart = dashIndex > 0 ? 
+                            lastId.substring(0, dashIndex) : 
+                            lastId.substring(0, Math.min(3, lastId.length()));
+                        
+                        nextNumber = Integer.parseInt(numericPart) + 1;
+                    } catch (NumberFormatException e) {
+                        // If parsing fails, start from 1
+                        nextNumber = 1;
+                    }
+                }
+            }
+            
+            // Format: 001-ProductTypeName, 002-ProductTypeName, etc.
+            return String.format("%03d-%s", nextNumber, productTypeName);
+        }
+    }
+
+    /**
+     * Gets all product types formatted for combobox (ID-Name format)
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public String[] getProductTypeComboBoxItems() throws Exception {
+        java.util.List<LoaiSanPham> list = getAll();
+        String[] items = new String[list.size()];
+        
+        for (int i = 0; i < list.size(); i++) {
+            LoaiSanPham lsp = list.get(i);
+            items[i] = lsp.getId() + "-" + lsp.getTen();
+        }
+        
+        return items;
+    }
+
+    /**
+     * Override add method to auto-generate ID
+     * @param entity
+     * @return 
+     * @throws java.lang.Exception
+     */
+    @Override
+    public int add(LoaiSanPham entity) throws Exception {
+        // Generate ID automatically
+        String generatedId = generateNextId(entity.getTen());
+        entity.setId(generatedId);
+        
+        return super.add(entity);
     }
 }

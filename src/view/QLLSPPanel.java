@@ -7,6 +7,7 @@ package view;
 import controller.QLLSPDAO;
 import java.util.List;
 import model.LoaiSanPham;
+import java.util.ArrayList;
 
 /**
  *
@@ -15,6 +16,7 @@ import model.LoaiSanPham;
 public class QLLSPPanel extends BasePanel<LoaiSanPham> {
 
     private final QLLSPDAO qllsp = new QLLSPDAO();
+    private static final List<QLSPPanel> registeredPanels = new ArrayList<>();
 
     public QLLSPPanel() {
         initComponents();
@@ -26,6 +28,33 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
         super.enableAutoFilter();
     }
 
+    /**
+     * Register a QLSPPanel to be notified when product types are updated
+     * @param panel
+     */
+    public static void registerQLSPPanel(QLSPPanel panel) {
+        if (!registeredPanels.contains(panel)) {
+            registeredPanels.add(panel);
+        }
+    }
+
+    /**
+     * Unregister a QLSPPanel
+     * @param panel
+     */
+    public static void unregisterQLSPPanel(QLSPPanel panel) {
+        registeredPanels.remove(panel);
+    }
+
+    /**
+     * Notify all registered QLSPPanels to update their comboboxes
+     */
+    private void notifyQLSPPanelsToUpdate() {
+        for (QLSPPanel panel : registeredPanels) {
+            panel.updateProductTypeComboBox();
+        }
+    }
+
     @Override
     protected String[] getColumnNames() {
         return new String[]{"ID", "Tên", "Mô tả"};
@@ -33,26 +62,51 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
 
     @Override
     protected void setFormFromRow(int row) {
-        // Chỉ hiển thị tên và mô tả, không hiển thị ID
+        // Chỉ hiển thị tên và mô tả, không hiển thị ID vì sẽ được tự động sinh
         txtTen.setText(getValue(row, 1));
         txtMoTa.setText(getValue(row, 2));
     }
 
     @Override
     protected boolean validateForm() {
-        // Không kiểm tra ID
+        // Không kiểm tra ID vì sẽ được tự động sinh
         if (txtTen.getText().trim().isEmpty()
                 || txtMoTa.getText().trim().isEmpty()) {
             showMessage("Vui lòng nhập đầy đủ thông tin!");
             return false;
         }
+        
+        // Check for duplicate product type name
+        try {
+            List<LoaiSanPham> existingTypes = qllsp.getAll();
+            String newName = txtTen.getText().trim();
+            
+            for (LoaiSanPham lsp : existingTypes) {
+                // Skip current item when editing
+                if (currentRow >= 0) {
+                    String currentId = getValue(currentRow, 0);
+                    if (lsp.getId().equals(currentId)) {
+                        continue;
+                    }
+                }
+                
+                if (lsp.getTen().equalsIgnoreCase(newName)) {
+                    showMessage("Tên loại sản phẩm đã tồn tại!");
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            showMessage("Lỗi khi kiểm tra dữ liệu: " + e.getMessage());
+            return false;
+        }
+        
         return true;
     }
 
     @Override
     protected LoaiSanPham getEntityFromForm() {
         LoaiSanPham lsp = new LoaiSanPham();
-        // Không set ID ở đây, sẽ được tự động sinh khi thêm mới
+        // ID sẽ được tự động sinh trong DAO, không cần set ở đây khi thêm mới
         lsp.setTen(txtTen.getText().trim());
         lsp.setMoTa(txtMoTa.getText().trim());
         return lsp;
@@ -87,17 +141,26 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
 
     @Override
     protected int addEntity(LoaiSanPham entity) throws Exception {
-        return qllsp.add(entity);
+        int result = qllsp.add(entity);
+        // Notify QLSPPanels to update their comboboxes
+        notifyQLSPPanelsToUpdate();
+        return result;
     }
 
     @Override
     protected int deleteEntity(String id) throws Exception {
-        return qllsp.delete(id);
+        int result = qllsp.delete(id);
+        // Notify QLSPPanels to update their comboboxes
+        notifyQLSPPanelsToUpdate();
+        return result;
     }
 
     @Override
     protected int updateEntity(LoaiSanPham entity, String oldId) throws Exception {
-        return qllsp.edit(entity, oldId);
+        int result = qllsp.edit(entity, oldId);
+        // Notify QLSPPanels to update their comboboxes
+        notifyQLSPPanelsToUpdate();
+        return result;
     }
 
     @Override
@@ -115,6 +178,8 @@ public class QLLSPPanel extends BasePanel<LoaiSanPham> {
         String oldId = entity.getId();
         entity.setId(newId);
         qllsp.edit(entity, oldId); // Cập nhật ID trong database
+        // Notify QLSPPanels to update their comboboxes
+        notifyQLSPPanelsToUpdate();
     }
 
     /**

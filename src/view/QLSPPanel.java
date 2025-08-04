@@ -1,11 +1,14 @@
 package view;
 
+import controller.QLLSPDAO;
 import controller.QLSPDAO;
 import java.util.List;
 import model.SanPham;
+import javax.swing.DefaultComboBoxModel;
 
 public final class QLSPPanel extends BasePanel<SanPham> {
     private final QLSPDAO qlsp = new QLSPDAO();
+    private final QLLSPDAO qllsp = new QLLSPDAO();
 
     public QLSPPanel() {
         initComponents();
@@ -15,6 +18,25 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         super.fillTable();
         super.addTableSelectionListener();
         super.enableAutoFilter();
+        
+        // Register this panel to receive updates from QLLSPPanel
+        QLLSPPanel.registerQLSPPanel(this);
+        
+        // Initialize combobox
+        updateProductTypeComboBox();
+    }
+
+    /**
+     * Update the product type combobox with latest data from database
+     */
+    public void updateProductTypeComboBox() {
+        try {
+            String[] items = qllsp.getProductTypeComboBoxItems();
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(items);
+            jcbLoaiSanPham.setModel(model);
+        } catch (Exception e) {
+            showMessage("Lỗi khi cập nhật danh sách loại sản phẩm: " + e.getMessage());
+        }
     }
 
     @Override
@@ -28,7 +50,20 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         txtTen.setText(getValue(row, 1));
         txtMoTa.setText(getValue(row, 2));
         txtGia.setText(getValue(row, 3));
-        jcbLoaiSanPham.setSelectedItem(getValue(row, 4));
+        
+        // Set the selected item in combobox based on the product type ID
+        String productTypeId = getValue(row, 4);
+        if (productTypeId != null) {
+            // Find and select the matching item in combobox
+            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jcbLoaiSanPham.getModel();
+            for (int i = 0; i < model.getSize(); i++) {
+                String item = model.getElementAt(i);
+                if (item.startsWith(productTypeId)) {
+                    jcbLoaiSanPham.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -59,7 +94,16 @@ public final class QLSPPanel extends BasePanel<SanPham> {
         sp.setTen(txtTen.getText().trim());
         sp.setMoTa(txtMoTa.getText().trim());
         sp.setGia(Float.parseFloat(txtGia.getText().trim()));
-        sp.setLoaiSanPham((String) jcbLoaiSanPham.getSelectedItem());
+        
+        // Extract product type ID from selected combobox item
+        String selectedItem = (String) jcbLoaiSanPham.getSelectedItem();
+        if (selectedItem != null) {
+            // Extract ID part (before the first dash)
+            int dashIndex = selectedItem.indexOf('-');
+            String productTypeId = dashIndex > 0 ? selectedItem.substring(0, dashIndex) : selectedItem;
+            sp.setLoaiSanPham(productTypeId);
+        }
+        
         return sp;
     }
 
