@@ -179,7 +179,14 @@ public class Login extends javax.swing.JFrame {
             NhanVien authenticatedUser = authenticateUser(email, matKhau);
             
             if (authenticatedUser != null) {
-                new TrangChu(authenticatedUser).setVisible(true);
+                // Kiểm tra vai trò của người dùng và mở trang tương ứng
+                if (isManager(authenticatedUser)) {
+                    // Nếu là quản lý, mở TrangChu
+                    new TrangChu(authenticatedUser).setVisible(true);
+                } else {
+                    // Nếu là nhân viên, mở TrangChu1
+                    new TrangChu1(authenticatedUser).setVisible(true);
+                }
                 this.dispose();
             } else {
                 showErrorMessage("Sai ID hoặc mật khẩu!");
@@ -212,6 +219,25 @@ public class Login extends javax.swing.JFrame {
         return null;
     }
     
+    /**
+     * Kiểm tra xem người dùng có phải là quản lý hay không
+     * @param nhanVien đối tượng nhân viên cần kiểm tra
+     * @return true nếu là quản lý, false nếu là nhân viên
+     */
+    private boolean isManager(NhanVien nhanVien) {
+        try {
+            String chucVu = nhanVien.getChucVu();
+            return "Quản lý".equalsIgnoreCase(chucVu) || 
+                   "Manager".equalsIgnoreCase(chucVu) || 
+                   "Admin".equalsIgnoreCase(chucVu);
+        } catch (Exception e) {
+            String email = nhanVien.getEmail();
+            return email.contains("manager") || 
+                   email.contains("admin") || 
+                   email.contains("ql");
+        }
+    }
+    
     private void showErrorMessage(String message) {
         javax.swing.JOptionPane.showMessageDialog(this,
                 message,
@@ -223,6 +249,7 @@ public class Login extends javax.swing.JFrame {
         txtMatKhau.setText("");
         txtEmail.requestFocus();
     }
+
     
     /**
      * @param args the command line arguments

@@ -11,18 +11,18 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import model.NhanVien;
 
-public class TrangChu extends javax.swing.JFrame {
+public class TrangChu1 extends javax.swing.JFrame {
 
     private NhanVien loggedInUser;
 
-    public TrangChu(NhanVien n) {
+    public TrangChu1(NhanVien n) {
         this.loggedInUser = n;
         initComponents();
         setFullScreen();
         displayUserInfo();
     }
 
-    private TrangChu() {
+    private TrangChu1() {
         initComponents();
         setFullScreen();
     }
@@ -67,19 +67,14 @@ public class TrangChu extends javax.swing.JFrame {
     private void initComponents() {
 
         navigationPanel = new javax.swing.JPanel();
-        jbtQLSP = new javax.swing.JButton();
-        jbtQLNV = new javax.swing.JButton();
         jbtTRANGCHU = new javax.swing.JButton();
-        jbtLOAISANPHAM = new javax.swing.JButton();
         jbtQLHD = new javax.swing.JButton();
         jbtQLKH = new javax.swing.JButton();
-        jbtLOAIKHACHHANG = new javax.swing.JButton();
-        jbtQLKM = new javax.swing.JButton();
         jbtDOANHTHU = new javax.swing.JButton();
         jbtDangXuat = new javax.swing.JButton();
         jPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         jbtBANHANG = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(44, 62, 80));
@@ -90,26 +85,6 @@ public class TrangChu extends javax.swing.JFrame {
         navigationPanel.setBackground(new java.awt.Color(41, 62, 80));
         navigationPanel.setForeground(new java.awt.Color(255, 255, 255));
 
-        jbtQLSP.setBackground(new java.awt.Color(44, 62, 80));
-        jbtQLSP.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jbtQLSP.setForeground(new java.awt.Color(255, 255, 255));
-        jbtQLSP.setText("Sản Phẩm");
-        jbtQLSP.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtQLSPActionPerformed(evt);
-            }
-        });
-
-        jbtQLNV.setBackground(new java.awt.Color(44, 62, 80));
-        jbtQLNV.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jbtQLNV.setForeground(new java.awt.Color(255, 255, 255));
-        jbtQLNV.setText("Nhân Viên");
-        jbtQLNV.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtQLNVActionPerformed(evt);
-            }
-        });
-
         jbtTRANGCHU.setBackground(new java.awt.Color(44, 62, 80));
         jbtTRANGCHU.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jbtTRANGCHU.setForeground(new java.awt.Color(255, 255, 255));
@@ -117,16 +92,6 @@ public class TrangChu extends javax.swing.JFrame {
         jbtTRANGCHU.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtTRANGCHUActionPerformed(evt);
-            }
-        });
-
-        jbtLOAISANPHAM.setBackground(new java.awt.Color(44, 62, 80));
-        jbtLOAISANPHAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jbtLOAISANPHAM.setForeground(new java.awt.Color(255, 255, 255));
-        jbtLOAISANPHAM.setText("Loại Sản Phẩm");
-        jbtLOAISANPHAM.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtLOAISANPHAMActionPerformed(evt);
             }
         });
 
@@ -147,26 +112,6 @@ public class TrangChu extends javax.swing.JFrame {
         jbtQLKH.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtQLKHActionPerformed(evt);
-            }
-        });
-
-        jbtLOAIKHACHHANG.setBackground(new java.awt.Color(44, 62, 80));
-        jbtLOAIKHACHHANG.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jbtLOAIKHACHHANG.setForeground(new java.awt.Color(255, 255, 255));
-        jbtLOAIKHACHHANG.setText("Loại Khách Hàng");
-        jbtLOAIKHACHHANG.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtLOAIKHACHHANGActionPerformed(evt);
-            }
-        });
-
-        jbtQLKM.setBackground(new java.awt.Color(44, 62, 80));
-        jbtQLKM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jbtQLKM.setForeground(new java.awt.Color(255, 255, 255));
-        jbtQLKM.setText("Khuyến Mại");
-        jbtQLKM.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtQLKMActionPerformed(evt);
             }
         });
 
@@ -204,10 +149,6 @@ public class TrangChu extends javax.swing.JFrame {
             .addGap(0, 474, Short.MAX_VALUE)
         );
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText(" ");
-
         jbtBANHANG.setBackground(new java.awt.Color(44, 62, 80));
         jbtBANHANG.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jbtBANHANG.setForeground(new java.awt.Color(255, 255, 255));
@@ -218,6 +159,10 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText(" ");
+
         javax.swing.GroupLayout navigationPanelLayout = new javax.swing.GroupLayout(navigationPanel);
         navigationPanel.setLayout(navigationPanelLayout);
         navigationPanelLayout.setHorizontalGroup(
@@ -225,24 +170,19 @@ public class TrangChu extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, navigationPanelLayout.createSequentialGroup()
                 .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(navigationPanelLayout.createSequentialGroup()
-                        .addGap(81, 81, 81)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(navigationPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jbtDangXuat, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtLOAIKHACHHANG, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
-                            .addComponent(jbtQLSP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtTRANGCHU, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtLOAISANPHAM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtQLHD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtQLKH, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtQLKM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbtQLKH, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
                             .addComponent(jbtDOANHTHU, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbtQLNV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbtBANHANG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(navigationPanelLayout.createSequentialGroup()
+                        .addGap(81, 81, 81)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -257,19 +197,9 @@ public class TrangChu extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jbtTRANGCHU)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtQLNV)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtQLSP)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtLOAISANPHAM)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLHD)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtQLKH)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtLOAIKHACHHANG)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtQLKM)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtDOANHTHU)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -287,14 +217,6 @@ public class TrangChu extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jbtQLSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLSPActionPerformed
-        showPanel(new QLSPPanel());
-    }//GEN-LAST:event_jbtQLSPActionPerformed
-
-    private void jbtQLNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLNVActionPerformed
-        showPanel(new QLNVPanel());
-    }//GEN-LAST:event_jbtQLNVActionPerformed
-
     private void jbtQLHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLHDActionPerformed
         showPanel(new QLHDPanel());
     }//GEN-LAST:event_jbtQLHDActionPerformed
@@ -302,10 +224,6 @@ public class TrangChu extends javax.swing.JFrame {
     private void jbtQLKHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLKHActionPerformed
         showPanel(new QLKHPanel());
     }//GEN-LAST:event_jbtQLKHActionPerformed
-
-    private void jbtQLKMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtQLKMActionPerformed
-        showPanel(new QLKMPanel());
-    }//GEN-LAST:event_jbtQLKMActionPerformed
 
     private void jbtDangXuatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDangXuatActionPerformed
         int option = JOptionPane.showConfirmDialog(this,
@@ -325,14 +243,6 @@ public class TrangChu extends javax.swing.JFrame {
     private void jbtDOANHTHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtDOANHTHUActionPerformed
         showPanel(new DOANHTHUPanel());
     }//GEN-LAST:event_jbtDOANHTHUActionPerformed
-
-    private void jbtLOAISANPHAMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLOAISANPHAMActionPerformed
-        showPanel(new QLLSPPanel());
-    }//GEN-LAST:event_jbtLOAISANPHAMActionPerformed
-
-    private void jbtLOAIKHACHHANGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLOAIKHACHHANGActionPerformed
-        showPanel(new QLHKHPanel());
-    }//GEN-LAST:event_jbtLOAIKHACHHANGActionPerformed
 
     private void jbtTRANGCHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTRANGCHUActionPerformed
 
@@ -356,8 +266,9 @@ public class TrangChu extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TrangChu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TrangChu1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         //</editor-fold>
@@ -371,7 +282,7 @@ public class TrangChu extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TrangChu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TrangChu1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
         try {
@@ -382,10 +293,10 @@ public class TrangChu extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TrangChu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TrangChu1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         java.awt.EventQueue.invokeLater(() -> {
-            new TrangChu().setVisible(true);
+            new TrangChu1().setVisible(true);
         });
     }
 
@@ -395,13 +306,8 @@ public class TrangChu extends javax.swing.JFrame {
     private javax.swing.JButton jbtBANHANG;
     private javax.swing.JButton jbtDOANHTHU;
     private javax.swing.JButton jbtDangXuat;
-    private javax.swing.JButton jbtLOAIKHACHHANG;
-    private javax.swing.JButton jbtLOAISANPHAM;
     private javax.swing.JButton jbtQLHD;
     private javax.swing.JButton jbtQLKH;
-    private javax.swing.JButton jbtQLKM;
-    private javax.swing.JButton jbtQLNV;
-    private javax.swing.JButton jbtQLSP;
     private javax.swing.JButton jbtTRANGCHU;
     private javax.swing.JPanel navigationPanel;
     // End of variables declaration//GEN-END:variables
