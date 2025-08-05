@@ -544,7 +544,7 @@ public final class BHpanel extends javax.swing.JPanel {
 
         jLabel11.setText("Trạng Thái Hóa Đơn:");
 
-        jcbTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất Cả", "Đã thanh toán", "Chưa thanh toán", "Đã hủy" }));
+        jcbTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất Cả", "Chưa thanh toán", "Đã hủy" }));
 
         jLabel10.setText("Thành Tiền:");
 
@@ -572,17 +572,17 @@ public final class BHpanel extends javax.swing.JPanel {
 
         tblhd.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "ID", "Thời Gian", "Khách Hàng"
+                "ID", "Thời Gian", "Khách Hàng", "Trạng Thái"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Object.class, java.lang.String.class
+                java.lang.String.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
