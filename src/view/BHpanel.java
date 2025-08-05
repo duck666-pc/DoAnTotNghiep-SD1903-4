@@ -128,29 +128,40 @@ public final class BHpanel extends javax.swing.JPanel {
         List<HoaDon> danhSachHD = bhDAO.getAllHoaDon();
         DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
         model.setRowCount(0);
+
         for (HoaDon hd : danhSachHD) {
-            String tenKH = "Khách Vãng Lai";
-            if (!"KH000".equals(hd.getIdKhachHang())) {
-                KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
-                tenKH = kh != null ? kh.getTen() : "Khách quen";
+            // Only show invoices with "Chưa Thanh Toán" (Unpaid) or "Đã Hủy" (Cancelled) status
+            if ("Chưa Thanh Toán".equals(hd.getTrangThai()) || "Đã Hủy".equals(hd.getTrangThai())) {
+                String tenKH = "Khách Vãng Lai";
+                if (!"KH000".equals(hd.getIdKhachHang())) {
+                    KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
+                    tenKH = kh != null ? kh.getTen() : "Khách quen";
+                }
+                // Add status as the 4th column
+                model.addRow(new Object[]{hd.getId(), hd.getThoiGian(), tenKH, hd.getTrangThai()});
             }
-            model.addRow(new Object[]{hd.getId(), hd.getThoiGian(), tenKH});
         }
         model.fireTableDataChanged();
     }
 
+// Replace the existing loadHoaDonByTrangThai() method with this version:
     private void loadHoaDonByTrangThai() {
         String trangThai = (String) jcbTrangThai.getSelectedItem();
         List<HoaDon> danhSachHD = bhDAO.getHoaDonByTrangThai(trangThai);
         DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
         model.setRowCount(0);
+
         for (HoaDon hd : danhSachHD) {
-            String tenKH = "Khách Vãng Lai";
-            if (!"KH000".equals(hd.getIdKhachHang())) {
-                KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
-                tenKH = kh != null ? kh.getTen() : "Khách quen";
+            // Filter to only show "Chưa Thanh Toán" (Unpaid) or "Đã Hủy" (Cancelled) status
+            if ("Chưa Thanh Toán".equals(hd.getTrangThai()) || "Đã Hủy".equals(hd.getTrangThai())) {
+                String tenKH = "Khách Vãng Lai";
+                if (!"KH000".equals(hd.getIdKhachHang())) {
+                    KhachHang kh = bhDAO.findKhachHangById(hd.getIdKhachHang());
+                    tenKH = kh != null ? kh.getTen() : "Khách quen";
+                }
+                // Add status as the 4th column
+                model.addRow(new Object[]{hd.getId(), hd.getThoiGian(), tenKH, hd.getTrangThai()});
             }
-            model.addRow(new Object[]{hd.getId(), hd.getThoiGian(), tenKH});
         }
         model.fireTableDataChanged();
     }
@@ -932,36 +943,43 @@ public final class BHpanel extends javax.swing.JPanel {
 
             HoaDon hoaDon = bhDAO.findHoaDonById(hoaDonId);
             if (hoaDon != null) {
-                DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
-                model.setRowCount(0);
+                // Only show if status is "Chưa Thanh Toán" (Unpaid) or "Đã Hủy" (Cancelled)
+                if ("Chưa Thanh Toán".equals(hoaDon.getTrangThai()) || "Đã Hủy".equals(hoaDon.getTrangThai())) {
+                    DefaultTableModel model = (DefaultTableModel) tblhd.getModel();
+                    model.setRowCount(0);
 
-                String tenKH = "Khách Vãng Lai";
-                if (!hoaDon.getIdKhachHang().equals("KH000")) {
-                    try {
-                        KhachHang kh = bhDAO.findKhachHangById(hoaDon.getIdKhachHang());
-                        if (kh != null) {
-                            tenKH = kh.getTen();
-                        } else {
+                    String tenKH = "Khách Vãng Lai";
+                    if (!hoaDon.getIdKhachHang().equals("KH000")) {
+                        try {
+                            KhachHang kh = bhDAO.findKhachHangById(hoaDon.getIdKhachHang());
+                            if (kh != null) {
+                                tenKH = kh.getTen();
+                            } else {
+                                tenKH = "Khách quen";
+                            }
+                        } catch (Exception e) {
                             tenKH = "Khách quen";
                         }
-                    } catch (Exception e) {
-                        tenKH = "Khách quen";
                     }
+
+                    // Add status as the 4th column
+                    model.addRow(new Object[]{
+                        hoaDon.getId(),
+                        hoaDon.getThoiGian(),
+                        tenKH,
+                        hoaDon.getTrangThai()
+                    });
+
+                    currentHoaDonId = hoaDonId;
+                    // Fixed: Use SwingUtilities.invokeLater for proper timing
+                    SwingUtilities.invokeLater(() -> {
+                        loadChiTietHoaDon(hoaDonId);
+                    });
+
+                    JOptionPane.showMessageDialog(this, "Tìm thấy hóa đơn!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Hóa đơn này không hiển thị (trạng thái: " + hoaDon.getTrangThai() + ")");
                 }
-
-                model.addRow(new Object[]{
-                    hoaDon.getId(),
-                    hoaDon.getThoiGian(),
-                    tenKH
-                });
-
-                currentHoaDonId = hoaDonId;
-                // Fixed: Use SwingUtilities.invokeLater for proper timing
-                SwingUtilities.invokeLater(() -> {
-                    loadChiTietHoaDon(hoaDonId);
-                });
-
-                JOptionPane.showMessageDialog(this, "Tìm thấy hóa đơn!");
             } else {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn với ID: " + hoaDonId);
             }
