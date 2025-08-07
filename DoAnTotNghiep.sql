@@ -30,7 +30,8 @@ CREATE TABLE NguoiDung (
     NgaySinh DATE,
     GioiTinh NVARCHAR(10),
     Email NVARCHAR(100),
-    ChucVu NVARCHAR(50)
+    ChucVu NVARCHAR(50),
+	TrangThai NVARCHAR(50)
 );
 
 -- 4. Tạo bảng Loại sản phẩm
@@ -105,39 +106,6 @@ CREATE TABLE ChiTietHoaDon (
         REFERENCES SanPham(ID)
 );
 
--- 10. Tạo bảng Nguyên vật liệu
-CREATE TABLE NguyenVatLieu (
-    ID NVARCHAR(10) PRIMARY KEY,
-    Ten NVARCHAR(100),
-    DonVi NVARCHAR(50),
-    SoLuongCoSan INT,
-    MucCanDatThem INT
-);
-
--- 11. Tạo bảng Nguyên vật liệu sản phẩm
-CREATE TABLE NguyenVatLieuSanPham (
-    ID NVARCHAR(10) PRIMARY KEY,
-    SanPhamID NVARCHAR(10),
-    NguyenVatLieuID NVARCHAR(10),
-    SoLuongCan INT,
-    CONSTRAINT FKNguyenVatLieuSanPhamSanPham FOREIGN KEY (SanPhamID)
-        REFERENCES SanPham(ID),
-    CONSTRAINT FKNguyenVatLieuSanPhamNguyenVatLieu FOREIGN KEY (NguyenVatLieuID)
-        REFERENCES NguyenVatLieu(ID)
-);
-
--- 12. Tạo bảng Giao dịch tại kho
-CREATE TABLE GiaoDichTaiKho (
-    ID NVARCHAR(10) PRIMARY KEY,
-    NguyenVatLieuID NVARCHAR(10),
-    ThoiGian DATETIME,
-    LoaiGiaoDich NVARCHAR(50),
-    SoLuongNhapXuat INT,
-    GhiChu NVARCHAR(255),
-    CONSTRAINT FKGiaoDichTaiKhoNguyenVatLieu FOREIGN KEY (NguyenVatLieuID)
-        REFERENCES NguyenVatLieu(ID)
-);
-
 -- Thêm dữ liệu
 INSERT INTO HangKhachHang (ID, Ten, MucGiamGia) VALUES
 (N'HC001', N'Đồng', 1.00),
@@ -159,17 +127,17 @@ INSERT INTO KhachHang (ID, Ten, DienThoai, DiaChi, HangKhachHangID) VALUES
 (N'KH009', N'Bùi Hoàng Nam', N'0976543210', N'Huế', N'HC001'),
 (N'KH010', N'Ngô Thị Mai', N'0887654321', N'An Giang', N'HC004');
 
-INSERT INTO NguoiDung (ID, MatKhau, TenDayDu, NgaySinh, GioiTinh, Email, ChucVu) VALUES
-(N'ND001', N'pass123', N'Nguyễn Thanh Tùng', '1985-05-10', N'Nam', N'tungnt@example.com', N'Nhân viên'),
-(N'ND002', N'abc123', N'Trần Thị Hương', '1990-08-20', N'Nữ', N'huongtt@example.com', N'Nhân viên'),
-(N'ND003', N'qwerty', N'Lê Văn Minh', '1982-03-15', N'Nam', N'minhlv@example.com', N'Nhân viên'),
-(N'ND004', N'123456', N'Phạm Quốc Dũng', '1979-12-01', N'Nam', N'dungpq@example.com', N'Nhân viên'),
-(N'ND005', N'password', N'Đỗ Thị Yến', '1995-07-07', N'Nữ', N'yendt@example.com', N'Nhân viên'),
-(N'ND006', N'nguyenvan', N'Hoàng Văn Lâm', '1988-11-11', N'Nam', N'lamhv@example.com', N'Nhân viên'),
-(N'ND007', N'truong123', N'Vũ Ngọc Hà', '1992-06-30', N'Nữ', N'hava@example.com', N'Nhân viên'),
-(N'ND008', N'hatuyet', N'Đặng Văn Đức', '1980-09-09', N'Nam', N'ducdv@example.com', N'Nhân viên'),
-(N'ND009', N'lanhoe', N'Bùi Thị Lan', '1986-02-25', N'Nữ', N'lanbt@example.com', N'Nhân viên'),
-(N'ND010', N'anhc123', N'Ngô Quốc Huy', '1994-04-18', N'Nam', N'huyqn@example.com', N'Quản lý');
+INSERT INTO NguoiDung (ID, MatKhau, TenDayDu, NgaySinh, GioiTinh, Email, ChucVu, TrangThai) VALUES
+(N'ND001', N'pass123', N'Nguyễn Thanh Tùng', '1985-05-10', N'Nam', N'tungnt@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND002', N'abc123', N'Trần Thị Hương', '1990-08-20', N'Nữ', N'huongtt@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND003', N'qwerty', N'Lê Văn Minh', '1982-03-15', N'Nam', N'minhlv@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND004', N'123456', N'Phạm Quốc Dũng', '1979-12-01', N'Nam', N'dungpq@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND005', N'password', N'Đỗ Thị Yến', '1995-07-07', N'Nữ', N'yendt@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND006', N'nguyenvan', N'Hoàng Văn Lâm', '1988-11-11', N'Nam', N'lamhv@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND007', N'truong123', N'Vũ Ngọc Hà', '1992-06-30', N'Nữ', N'hava@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND008', N'hatuyet', N'Đặng Văn Đức', '1980-09-09', N'Nam', N'ducdv@example.com', N'Nhân viên', N'Đang làm việc'),
+(N'ND009', N'lanhoe', N'Bùi Thị Lan', '1986-02-25', N'Nữ', N'lanbt@example.com', N'Nhân viên', N'Đã nghỉ việc'),
+(N'ND010', N'anhc123', N'Ngô Quốc Huy', '1994-04-18', N'Nam', N'huyqn@example.com', N'Quản lý', N'Đang làm việc');
 
 INSERT INTO LoaiSanPham (ID, Ten, MoTa) VALUES
 (N'001-Đồ uống', N'Đồ uống', N'Các loại nước uống giải khát'),
@@ -242,42 +210,6 @@ INSERT INTO ChiTietHoaDon (ID, SoSanPhamThanhToan, HoaDonID, SanPhamID, GiaBanMo
 (N'CT008', 2, N'HD008', N'SP008', 15000.00),
 (N'CT009', 1, N'HD009', N'SP009', 50000.00),
 (N'CT010', 4, N'HD010', N'SP010', 35000.00);
-
-INSERT INTO NguyenVatLieu (ID, Ten, DonVi, SoLuongCoSan, MucCanDatThem) VALUES
-(N'NVL001', N'Đường', N'kg', 100, 20),
-(N'NVL002', N'Muối', N'kg', 200, 10),
-(N'NVL003', N'Bột mì', N'kg', 150, 30),
-(N'NVL004', N'Gạo', N'kg', 300, 50),
-(N'NVL005', N'Thịt bò', N'kg',  50, 10),
-(N'NVL006', N'Thịt gà', N'kg',  80, 20),
-(N'NVL007', N'Rau cải', N'kg', 120, 15),
-(N'NVL008', N'Trà', N'gói', 500, 100),
-(N'NVL009', N'Cà phê', N'gói', 400, 50),
-(N'NVL010', N'Sữa', N'lít', 200, 30);
-
-INSERT INTO NguyenVatLieuSanPham (ID, SanPhamID, NguyenVatLieuID, SoLuongCan) VALUES
-(N'NVS001', N'SP001', N'NVL001', 44),
-(N'NVS002', N'SP002', N'NVL002', 48),
-(N'NVS003', N'SP003', N'NVL003', 39),
-(N'NVS004', N'SP004', N'NVL004', 43),
-(N'NVS005', N'SP005', N'NVL005', 31),
-(N'NVS006', N'SP006', N'NVL006', 78),
-(N'NVS007', N'SP007', N'NVL007', 44),
-(N'NVS008', N'SP008', N'NVL008', 90),
-(N'NVS009', N'SP009', N'NVL009', 11),
-(N'NVS010', N'SP010', N'NVL010', 67);
-
-INSERT INTO GiaoDichTaiKho (ID, NguyenVatLieuID, ThoiGian, LoaiGiaoDich, SoLuongNhapXuat, GhiChu) VALUES
-(N'GD001', N'NVL001', '2025-06-01', N'Nhập', 10, N'Nhập hàng'),
-(N'GD002', N'NVL002', '2025-06-02', N'Xuất', 15, N'Nhập hàng'),
-(N'GD003', N'NVL003', '2025-06-03', N'Nhập', 30, N'Nhập hàng'),
-(N'GD004', N'NVL004', '2025-06-04', N'Xuất', 25, N'Nhập hàng'),
-(N'GD005', N'NVL005', '2025-06-05', N'Nhập', 50, N'Nhập hàng'),
-(N'GD006', N'NVL006', '2025-06-06', N'Xuất', 35, N'Nhập hàng'),
-(N'GD007', N'NVL007', '2025-06-07', N'Nhập', 70, N'Nhập hàng'),
-(N'GD008', N'NVL008', '2025-06-08', N'Xuất', 45, N'Nhập hàng'),
-(N'GD009', N'NVL009', '2025-06-09', N'Nhập', 90, N'Nhập hàng'),
-(N'GD010', N'NVL010', '2025-06-10', N'Xuất', 55, N'Nhập hàng');
 
 --Muốn xóa database thì chạy khối này
 USE master;

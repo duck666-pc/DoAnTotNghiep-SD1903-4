@@ -15,7 +15,8 @@ public class NhanVien {
     private Date ngaySinh;
     private String gioiTinh;
     private String email;
-    private String chucVu; 
+    private String chucVu;
+    private String trangThai;    
     
     @Override
     public String toString() {
@@ -25,7 +26,8 @@ public class NhanVien {
                 ", ngaySinh=" + ngaySinh +
                 ", gioiTinh=" + gioiTinh +
                 ", chucVu=" + chucVu +                
-                ", email='" + email + '\'' +
+                ", email='" + email +
+                ", trangThai='" + trangThai + '\'' +
                 '}';
     }
 }

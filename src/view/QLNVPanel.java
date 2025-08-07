@@ -234,13 +234,13 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Mật khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ"
+                "ID", "Mật khẩu", "Tên", "Ngày sinh", "Giới tính", "Email", "Chức vụ", "Trạng thái"
             }
         ));
         jTable.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -273,7 +273,7 @@ public final class QLNVPanel extends BasePanel<NhanVien> {
         jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
         jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jbtXoa.setForeground(new java.awt.Color(255, 255, 255));
-        jbtXoa.setText("Xóa");
+        jbtXoa.setText("Đuổi việc");
         jbtXoa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtXoaActionPerformed(evt);
