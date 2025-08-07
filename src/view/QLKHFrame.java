@@ -33,15 +33,12 @@ public class QLKHFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         jbtThem = new javax.swing.JButton();
-        jbtSua = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jbtXoa = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         txtTimKiem = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jbtTimKiem = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        jbtLamMoi = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,27 +85,7 @@ public class QLKHFrame extends javax.swing.JFrame {
             }
         });
 
-        jbtSua.setBackground(new java.awt.Color(41, 62, 80));
-        jbtSua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jbtSua.setForeground(new java.awt.Color(255, 255, 255));
-        jbtSua.setText("Sửa");
-        jbtSua.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtSuaActionPerformed(evt);
-            }
-        });
-
         jLabel2.setText("Tên:");
-
-        jbtXoa.setBackground(new java.awt.Color(41, 62, 80));
-        jbtXoa.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jbtXoa.setForeground(new java.awt.Color(255, 255, 255));
-        jbtXoa.setText("Xóa");
-        jbtXoa.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtXoaActionPerformed(evt);
-            }
-        });
 
         jLabel3.setText("Hạng Khách Hàng:");
 
@@ -131,16 +108,6 @@ public class QLKHFrame extends javax.swing.JFrame {
         });
 
         jLabel6.setText("Điện thoại:");
-
-        jbtLamMoi.setBackground(new java.awt.Color(41, 62, 80));
-        jbtLamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jbtLamMoi.setForeground(new java.awt.Color(255, 255, 255));
-        jbtLamMoi.setText("Làm mới");
-        jbtLamMoi.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtLamMoiActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -168,10 +135,7 @@ public class QLKHFrame extends javax.swing.JFrame {
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
                         .addComponent(jcbHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jbtThem, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbtSua, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbtXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbtLamMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jbtThem, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
@@ -213,15 +177,9 @@ public class QLKHFrame extends javax.swing.JFrame {
                                 .addComponent(jLabel3))
                             .addComponent(jcbHangKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addComponent(jbtThem)
-                        .addGap(6, 6, 6)
-                        .addComponent(jbtSua)
-                        .addGap(6, 6, 6)
-                        .addComponent(jbtXoa)
-                        .addGap(6, 6, 6)
-                        .addComponent(jbtLamMoi))
+                        .addComponent(jbtThem))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -243,14 +201,6 @@ public class QLKHFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jbtThemActionPerformed
 
-    private void jbtSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSuaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jbtSuaActionPerformed
-
-    private void jbtXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtXoaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jbtXoaActionPerformed
-
     private void txtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimKiemActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTimKiemActionPerformed
@@ -258,10 +208,6 @@ public class QLKHFrame extends javax.swing.JFrame {
     private void jbtTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTimKiemActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jbtTimKiemActionPerformed
-
-    private void jbtLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtLamMoiActionPerformed
-
-    }//GEN-LAST:event_jbtLamMoiActionPerformed
 
     /**
      * @param args the command line arguments
@@ -305,11 +251,8 @@ public class QLKHFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable;
-    private javax.swing.JButton jbtLamMoi;
-    private javax.swing.JButton jbtSua;
     private javax.swing.JButton jbtThem;
     private javax.swing.JButton jbtTimKiem;
-    private javax.swing.JButton jbtXoa;
     private javax.swing.JComboBox<String> jcbHangKhachHang;
     private javax.swing.JTextField txtDiaChi;
     private javax.swing.JTextField txtDienThoai;
