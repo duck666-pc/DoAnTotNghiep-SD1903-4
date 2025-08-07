@@ -4,17 +4,67 @@
  */
 package view;
 
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author minhd
  */
-public class QLKHFrame extends javax.swing.JFrame {
+public final class QLKHFrame extends javax.swing.JFrame {
+// Add these methods to QLKHFrame.java class (after the existing constructor)
 
     /**
-     * Creates new form QLKHFrame
+     * Sets the phone number field with the provided value
+     *
+     * @param phoneNumber The phone number to pre-fill
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+            txtDienThoai.setText(phoneNumber.trim());
+            // Optional: Focus on the name field since phone is already filled
+            txtTen.requestFocus();
+        }
+    }
+
+    /**
+     * Default constructor - keep this to maintain compatibility with existing
+     * code
      */
     public QLKHFrame() {
         initComponents();
+    }
+
+    /**
+     * Constructor that accepts a phone number to pre-fill
+     *
+     * @param phoneNumber The phone number to pre-fill in the form
+     */
+    public QLKHFrame(String phoneNumber) {
+        initComponents();
+        setPhoneNumber(phoneNumber);
+        // Set window title to indicate new customer creation
+        setTitle("Thêm Khách Hàng Mới - SĐT: " + phoneNumber);
+    }
+
+// Add this method to get the phone number (useful for validation or other operations)
+    public String getPhoneNumber() {
+        return txtDienThoai.getText().trim();
+    }
+
+// Optional: Add method to clear all fields
+    public void clearAllFields() {
+        txtTen.setText("");
+        txtDienThoai.setText("");
+        txtDiaChi.setText("");
+        jcbHangKhachHang.setSelectedIndex(0);
+    }
+
+// Optional: Add method to set focus on name field after phone is pre-filled
+    private void focusOnNameField() {
+        SwingUtilities.invokeLater(() -> {
+            txtTen.requestFocus();
+            txtTen.selectAll();
+        });
     }
 
     /**

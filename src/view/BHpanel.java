@@ -187,13 +187,56 @@ public final class BHpanel extends javax.swing.JPanel {
     private void timKhachHangTheoSDT() {
         String sdt = txtSDT.getText().trim();
         if (!sdt.isEmpty()) {
-            khachHangHienTai = bhDAO.findKhachHangBySDT(sdt);
-            if (khachHangHienTai == null) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng với số điện thoại này.");
+            // Validate phone number format (basic validation)
+            if (isValidPhoneFormat(sdt)) {
+                khachHangHienTai = bhDAO.findKhachHangBySDT(sdt);
+                if (khachHangHienTai == null) {
+                    // Show dialog asking if user wants to create new customer
+                    int option = JOptionPane.showConfirmDialog(this,
+                            "Không tìm thấy khách hàng với số điện thoại này.\n"
+                            + "Bạn có muốn tạo khách hàng mới không?",
+                            "Khách hàng không tồn tại",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+
+                    if (option == JOptionPane.YES_OPTION) {
+                        // Open QLKHFrame with pre-filled phone number
+                        openQLKHFrameWithPhone(sdt);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Tìm thấy khách hàng: " + khachHangHienTai.getTen());
+                }
             } else {
-                JOptionPane.showMessageDialog(this, "Tìm thấy khách hàng: " + khachHangHienTai.getTen());
+                JOptionPane.showMessageDialog(this,
+                        "Định dạng số điện thoại không hợp lệ!\n"
+                        + "Vui lòng nhập số điện thoại có 10-11 chữ số.",
+                        "Lỗi định dạng",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+// Add this helper method to validate phone number format
+    private boolean isValidPhoneFormat(String phoneNumber) {
+        // Remove any spaces or special characters for validation
+        String cleanPhone = phoneNumber.replaceAll("[\\s\\-\\(\\)]", "");
+
+        // Check if it contains only digits and has valid length (10-11 digits for Vietnamese phones)
+        return cleanPhone.matches("\\d{10,11}");
+    }
+
+// Add this method to open QLKHFrame with pre-filled phone number
+    private void openQLKHFrameWithPhone(String phoneNumber) {
+        SwingUtilities.invokeLater(() -> {
+            QLKHFrame qlkhFrame = new QLKHFrame();
+            // Set the phone number in the frame
+            qlkhFrame.setPhoneNumber(phoneNumber);
+            qlkhFrame.setVisible(true);
+            // Optional: make it always on top temporarily
+            qlkhFrame.setAlwaysOnTop(true);
+            qlkhFrame.toFront();
+            qlkhFrame.requestFocus();
+        });
     }
 
     private void capNhatKhuyenMai() {
