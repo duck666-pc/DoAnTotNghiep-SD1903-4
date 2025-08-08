@@ -214,7 +214,6 @@ public class QLKMDAO {
     public Object[] getRow(KhuyenMai km) {
         return new Object[]{
             km.getId(),
-            km.getChiTietid(),
             km.getTen(),
             km.getMoTa(),
             km.getSoLuong(),

@@ -25,6 +25,19 @@ public class QLNVDAO extends BaseDAO<NhanVien> {
         return "ID";
     }
 
+    public int terminateEmployee(String id) throws SQLException, ClassNotFoundException {
+        String sql = "UPDATE NGUOIDUNG SET TRANGTHAI = ? WHERE ID = ?";
+
+        // Create new connection using MyConnection class (same pattern as BaseDAO)
+        MyConnection myConn = new MyConnection();
+        try (java.sql.Connection con = myConn.DBConnect(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, "Đã nghỉ việc");
+            ps.setString(2, id);
+            return ps.executeUpdate();
+        }
+    }
+
     @Override
     protected NhanVien mapResultSetToObject(ResultSet rs) throws SQLException {
         NhanVien nv = new NhanVien();
@@ -35,13 +48,14 @@ public class QLNVDAO extends BaseDAO<NhanVien> {
         nv.setGioiTinh(rs.getString("GIOITINH"));
         nv.setEmail(rs.getString("EMAIL"));
         nv.setChucVu(rs.getString("CHUCVU"));
+        nv.setTrangThai(rs.getString("TRANGTHAI"));
         return nv;
     }
 
     @Override
     protected String getInsertQuery() {
-        return "INSERT INTO NGUOIDUNG (ID, MATKHAU, TENDAYDU, NGAYSINH, GIOITINH, EMAIL, CHUCVU) "
-             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        return "INSERT INTO NGUOIDUNG (ID, MATKHAU, TENDAYDU, NGAYSINH, GIOITINH, EMAIL, CHUCVU, TRANGTHAI) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -53,19 +67,20 @@ public class QLNVDAO extends BaseDAO<NhanVien> {
         ps.setString(5, nv.getGioiTinh());
         ps.setString(6, nv.getEmail());
         ps.setString(7, nv.getChucVu());
+        ps.setString(8, "Đang làm việc");
     }
 
     @Override
     protected String getUpdateQuery() {
         return "UPDATE NGUOIDUNG SET "
-             + "ID = ?, "
-             + "MATKHAU = ?, "
-             + "TENDAYDU = ?, "
-             + "NGAYSINH = ?, "
-             + "GIOITINH = ?, "
-             + "EMAIL = ?, "
-             + "CHUCVU = ? "
-             + "WHERE ID = ?";
+                + "ID = ?, "
+                + "MATKHAU = ?, "
+                + "TENDAYDU = ?, "
+                + "NGAYSINH = ?, "
+                + "GIOITINH = ?, "
+                + "EMAIL = ?, "
+                + "CHUCVU = ? "
+                + "WHERE ID = ?";
     }
 
     @Override
@@ -78,10 +93,12 @@ public class QLNVDAO extends BaseDAO<NhanVien> {
         ps.setString(6, nv.getEmail());
         ps.setString(7, nv.getChucVu());
     }
+    
+    
 
     @Override
     protected int getUpdateWhereIndex() {
-        return 8; 
+        return 9;
     }
 
     public Object[] getRow(NhanVien nv) {
@@ -92,7 +109,8 @@ public class QLNVDAO extends BaseDAO<NhanVien> {
             nv.getNgaySinh(),
             nv.getGioiTinh(),
             nv.getEmail(),
-            nv.getChucVu()
+            nv.getChucVu(),
+            nv.getTrangThai()
         };
     }
 }

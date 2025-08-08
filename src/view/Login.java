@@ -12,8 +12,6 @@ import model.NhanVien;
 
 public class Login extends javax.swing.JFrame {
 
-
-
     /**
      * Creates new form Login
      */
@@ -168,7 +166,7 @@ public class Login extends javax.swing.JFrame {
             txtEmail.requestFocus();
             return;
         }
-        
+
         if (matKhau.isEmpty()) {
             showErrorMessage("Vui lòng nhập mật khẩu!");
             txtMatKhau.requestFocus();
@@ -177,7 +175,7 @@ public class Login extends javax.swing.JFrame {
 
         try {
             NhanVien authenticatedUser = authenticateUser(email, matKhau);
-            
+
             if (authenticatedUser != null) {
                 // Kiểm tra vai trò của người dùng và mở trang tương ứng
                 if (isManager(authenticatedUser)) {
@@ -192,7 +190,7 @@ public class Login extends javax.swing.JFrame {
                 showErrorMessage("Sai ID hoặc mật khẩu!");
                 clearFields();
             }
-            
+
         } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
             showErrorMessage("Lỗi hệ thống khi đăng nhập!");
@@ -208,49 +206,51 @@ public class Login extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jbtQuenMatKhauActionPerformed
 
-    
     private NhanVien authenticateUser(String email, String matKhau) throws SQLException, ClassNotFoundException {
         for (NhanVien n : qlnv.getAll()) {
             if (matKhau.equals(n.getMatKhau()) && email.equals(n.getEmail())) {
+                if ("Đã nghỉ việc".equals(n.getTrangThai())) {
+                    showErrorMessage("Tài khoản này đã bị khóa do nhân viên đã được cho nghỉ việc!\nVui lòng liên hệ quản lý để biết thêm thông tin.");
+                    return null;
+                }
                 return n;
-            } else {
             }
         }
         return null;
     }
-    
+
     /**
      * Kiểm tra xem người dùng có phải là quản lý hay không
+     *
      * @param nhanVien đối tượng nhân viên cần kiểm tra
      * @return true nếu là quản lý, false nếu là nhân viên
      */
     private boolean isManager(NhanVien nhanVien) {
         try {
             String chucVu = nhanVien.getChucVu();
-            return "Quản lý".equalsIgnoreCase(chucVu) || 
-                   "Manager".equalsIgnoreCase(chucVu) || 
-                   "Admin".equalsIgnoreCase(chucVu);
+            return "Quản lý".equalsIgnoreCase(chucVu)
+                    || "Manager".equalsIgnoreCase(chucVu)
+                    || "Admin".equalsIgnoreCase(chucVu);
         } catch (Exception e) {
             String email = nhanVien.getEmail();
-            return email.contains("manager") || 
-                   email.contains("admin") || 
-                   email.contains("ql");
+            return email.contains("manager")
+                    || email.contains("admin")
+                    || email.contains("ql");
         }
     }
-    
+
     private void showErrorMessage(String message) {
         javax.swing.JOptionPane.showMessageDialog(this,
                 message,
                 "Thông báo",
                 javax.swing.JOptionPane.WARNING_MESSAGE);
     }
-    
+
     private void clearFields() {
         txtMatKhau.setText("");
         txtEmail.requestFocus();
     }
 
-    
     /**
      * @param args the command line arguments
      */
