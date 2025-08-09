@@ -233,6 +233,31 @@ public class QLKMDAO {
         };
     }
 
+    public ChiTietKhuyenMai getCTKMByKMId(String khuyenMaiId) throws SQLException, ClassNotFoundException {
+        String sql = "SELECT ctkm.* FROM ChiTietKhuyenMai ctkm "
+                + "INNER JOIN KhuyenMai km ON ctkm.ID = km.ChiTietKhuyenMaiID "
+                + "WHERE km.ID = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, khuyenMaiId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    ChiTietKhuyenMai ctkm = new ChiTietKhuyenMai();
+                    ctkm.setId(rs.getString("ID"));
+                    ctkm.setHinhThucGiam(rs.getString("HinhThucGiam"));
+                    ctkm.setSoTienGiamGia(rs.getFloat("SoTienGiamGia"));
+                    ctkm.setSanPhamid(rs.getString("SanPhamID"));
+                    ctkm.setMucGiamGia(rs.getFloat("MucGiamGia"));
+                    ctkm.setQuaTang(rs.getString("QuaTang"));
+                    return ctkm;
+                }
+            }
+        }
+
+        return null;
+    }
+
     // Test connection method
     public boolean testConnection() {
         try {

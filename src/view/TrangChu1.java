@@ -278,7 +278,9 @@ public class TrangChu1 extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtDOANHTHUActionPerformed
 
     private void jbtTRANGCHUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTRANGCHUActionPerformed
-
+    jPanel.removeAll();
+    jPanel.revalidate();
+    jPanel.repaint();
     }//GEN-LAST:event_jbtTRANGCHUActionPerformed
 
     private void jbtBANHANGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtBANHANGActionPerformed

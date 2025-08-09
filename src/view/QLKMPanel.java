@@ -69,13 +69,16 @@ public final class QLKMPanel extends javax.swing.JPanel {
         jTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 loadSelectedRowData();
+                loadChiTietKhuyenMaiForSelectedPromotion(); // Load chi tiết khuyến mãi cho khuyến mãi được chọn
             }
         });
     }
     
     public void loadData() {
         loadKhuyenMaiData();
-        loadChiTietKhuyenMaiData();
+        // Clear jTable2 when loading all data
+        DefaultTableModel model2 = (DefaultTableModel) jTable2.getModel();
+        model2.setRowCount(0);
     }
     
     private void loadKhuyenMaiData() {
@@ -103,6 +106,37 @@ public final class QLKMPanel extends javax.swing.JPanel {
             }
         } catch (SQLException | ClassNotFoundException e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu chi tiết khuyến mãi: " + e.getMessage());
+        }
+    }
+    
+    // Phương thức mới để load chi tiết khuyến mãi cho khuyến mãi được chọn
+    private void loadChiTietKhuyenMaiForSelectedPromotion() {
+        int selectedRow = jTable.getSelectedRow();
+        if (selectedRow == -1) {
+            // Nếu không có khuyến mãi nào được chọn, xóa hết dữ liệu trong jTable2
+            DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+            model.setRowCount(0);
+            return;
+        }
+        
+        try {
+            // Lấy ChiTietKhuyenMaiID từ khuyến mãi được chọn
+            String selectedKMId = (String) jTable.getValueAt(selectedRow, 0);
+            KhuyenMai selectedKM = dao.getKMById(selectedKMId);
+            
+            if (selectedKM != null) {
+                String ctkmId = selectedKM.getChiTietid();
+                ChiTietKhuyenMai ctkm = dao.getCTKMById(ctkmId);
+                
+                DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                model.setRowCount(0);
+                
+                if (ctkm != null) {
+                    model.addRow(dao.getRow(ctkm));
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết khuyến mãi: " + e.getMessage());
         }
     }
     
@@ -160,7 +194,8 @@ public final class QLKMPanel extends javax.swing.JPanel {
         
         try {
             String oldKMId = (String) jTable.getValueAt(selectedRow, 0);
-            String oldCTKMId = (String) jTable.getValueAt(selectedRow, 1);
+            KhuyenMai selectedKM = dao.getKMById(oldKMId);
+            String oldCTKMId = selectedKM.getChiTietid();
             
             // Update ChiTietKhuyenMai
             ChiTietKhuyenMai ctkm = createChiTietKhuyenMaiFromInput(oldCTKMId);
@@ -201,7 +236,8 @@ public final class QLKMPanel extends javax.swing.JPanel {
         
         try {
             String kmId = (String) jTable.getValueAt(selectedRow, 0);
-            String ctkmId = (String) jTable.getValueAt(selectedRow, 1);
+            KhuyenMai selectedKM = dao.getKMById(kmId);
+            String ctkmId = selectedKM.getChiTietid();
             
             // Delete KhuyenMai first
             int kmResult = dao.deleteKM(kmId);
@@ -231,31 +267,33 @@ public final class QLKMPanel extends javax.swing.JPanel {
         
         try {
             String kmId = (String) jTable.getValueAt(selectedRow, 0);
-            String ctkmId = (String) jTable.getValueAt(selectedRow, 1);
-            
             KhuyenMai km = dao.getKMById(kmId);
-            ChiTietKhuyenMai ctkm = dao.getCTKMById(ctkmId);
             
-            if (km != null && ctkm != null) {
-                txtDiaChi.setText(km.getTen());
-                txtHangKhachHang.setText(km.getMoTa());
-                txtHangKhachHang1.setText(String.valueOf(km.getSoLuong()));
+            if (km != null) {
+                String ctkmId = km.getChiTietid();
+                ChiTietKhuyenMai ctkm = dao.getCTKMById(ctkmId);
                 
-                // Set dates
-                setDateToComponents(km.getThoiGianApDung(), jcbNgaySinh, jcbThangSinh, jcbNamSinh);
-                setDateToComponents(km.getThoiGianKetThuc(), jcbNgaySinh1, jcbThangSinh1, jcbNamSinh1);
-                
-                // Set discount type and related fields
-                jcbNgaySinh3.setSelectedItem(ctkm.getHinhThucGiam());
-                jcbNgaySinh2.setSelectedItem(ctkm.getQuaTang());
-                
-                if (ctkm.getHinhThucGiam().equals("Phần trăm")) {
-                    txtChange.setText(String.valueOf(ctkm.getMucGiamGia()));
-                } else if (ctkm.getHinhThucGiam().equals("Theo tiền")) {
-                    txtChange.setText(String.valueOf(ctkm.getSoTienGiamGia()));
+                if (ctkm != null) {
+                    txtDiaChi.setText(km.getTen());
+                    txtHangKhachHang.setText(km.getMoTa());
+                    txtHangKhachHang1.setText(String.valueOf(km.getSoLuong()));
+                    
+                    // Set dates
+                    setDateToComponents(km.getThoiGianApDung(), jcbNgaySinh, jcbThangSinh, jcbNamSinh);
+                    setDateToComponents(km.getThoiGianKetThuc(), jcbNgaySinh1, jcbThangSinh1, jcbNamSinh1);
+                    
+                    // Set discount type and related fields
+                    jcbNgaySinh3.setSelectedItem(ctkm.getHinhThucGiam());
+                    jcbNgaySinh2.setSelectedItem(ctkm.getQuaTang());
+                    
+                    if (ctkm.getHinhThucGiam().equals("Phần trăm")) {
+                        txtChange.setText(String.valueOf(ctkm.getMucGiamGia()));
+                    } else if (ctkm.getHinhThucGiam().equals("Theo tiền")) {
+                        txtChange.setText(String.valueOf(ctkm.getSoTienGiamGia()));
+                    }
+                    
+                    selectedProductId = ctkm.getSanPhamid();
                 }
-                
-                selectedProductId = ctkm.getSanPhamid();
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + e.getMessage());
@@ -446,6 +484,11 @@ public final class QLKMPanel extends javax.swing.JPanel {
                     model.addRow(dao.getRow(km));
                 }
             }
+            
+            // Clear jTable2 when searching
+            DefaultTableModel model2 = (DefaultTableModel) jTable2.getModel();
+            model2.setRowCount(0);
+            
         } catch (SQLException | ClassNotFoundException e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm: " + e.getMessage());
         }
